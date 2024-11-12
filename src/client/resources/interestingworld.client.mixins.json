@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.yang.interestingworld.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ForSecondItemBar",
+    "ForTooltip",
+    "OrderedForTextToolTipAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

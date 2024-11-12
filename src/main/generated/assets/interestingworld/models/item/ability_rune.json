@@ -1,0 +1,26 @@
+{
+  "parent": "minecraft:item/generated",
+  "overrides": [
+    {
+      "model": "interestingworld:item/sweeping_ability_rune",
+      "predicate": {
+        "custom_model_data": 1
+      }
+    },
+    {
+      "model": "interestingworld:item/slashing_ability_rune",
+      "predicate": {
+        "custom_model_data": 2
+      }
+    },
+    {
+      "model": "interestingworld:item/infiniteslashing_ability_rune",
+      "predicate": {
+        "custom_model_data": 3
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "interestingworld:item/rune"
+  }
+}

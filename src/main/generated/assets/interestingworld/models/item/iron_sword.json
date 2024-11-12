@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/handheld",
+  "overrides": [
+    {
+      "model": "interestingworld:item/iron_sword_slashing",
+      "predicate": {
+        "custom_model_data": 2
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "minecraft:item/iron_sword"
+  }
+}

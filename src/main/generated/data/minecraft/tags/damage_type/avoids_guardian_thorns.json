@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "interestingworld:energe_melee",
+      "required": false
+    },
+    {
+      "id": "interestingworld:blood_effect",
+      "required": false
+    }
+  ]
+}
