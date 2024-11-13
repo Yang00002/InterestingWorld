@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Debug(export = true)
 @Mixin(LivingEntity.class)
-public abstract class ForDamage extends Entity implements Attackable
+public abstract class MixinLivingEntity extends Entity implements Attackable
 {
     @Shadow
     protected float lastDamageTaken;
@@ -33,7 +33,7 @@ public abstract class ForDamage extends Entity implements Attackable
     @Unique
     private float lastDamageTakenCache = 0;
 
-    public ForDamage(EntityType<?> type, World world)
+    public MixinLivingEntity(EntityType<?> type, World world)
     {
         super(type, world);
     }

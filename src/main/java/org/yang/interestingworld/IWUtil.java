@@ -45,6 +45,8 @@ import org.yang.interestingworld.item.rune.AbilityRuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.network.IWNetwork;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
+import org.yang.interestingworld.playerenergymanager.PlayerEnergyAccessor;
+import org.yang.interestingworld.playerenergymanager.PlayerEnergyManager;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
 
@@ -264,6 +266,11 @@ public class IWUtil
 	public static class EnergyTool
 	{
 
+		public static PlayerEnergyManager getPlayerEnergy(PlayerEntity player)
+		{
+			return ((PlayerEnergyAccessor) player).getEnergyManager();
+		}
+
 		// base + div, base - div, div, -div
 
 		public interface DistancedEntityAttacker
@@ -322,7 +329,9 @@ public class IWUtil
 		 */
 		public static void insertEnergy(ItemStack stack, Entity entity, float amount, float cur, float max)
 		{
-			stack.set(IWComponents.CURRENT_ENERGY, Math.min(cur + amount, max));
+			float s = Math.min(cur + amount, max);
+			if (s + 0.001 > max) stack.set(IWComponents.CURRENT_ENERGY, max);
+			else stack.set(IWComponents.CURRENT_ENERGY, s);
 		}
 
 		/**
@@ -345,7 +354,8 @@ public class IWUtil
 			{
 				var level = stack.getEnchantments()
 						.getLevel(Registry.getEnchantmentEntry(entity.getWorld(), Enchantments.UNBREAKING));
-				amount *= 3.0f / (3 + level);
+				if (level >= 10) return true;
+				amount *= 1.0f - 0.1f * level;
 			}
 			if (cur >= amount)
 			{
@@ -372,7 +382,8 @@ public class IWUtil
 			{
 				var level = stack.getEnchantments()
 						.getLevel(Registry.getEnchantmentEntry(entity.getWorld(), Enchantments.UNBREAKING));
-				amount *= 3.0f / (3 + level);
+				if (level >= 10) return true;
+				amount *= 1.0f - 0.1f * level;
 			}
 			return cur >= amount;
 		}

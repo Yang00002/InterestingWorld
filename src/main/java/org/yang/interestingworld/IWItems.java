@@ -25,7 +25,6 @@ public class IWItems
 {
 	public static Item STICK = null;
 	public static Item BLOOD_SWORD = null;
-	public static Item WOODEN_SWORD = null;
 	public static Item STONE_SWORD = null;
 	public static Item IRON_SWORD = null;
 	public static Item GOLDEN_SWORD = null;
@@ -36,21 +35,19 @@ public class IWItems
 
 	public static void initialize()
 	{
-		STICK = EnergyToolItemBuilder.getInstance().setEnergy(50, 0).setRegen(1, 50).setBaseAttackDamage(3)
+		STICK = EnergyToolItemBuilder.getInstance().setEnergy(5, 0).setRegen(1, 50).setBaseAttackDamage(3)
 				.build("energy_stick", EnergyToolItem::new);
-		BLOOD_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(100, 0).setRegen(1, 40).setBaseAttackDamage(4.5)
+		BLOOD_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(10, 0).setRegen(1, 40).setBaseAttackDamage(4.5)
 				.setBaseAttackSpeed(1.8).setEntityInteractionRangeAdding(-0.25).build("blood_sword", EnergySword::new);
-		WOODEN_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(50, 0).setRegen(1, 45).setBaseAttackDamage(4)
-				.setBaseAttackSpeed(1.6).build("wooden_sword", EnergySword::new);
-		STONE_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(100, 0).setRegen(1, 40).setBaseAttackDamage(5)
+		STONE_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(10, 0).setRegen(1, 40).setBaseAttackDamage(5)
 				.setBaseAttackSpeed(1.6).build("stone_sword", EnergySword::new);
-		IRON_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(250, 0).setRegen(1, 30).setBaseAttackDamage(6)
+		IRON_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(20, 0).setRegen(1, 30).setBaseAttackDamage(6)
 				.setBaseAttackSpeed(1.6).build("iron_sword", EnergySword::new);
-		GOLDEN_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(40, 0).setRegen(1, 20).setBaseAttackDamage(4)
+		GOLDEN_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(5, 0).setRegen(1, 5).setBaseAttackDamage(4)
 				.setBaseAttackSpeed(2.0).build("golden_sword", EnergySword::new);
-		DIAMOND_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(1500, 0).setRegen(2, 50).setBaseAttackDamage(7)
+		DIAMOND_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(30, 0).setRegen(1, 25).setBaseAttackDamage(7)
 				.setBaseAttackSpeed(1.6).build("diamond_sword", EnergySword::new);
-		NETHERITE_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(2000, 0).setRegen(2, 40).setBaseAttackDamage(8)
+		NETHERITE_SWORD = EnergyToolItemBuilder.getInstance().setEnergy(40, 0).setRegen(1, 20).setBaseAttackDamage(8)
 				.setBaseAttackSpeed(1.6).setFireResistence().build("netherite_sword", EnergySword::new);
 		EMPTY_RUNE = createCommonItem("rune", RuneItem::new);
 		COMMON_ABILITY_RUNE = createCommonItem("ability_rune", AbilityRuneItem::new);
@@ -60,7 +57,6 @@ public class IWItems
 				.setAbility(IWRuneAbilitys.SWEEP_ABILITY), TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(BLOOD_SWORD).addEnchantment(Enchantments.UNBREAKING, 5)
 				.setAbility(IWRuneAbilitys.SLASHING_ABILITY), TOOLS_GROUP);
-		addItemToGroup(EnergyToolInitializer.getInstance(WOODEN_SWORD), TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(STONE_SWORD), TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(IRON_SWORD), TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(GOLDEN_SWORD), TOOLS_GROUP);

@@ -43,7 +43,6 @@ public class LanguageGenerator extends FabricLanguageProvider
 	{
 		translationBuilder.add(IWItems.BLOOD_SWORD, "血刃");
 		translationBuilder.add(IWItems.STICK, "棍子");
-		translationBuilder.add(IWItems.WOODEN_SWORD, "木剑");
 		translationBuilder.add(IWItems.STONE_SWORD, "石剑");
 		translationBuilder.add(IWItems.IRON_SWORD, "铁剑");
 		translationBuilder.add(IWItems.GOLDEN_SWORD, "金剑");

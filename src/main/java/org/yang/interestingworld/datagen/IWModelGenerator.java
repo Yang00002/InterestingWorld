@@ -182,9 +182,9 @@ public class IWModelGenerator extends FabricModelProvider
 
 	private static void buildSwordModel(ItemModelGenerator itemModelGenerator)
 	{
-		String[] Materials = {"wooden", "stone", "iron", "golden", "diamond", "netherite"};
-		Item[] items = {IWItems.WOODEN_SWORD, IWItems.STONE_SWORD, IWItems.IRON_SWORD, IWItems.GOLDEN_SWORD,
-						IWItems.DIAMOND_SWORD, IWItems.NETHERITE_SWORD};
+		String[] Materials = {"stone", "iron", "golden", "diamond", "netherite"};
+		Item[] items = {IWItems.STONE_SWORD, IWItems.IRON_SWORD, IWItems.GOLDEN_SWORD, IWItems.DIAMOND_SWORD,
+						IWItems.NETHERITE_SWORD};
 		int size = Materials.length;
 		for (int i = 0; i < size; i++)
 		{

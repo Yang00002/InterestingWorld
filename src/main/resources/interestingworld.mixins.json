@@ -4,10 +4,10 @@
   "package": "org.yang.interestingworld.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ForDamage",
-    "ForName",
-    "ForName2",
-    "ForSweeping"
+    "MixinAnvilScreenHandler",
+    "MixinLivingEntity",
+    "MixinPlayerEntity",
+    "MixinServerPlayerEntity"
   ],
   "injectors": {
     "defaultRequire": 1

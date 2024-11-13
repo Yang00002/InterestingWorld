@@ -20,6 +20,7 @@ import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 
 import java.util.List;
+import java.util.Random;
 
 import static org.yang.interestingworld.IWUtil.EnergyTool.*;
 import static org.yang.interestingworld.IWUtil.Return.*;
@@ -30,6 +31,7 @@ import static org.yang.interestingworld.IWUtil.TextStyle.PURE_GREEN_RGB;
 
 public class EnergyToolItem extends Item implements canSweeping, FabricItem
 {
+	protected static final Random RANDOM = new Random();
 
 	@Override
 	public boolean allowComponentsUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack,
@@ -106,11 +108,11 @@ public class EnergyToolItem extends Item implements canSweeping, FabricItem
 	@Override
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
-		if (!world.isClient())
+		if (!world.isClient() && entity instanceof PlayerEntity)
 		{
 			var ab = getAbility(stack);
 			if (ab.canWork()) ab.ServerInventoryTick(stack, world, entity, slot, selected);
-			if (!selected)
+			if (selected)
 			{
 				int need = getBaseRegenNeed(stack);
 				if (need > 0)
@@ -119,11 +121,9 @@ public class EnergyToolItem extends Item implements canSweeping, FabricItem
 					float max = IWUtil.EnergyTool.maxEnergy(stack);
 					if (cur < max)
 					{
-						if (world.random.nextInt() % need == 0)
-						{
-							float count = getBaseRegenCount(stack);
-							insertEnergy(stack, entity, count, cur, max);
-						}
+						var manager = IWUtil.EnergyTool.getPlayerEnergy((PlayerEntity) entity);
+						if (manager.getTicker() % need == 0) insertEnergy(stack, entity,
+								manager.tryTransferEnergy(Math.min(max - cur, getBaseRegenCount(stack))), cur, max);
 					}
 				}
 			}
@@ -161,7 +161,6 @@ public class EnergyToolItem extends Item implements canSweeping, FabricItem
 	@Override
 	public void postDamageEntity(ItemStack stack, LivingEntity target, LivingEntity attacker)
 	{
-		if (IWUtil.Components.hasEnchantment(stack)) extractAutomicEnergy(stack, attacker, 1);
 		IWAbstractRuneAbility ab = getAbility(stack);
 		if (ab.canWork()) ab.postDamageEntity(stack, target, attacker);
 	}

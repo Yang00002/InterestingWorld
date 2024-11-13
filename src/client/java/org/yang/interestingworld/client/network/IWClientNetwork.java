@@ -3,16 +3,12 @@ package org.yang.interestingworld.client.network;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.network.IWNetwork;
 import org.yang.interestingworld.network.IWNetwork.ItemBreakParticlePayload;
+import org.yang.interestingworld.playerenergymanager.PlayerEnergyAccessor;
+import org.yang.interestingworld.playerenergymanager.PlayerEnergyManager;
 
 public class IWClientNetwork
 {
@@ -37,12 +33,22 @@ public class IWClientNetwork
 		}
 	}
 
+	private static void handlePlayerEnergyPayload(IWNetwork.PlayerEnergyPayload payload,
+												  ClientPlayNetworking.Context context)
+	{
+		ClientPlayerEntity player = context.player();
+		PlayerEnergyManager manager = ((PlayerEnergyAccessor) player).getEnergyManager();
+		manager.setShownEnergy(payload.energy());
+	}
+
 	public static void initialize()
 	{
 		PayloadTypeRegistry.playS2C().register(ItemBreakParticlePayload.ID, ItemBreakParticlePayload.CODEC);
 		ClientPlayNetworking.registerGlobalReceiver(ItemBreakParticlePayload.ID,
-				(payload, context) -> context.client().execute(() -> {
-					handleItemBreakParticlePayload(payload, context);
-				}));
+				(payload, context) -> context.client().execute(() -> handleItemBreakParticlePayload(payload,
+						context)));
+		PayloadTypeRegistry.playS2C().register(IWNetwork.PlayerEnergyPayload.ID, IWNetwork.PlayerEnergyPayload.CODEC);
+		ClientPlayNetworking.registerGlobalReceiver(IWNetwork.PlayerEnergyPayload.ID,
+				(payload, context) -> context.client().execute(() -> handlePlayerEnergyPayload(payload, context)));
 	}
 }

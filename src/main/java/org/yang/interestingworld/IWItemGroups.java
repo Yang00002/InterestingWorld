@@ -32,19 +32,12 @@ public class IWItemGroups
 	public static class EnergyToolInitializer implements ItemInGroupInitializer
 	{
 		Item item = null;
-		boolean allowedEmptyEnergy = true;
 		Map<RegistryKey<Enchantment>, Integer> enchantments = null;
 		IWAbstractRuneAbility ability = null;
 
 		private EnergyToolInitializer()
 		{
 
-		}
-
-		public EnergyToolInitializer disableEmptyEnergyStack()
-		{
-			allowedEmptyEnergy = false;
-			return this;
 		}
 
 		public EnergyToolInitializer addEnchantment(RegistryKey<Enchantment> ec, int level)
@@ -89,19 +82,6 @@ public class IWItemGroups
 				}
 				if (ability != null) IWUtil.RuneAbility.setAbility(stack, ability);
 				entries.add(stack);
-				if (allowedEmptyEnergy)
-				{
-					ItemStack stack2 = item.getDefaultStack();
-					if (enchantments != null)
-					{
-						var wrapper = displayContext.lookup().getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
-						enchantments.forEach((enchantment, level) -> {
-							if (level > 0) stack2.addEnchantment(wrapper.getOrThrow(enchantment), level);
-						});
-					}
-					if (ability != null) IWUtil.RuneAbility.setAbility(stack2, ability);
-					entries.add(stack2);
-				}
 			}
 		}
 	}
