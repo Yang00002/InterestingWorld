@@ -1,6 +1,7 @@
 package org.yang.interestingworld;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -33,6 +34,8 @@ public class IWItemGroups
 	{
 		Item item = null;
 		Map<RegistryKey<Enchantment>, Integer> enchantments = null;
+
+		Map<RegistryKey<Enchantment>, Integer> default_enchantments = null;
 		IWAbstractRuneAbility ability = null;
 
 		private EnergyToolInitializer()
@@ -49,6 +52,19 @@ public class IWItemGroups
 					enchantments = new HashMap<>();
 				}
 				enchantments.put(ec, level);
+			}
+			return this;
+		}
+
+		public EnergyToolInitializer addDefaultEnchantment(RegistryKey<Enchantment> ec, int level)
+		{
+			if (level > 0)
+			{
+				if (default_enchantments == null)
+				{
+					default_enchantments = new HashMap<>();
+				}
+				default_enchantments.put(ec, level);
 			}
 			return this;
 		}
@@ -79,6 +95,16 @@ public class IWItemGroups
 					enchantments.forEach((enchantment, level) -> {
 						if (level > 0) stack.addEnchantment(wrapper.getOrThrow(enchantment), level);
 					});
+				}
+				if (default_enchantments != null)
+				{
+					var wrapper = displayContext.lookup().getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
+					var cp = stack.getOrDefault(IWComponents.DEFAULT_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+					ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(cp);
+					default_enchantments.forEach((enchantment, level) -> {
+						if (level > 0) builder.add(wrapper.getOrThrow(enchantment), level);
+					});
+					stack.set(IWComponents.DEFAULT_ENCHANTMENTS, builder.build());
 				}
 				if (ability != null) IWUtil.RuneAbility.setAbility(stack, ability);
 				entries.add(stack);

@@ -2,6 +2,7 @@ package org.yang.interestingworld;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.component.ComponentType;
+import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -34,6 +35,9 @@ public class IWComponents
 			Identifier.of(IWUtil.Base.MOD_ID, "hs"), ComponentType.<Boolean>builder().codec(Codec.BOOL).build());
 	public static ComponentType<Short> LEFT_USE_TIME = Registry.register(Registries.DATA_COMPONENT_TYPE,
 			Identifier.of(IWUtil.Base.MOD_ID, "lut"), ComponentType.<Short>builder().codec(Codec.SHORT).build());
+	public static ComponentType<ItemEnchantmentsComponent> DEFAULT_ENCHANTMENTS = Registry.register(
+			Registries.DATA_COMPONENT_TYPE, Identifier.of(IWUtil.Base.MOD_ID, "de"),
+			ComponentType.<ItemEnchantmentsComponent>builder().codec(ItemEnchantmentsComponent.CODEC).build());
 
 	public static void initialize()
 	{

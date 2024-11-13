@@ -59,7 +59,9 @@ public class IWItems
 				.setAbility(IWRuneAbilitys.SLASHING_ABILITY), TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(STONE_SWORD), TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(IRON_SWORD), TOOLS_GROUP);
-		addItemToGroup(EnergyToolInitializer.getInstance(GOLDEN_SWORD), TOOLS_GROUP);
+		addItemToGroup(
+				EnergyToolInitializer.getInstance(GOLDEN_SWORD).addDefaultEnchantment(IWEnchantments.FAST_HIT, 1),
+				TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(DIAMOND_SWORD), TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(NETHERITE_SWORD), TOOLS_GROUP);
 		addItemToGroup(CommonItemInitializer.getInstance(EMPTY_RUNE), RUNES_GROUP);

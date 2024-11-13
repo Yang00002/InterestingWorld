@@ -104,7 +104,7 @@ public class IWRuneAbilitys
 	}
 
 
-	public static void initial()
+	public static void initialize()
 	{
 		AbilityRegister register = new AbilityRegister();
 		register.register(DEFAULT_ABILITY);

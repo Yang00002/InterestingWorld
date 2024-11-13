@@ -28,6 +28,7 @@ import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.MinecraftServer;
@@ -265,6 +266,15 @@ public class IWUtil
 
 	public static class EnergyTool
 	{
+		public static int getEnchantmentLevel(World world, ItemStack stack, RegistryKey<Enchantment> key)
+		{
+			int level = stack.getEnchantments().getLevel(Registry.getEnchantmentEntry(world, key));
+			if (level == 0 && stack.contains(IWComponents.DEFAULT_ENCHANTMENTS))
+			{
+				return stack.get(IWComponents.DEFAULT_ENCHANTMENTS).getLevel(Registry.getEnchantmentEntry(world, key));
+			}
+			return level;
+		}
 
 		public static PlayerEnergyManager getPlayerEnergy(PlayerEntity player)
 		{
@@ -352,8 +362,7 @@ public class IWUtil
 			float cur = currentEnergy(stack);
 			if (stack.hasEnchantments())
 			{
-				var level = stack.getEnchantments()
-						.getLevel(Registry.getEnchantmentEntry(entity.getWorld(), Enchantments.UNBREAKING));
+				var level = EnergyTool.getEnchantmentLevel(entity.getWorld(), stack, Enchantments.UNBREAKING);
 				if (level >= 10) return true;
 				amount *= 1.0f - 0.1f * level;
 			}
@@ -380,8 +389,7 @@ public class IWUtil
 			float cur = currentEnergy(stack);
 			if (stack.hasEnchantments())
 			{
-				var level = stack.getEnchantments()
-						.getLevel(Registry.getEnchantmentEntry(entity.getWorld(), Enchantments.UNBREAKING));
+				var level = EnergyTool.getEnchantmentLevel(entity.getWorld(), stack, Enchantments.UNBREAKING);
 				if (level >= 10) return true;
 				amount *= 1.0f - 0.1f * level;
 			}
@@ -676,6 +684,12 @@ public class IWUtil
 		public static RegistryEntry<Enchantment> getEnchantmentEntry(World world, RegistryKey<Enchantment> key)
 		{
 			return world.getRegistryManager().getWrapperOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(key);
+		}
+
+		public static RegistryEntry<Enchantment> getEnchantmentEntry(RegistryWrapper.WrapperLookup wrapperLookup,
+																	 RegistryKey<Enchantment> key)
+		{
+			return wrapperLookup.getWrapperOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(key);
 		}
 
 		public static DamageSource createDamageSource(World world, RegistryKey<DamageType> damagetype,

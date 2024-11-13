@@ -173,12 +173,31 @@ public class EnergyToolItem extends Item implements canSweeping, FabricItem
 		appendEneryText(text, stack);
 		tooltip.add(text);
 		var ab = getAbility(stack);
-		if (ab.canWork())
-		{
-			ab.appendToolTip(tooltip);
-			if (stack.hasEnchantments()) tooltip.add(Text.empty());
-		}
+		if (ab.canWork()) ab.appendToolTip(tooltip);
 		else ab.appendBanedToolTip(tooltip);
+		if (ab.index != 0)
+		{
+			if (stack.hasEnchantments()) tooltip.add(Text.empty());
+			else
+			{
+				var def = stack.get(IWComponents.DEFAULT_ENCHANTMENTS);
+				if (def != null)
+				{
+					tooltip.add(Text.empty());
+					tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(IWUtil.TextStyle.GRAY_RGB));
+					def.appendTooltip(context, tooltip::add, type);
+				}
+			}
+		}
+		else
+		{
+			var def = stack.get(IWComponents.DEFAULT_ENCHANTMENTS);
+			if (def != null)
+			{
+				tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(IWUtil.TextStyle.GRAY_RGB));
+				def.appendTooltip(context, tooltip::add, type);
+			}
+		}
 	}
 
 	private static void appendEneryText(MutableText text, ItemStack stack)

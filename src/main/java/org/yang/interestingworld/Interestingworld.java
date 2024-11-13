@@ -14,7 +14,8 @@ public class Interestingworld implements ModInitializer
 		IWDamageTypes.initialize();
 		IWEffects.initialize();
 		IWComponents.initialize();
-		IWRuneAbilitys.initial();
+		IWRuneAbilitys.initialize();
+		IWEnchantments.initialize();
 		IWItems.initialize();
 		IWBlocks.initialize();
 		IWItemGroups.initialize();

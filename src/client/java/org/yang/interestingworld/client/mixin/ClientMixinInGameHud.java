@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.playerenergymanager.PlayerEnergyAccessor;
 
-@Debug(export = true)
 @Mixin(InGameHud.class)
 public class ClientMixinInGameHud
 {

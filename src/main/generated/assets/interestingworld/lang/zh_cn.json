@@ -3,6 +3,8 @@
   "banedabilitydetail": "你还不能使用此能力。",
   "block.interestingworld.forging_block": "符文锻造台",
   "effect.interestingworld.blood": "流血",
+  "effect.interestingworld.cooldown": "受击",
+  "enchantment.interestingworld.fast_hit": "迅捷打击",
   "infiniteslashing_ability_detail": "你的武器不再消耗能量。横扫攻击将额外对前方大范围内所有敌人造成12点伤害，并使它们流血6秒。流血的敌人每秒损失4点生命值。本技能冷却时间为1s。",
   "infiniteslashing_ability_title": "无限斩击",
   "item.interestingworld.blood_sword": "血刃",
@@ -20,6 +22,7 @@
   "slashing_ability_title": "斩击",
   "sweeping_ability_detail": "使武器可以横扫，每次横扫消耗1点能量。",
   "sweeping_ability_title": "横扫",
+  "tooltip.defaultenchantment": "自带：",
   "tooltip.energy.count": "储存能量",
   "tooltip.rune.needlevel": "需求等级"
 }

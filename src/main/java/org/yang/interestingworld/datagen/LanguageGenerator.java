@@ -54,6 +54,8 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add(IWItemGroups.RUNES_GROUP, "IW：符文");
 		translationBuilder.add(IWItemGroups.BLOCKS_GROUP, "IW：方块");
 		translationBuilder.add(IWEffects.BLOOD.value(), "流血");
+		translationBuilder.add(IWEffects.COOLDOWN.value(), "受击");
+		translationBuilder.add("enchantment.interestingworld.fast_hit", "迅捷打击");
 		translationBuilder.add("tooltip.energy.count", "储存能量");
 		translationBuilder.add("sweeping_ability_title", "横扫");
 		translationBuilder.add("sweeping_ability_detail", "使武器可以横扫，每次横扫消耗1点能量。");
@@ -69,12 +71,12 @@ public class LanguageGenerator extends FabricLanguageProvider
 				"你的武器不再消耗能量。横扫攻击将额外对前方大范围内所有敌人造成" +
 				toString(InfiniteSlashingAbility.AbilityDamage) + "点伤害，并使它们流血" +
 				toString((float) InfiniteSlashingAbility.EffectDuration / 20) + "秒。流血的敌人每秒损失" +
-				toString(InfiniteSlashingAbility.EffectAmplipier + 1) +
-				"点生命值。本技能冷却时间为" +
+				toString(InfiniteSlashingAbility.EffectAmplipier + 1) + "点生命值。本技能冷却时间为" +
 				toString((float) InfiniteSlashingAbility.AbilityDuration / 20) + "s。");
 		translationBuilder.add("banedabilitydetail", "你还不能使用此能力。");
 		translationBuilder.add("tooltip.rune.needlevel", "需求等级");
 		translationBuilder.add(IWBlocks.FORGING_BLOCK, "符文锻造台");
+		translationBuilder.add("tooltip.defaultenchantment", "自带：");
 		try
 		{
 			Path existingFilePath = generator.getModContainer().findPath("assets/interestingworld/lang/zh_cn.json")
