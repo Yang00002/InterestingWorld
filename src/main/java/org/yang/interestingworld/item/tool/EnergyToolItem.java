@@ -7,13 +7,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWUtil;
@@ -22,11 +19,9 @@ import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import java.util.List;
 import java.util.Random;
 
-import static org.yang.interestingworld.IWUtil.EnergyTool.*;
 import static org.yang.interestingworld.IWUtil.Return.*;
 import static org.yang.interestingworld.IWUtil.RuneAbility.getAbility;
 import static org.yang.interestingworld.IWUtil.RuneAbility.getColor;
-import static org.yang.interestingworld.IWUtil.TextStyle.PURE_GREEN_RGB;
 
 
 public class EnergyToolItem extends Item implements canSweeping, FabricItem
@@ -112,21 +107,6 @@ public class EnergyToolItem extends Item implements canSweeping, FabricItem
 		{
 			var ab = getAbility(stack);
 			if (ab.canWork()) ab.ServerInventoryTick(stack, world, entity, slot, selected);
-			if (selected)
-			{
-				int need = getBaseRegenNeed(stack);
-				if (need > 0)
-				{
-					float cur = currentEnergy(stack);
-					float max = IWUtil.EnergyTool.maxEnergy(stack);
-					if (cur < max)
-					{
-						var manager = IWUtil.EnergyTool.getPlayerEnergy((PlayerEntity) entity);
-						if (manager.getTicker() % need == 0) insertEnergy(stack, entity,
-								manager.tryTransferEnergy(Math.min(max - cur, getBaseRegenCount(stack))), cur, max);
-					}
-				}
-			}
 		}
 	}
 
@@ -168,10 +148,6 @@ public class EnergyToolItem extends Item implements canSweeping, FabricItem
 	@Override
 	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type)
 	{
-		MutableText text = Text.empty();
-		text.append(Text.translatable("tooltip.energy.count").formatted(Formatting.GRAY)).append(" ");
-		appendEneryText(text, stack);
-		tooltip.add(text);
 		var ab = getAbility(stack);
 		if (ab.canWork()) ab.appendToolTip(tooltip);
 		else ab.appendBanedToolTip(tooltip);
@@ -198,18 +174,6 @@ public class EnergyToolItem extends Item implements canSweeping, FabricItem
 				def.appendTooltip(context, tooltip::add, type);
 			}
 		}
-	}
-
-	private static void appendEneryText(MutableText text, ItemStack stack)
-	{
-		int max = (int) maxEnergy(stack);
-		int cur = Math.max((int) currentEnergy(stack), 0);
-		String num = String.valueOf(cur);
-		text.append(
-						Text.literal(num).withColor(MathHelper.hsvToRgb(Math.max(0.0F, (float) cur / max) / 3.0F, 1.0F
-								, 1.0F)))
-				.append(Text.literal(" / ").formatted(Formatting.GRAY))
-				.append(Text.literal(String.valueOf(max)).withColor(PURE_GREEN_RGB));
 	}
 
 	@Override

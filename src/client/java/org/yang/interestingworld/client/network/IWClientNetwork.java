@@ -7,8 +7,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.yang.interestingworld.network.IWNetwork;
 import org.yang.interestingworld.network.IWNetwork.ItemBreakParticlePayload;
-import org.yang.interestingworld.playerenergymanager.PlayerEnergyAccessor;
-import org.yang.interestingworld.playerenergymanager.PlayerEnergyManager;
+import org.yang.interestingworld.playerdatamanager.PlayerMixinAccessor;
+import org.yang.interestingworld.playerdatamanager.PlayerDataManager;
 
 public class IWClientNetwork
 {
@@ -37,7 +37,7 @@ public class IWClientNetwork
 												  ClientPlayNetworking.Context context)
 	{
 		ClientPlayerEntity player = context.player();
-		PlayerEnergyManager manager = ((PlayerEnergyAccessor) player).getEnergyManager();
+		PlayerDataManager manager = ((PlayerMixinAccessor) player).getDataManager();
 		manager.setShownEnergy(payload.energy());
 	}
 

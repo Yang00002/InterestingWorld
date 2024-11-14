@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.playerenergymanager.PlayerEnergyAccessor;
+import org.yang.interestingworld.playerdatamanager.PlayerMixinAccessor;
 
 @Mixin(InGameHud.class)
 public class ClientMixinInGameHud
@@ -42,7 +42,7 @@ public class ClientMixinInGameHud
 	{
 		// m -> right
 		client.getProfiler().swap("energy");
-		int energy = ((PlayerEnergyAccessor) playerEntity).getEnergyManager().getShownEnergy();
+		int energy = ((PlayerMixinAccessor) playerEntity).getDataManager().getShownEnergy();
 		RenderSystem.enableBlend();
 		if (energy > 20)
 		{

@@ -68,6 +68,7 @@ public abstract class ClientMixinDrawContext
 	@Shadow
 	public abstract void fill(RenderLayer layer, int x1, int y1, int x2, int y2, int color);
 
+	/*
 	@Inject(method = "drawItemInSlot(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;" +
 					 "IILjava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math" +
 																				   "/MatrixStack;push()V", shift =
@@ -132,5 +133,5 @@ public abstract class ClientMixinDrawContext
 			matrices.pop();
 			ci.cancel();
 		}
-	}
+	}*/
 }

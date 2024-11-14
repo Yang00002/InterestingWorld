@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
+import org.yang.interestingworld.playerdatamanager.PlayerDataManager;
 import org.yang.interestingworld.rune.IWRuneAbility;
 
 import java.util.List;
@@ -39,9 +40,9 @@ public class SweepingAbility extends IWRuneAbility
 	}
 
 	@Override
-	public boolean canSweeping(ItemStack stack, PlayerEntity entity)
+	public boolean canSweeping(ItemStack stack, PlayerEntity entity, PlayerDataManager data)
 	{
 		if (entity.getWorld().isClient) return false;
-		return extractAutomicEnergy(stack, entity, 1);
+		return data.extractAutomicEnergy(stack, entity, 1);
 	}
 }

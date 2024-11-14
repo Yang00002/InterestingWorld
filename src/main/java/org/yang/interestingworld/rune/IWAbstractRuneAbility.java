@@ -10,7 +10,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
 import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.item.rune.RuneItem;
+import org.yang.interestingworld.playerdatamanager.PlayerDataManager;
 
 import java.util.List;
 
@@ -58,10 +58,12 @@ public class IWAbstractRuneAbility
 	{
 		return Text.empty();
 	}
+
 	public boolean canApplyTo(ItemStack stack)
 	{
 		return false;
 	}
+
 	public void appendBanedToolTip(List<Text> tooltip)
 	{
 	}
@@ -98,6 +100,15 @@ public class IWAbstractRuneAbility
 
 	}
 
+	public void onEnter(PlayerEntity entity, PlayerDataManager manager)
+	{
+	}
+
+	public void onLeave(PlayerEntity entity, PlayerDataManager manager)
+	{
+
+	}
+
 	public int level()
 	{
 		return 0;
@@ -114,7 +125,7 @@ public class IWAbstractRuneAbility
 	/**
 	 * TwoSide
 	 */
-	public boolean canSweeping(ItemStack stack, PlayerEntity entity)
+	public boolean canSweeping(ItemStack stack, PlayerEntity entity, PlayerDataManager data)
 	{
 		return false;
 	}
@@ -184,9 +195,14 @@ public class IWAbstractRuneAbility
 	{
 		return null;
 	}
+
 	public IWAbstractRuneAbility getToolIndexParent()
 	{
 		return null;
 	}
 
+	public void serverPlayerWeaponTick(PlayerEntity entity, PlayerDataManager data, ItemStack stack)
+	{
+
+	}
 }

@@ -1,6 +1,5 @@
 package org.yang.interestingworld.rune.ability;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -12,17 +11,16 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWDamageTypes;
 import org.yang.interestingworld.IWEffects;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
+import org.yang.interestingworld.playerdatamanager.PlayerDataManager;
 
 import java.util.List;
 
+import static org.yang.interestingworld.IWUtil.EnergyTool.getPlayerData;
 import static org.yang.interestingworld.IWUtil.Registry.createDamageSource;
-import static org.yang.interestingworld.IWUtil.TextStyle.CYAN_RGB;
-import static org.yang.interestingworld.IWUtil.TextStyle.GRAY_RGB;
 
 public class InfiniteSlashingAbility extends InfiniteAbility
 {
@@ -34,20 +32,6 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	public static final double AttackMaxLength = 5;
 	public static final double AttackYExpanse = 1.5;
 	public static final double KnockbackDistance = 0.8;
-
-	@Override
-	public void onRemoveAbility(ItemStack stack)
-	{
-		stack.remove(IWComponents.HAD_SWEEPING);
-		stack.remove(IWComponents.LEFT_USE_TIME);
-	}
-
-	@Override
-	public void onSetAbility(ItemStack stack)
-	{
-		stack.remove(IWComponents.HAD_SWEEPING);
-		stack.remove(IWComponents.LEFT_USE_TIME);
-	}
 
 	@Override
 	public boolean canApplyTo(ItemStack stack)
@@ -72,13 +56,7 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	{
 		return Text.translatable("infiniteslashing_ability_title");
 	}
-
-	@Override
-	public void atSweeping(ItemStack stack, PlayerEntity entity)
-	{
-		stack.set(IWComponents.HAD_SWEEPING, true);
-	}
-
+/*
 	@Override
 	public IWUtil.Return.AbilityItemBarMessageTaker getAbilityItemBarRenderMessage(ItemStack stack)
 	{
@@ -89,54 +67,66 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 		if (amount >= AbilityDuration) taker.contentColor = CYAN_RGB;
 		else taker.contentColor = GRAY_RGB;
 		return taker;
-	}
+	}*/
 
 	@Override
-	public void ServerInventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
+	public void serverPlayerWeaponTick(PlayerEntity entity, PlayerDataManager data, ItemStack stack)
 	{
-		if (selected)
+		if (data.timing < AbilityDuration)
 		{
-			short t = stack.getOrDefault(IWComponents.LEFT_USE_TIME, (short) 0);
-			if (t < AbilityDuration)
-			{
-				stack.set(IWComponents.LEFT_USE_TIME, (short) (t + 1));
-				if (t == AbilityDuration - 1 && entity instanceof PlayerEntity)
-					IWUtil.Network.playSoundToPlayer((PlayerEntity) entity, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE,
-							SoundCategory.PLAYERS);
-			}
+			data.timing++;
+			if (data.timing == AbilityDuration - 1 && entity instanceof PlayerEntity)
+				IWUtil.Network.playSoundToPlayer(entity, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE,
+						SoundCategory.PLAYERS);
 		}
 	}
 
 	@Override
 	public void postDamageEntity(ItemStack stack, LivingEntity target, LivingEntity attacker)
 	{
-		if (stack.getOrDefault(IWComponents.HAD_SWEEPING, false))
+		if (attacker instanceof PlayerEntity player)
 		{
-			stack.set(IWComponents.HAD_SWEEPING, false);
-			short time = stack.getOrDefault(IWComponents.LEFT_USE_TIME, (short) 0);
-			if (time >= AbilityDuration)
+			var manager = getPlayerData(player);
+			if (manager.sweeping)
 			{
-				stack.set(IWComponents.LEFT_USE_TIME, (short) 0);
-				World world = attacker.getWorld();
-				var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
-				var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
-				var damageSource = createDamageSource(world, IWDamageTypes.ENERGEE_MELEE, attacker);
-				IWUtil.EnergyTool.horizontalSweepEntity(attacker, AttackMaxAngleCosine, AttackMaxLength,
-						AttackYExpanse,
-						target, (attacker1, entity, distance) -> {
-							entity.takeKnockback(KnockbackDistance, knox, knoz);
-							entity.damage(damageSource, AbilityDamage);
-							IWUtil.EntityAbout.addHiddenStatusEffectWithConsistence(entity, IWEffects.BLOOD,
-									(int) (IWUtil.EntityAbout.getArmoredDamage(entity, damageSource, AbilityDamage) *
-										   EffectDuration / AbilityDamage), EffectAmplipier, 20);
-							double x = entity.getX();
-							double y = entity.getBodyY(0.5);
-							double z = entity.getZ();
-							IWUtil.Network.spawnParticleAtPos(world, ParticleTypes.SWEEP_ATTACK, x, y, z);
-							IWUtil.Network.playSoundAtPos(world, x, y, z, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP,
-									SoundCategory.PLAYERS);
-						});
+				manager.sweeping = false;
+				if (manager.timing >= AbilityDuration)
+				{
+					manager.timing = 0;
+					World world = attacker.getWorld();
+					var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
+					var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
+					var damageSource = createDamageSource(world, IWDamageTypes.ENERGEE_MELEE, attacker);
+					IWUtil.EnergyTool.horizontalSweepEntity(attacker, AttackMaxAngleCosine, AttackMaxLength,
+							AttackYExpanse, target, (attacker1, entity, distance) -> {
+								entity.takeKnockback(KnockbackDistance, knox, knoz);
+								entity.damage(damageSource, AbilityDamage);
+								IWUtil.EntityAbout.addHiddenStatusEffectWithConsistence(entity, IWEffects.BLOOD,
+										(int) (IWUtil.EntityAbout.getArmoredDamage(entity, damageSource,
+												AbilityDamage) * EffectDuration / AbilityDamage), EffectAmplipier, 20);
+								double x = entity.getX();
+								double y = entity.getBodyY(0.5);
+								double z = entity.getZ();
+								IWUtil.Network.spawnParticleAtPos(world, ParticleTypes.SWEEP_ATTACK, x, y, z);
+								IWUtil.Network.playSoundAtPos(world, x, y, z, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP,
+										SoundCategory.PLAYERS);
+							});
+				}
 			}
 		}
+	}
+
+	@Override
+	public void onEnter(PlayerEntity entity, PlayerDataManager manager)
+	{
+		manager.sweeping = false;
+		manager.timing = 0;
+	}
+
+	@Override
+	public void onLeave(PlayerEntity entity, PlayerDataManager manager)
+	{
+		manager.charged = false;
+		manager.timing = -1;
 	}
 }

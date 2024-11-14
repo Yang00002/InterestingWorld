@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.yang.interestingworld.playerenergymanager.PlayerEnergyAccessor;
-import org.yang.interestingworld.playerenergymanager.PlayerEnergyManager;
+import org.yang.interestingworld.playerdatamanager.PlayerMixinAccessor;
+import org.yang.interestingworld.playerdatamanager.PlayerDataManager;
 
 @Mixin(ServerPlayerEntity.class)
 public class MixinServerPlayerEntity
@@ -15,7 +15,7 @@ public class MixinServerPlayerEntity
 	public void onTick(CallbackInfo ci)
 	{
 		ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-		PlayerEnergyManager manager = ((PlayerEnergyAccessor) this).getEnergyManager();
+		PlayerDataManager manager = ((PlayerMixinAccessor) this).getDataManager();
 		manager.syncWithClient(player);
 	}
 }
