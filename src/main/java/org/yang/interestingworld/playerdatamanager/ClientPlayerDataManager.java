@@ -1,0 +1,12 @@
+package org.yang.interestingworld.playerdatamanager;
+
+import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+import org.yang.interestingworld.rune.IWRuneAbilitys;
+
+public class ClientPlayerDataManager
+{
+	public IWAbstractRuneAbility WeaponAbility = IWRuneAbilitys.DEFAULT_ABILITY;
+	public int shown_energy = 0;
+	public boolean energy_enough_to_use = false;
+	public int charge_rate16 = 0;
+}

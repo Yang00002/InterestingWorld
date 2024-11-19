@@ -1,10 +1,13 @@
 package org.yang.interestingworld.rune.ability;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
@@ -15,12 +18,14 @@ import org.yang.interestingworld.IWDamageTypes;
 import org.yang.interestingworld.IWEffects;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
-import org.yang.interestingworld.playerdatamanager.PlayerDataManager;
+import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
+import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
 
 import java.util.List;
 
 import static org.yang.interestingworld.IWUtil.EnergyTool.getPlayerData;
 import static org.yang.interestingworld.IWUtil.Registry.createDamageSource;
+import static org.yang.interestingworld.IWUtil.TextStyle.CYAN_RGB;
 
 public class InfiniteSlashingAbility extends InfiniteAbility
 {
@@ -70,29 +75,28 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	}*/
 
 	@Override
-	public void serverPlayerWeaponTick(PlayerEntity entity, PlayerDataManager data, ItemStack stack)
+	public void serverPlayerWeaponTick(PlayerEntity entity, ServerPlayerDataManager data, ItemStack stack)
 	{
-		if (data.timing < AbilityDuration)
+		if (data.chargeRate < AbilityDuration)
 		{
-			data.timing++;
-			if (data.timing == AbilityDuration - 1 && entity instanceof PlayerEntity)
-				IWUtil.Network.playSoundToPlayer(entity, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE,
-						SoundCategory.PLAYERS);
+			data.chargeRate++;
+			data.shouldSync = true;
 		}
 	}
 
 	@Override
 	public void postDamageEntity(ItemStack stack, LivingEntity target, LivingEntity attacker)
 	{
-		if (attacker instanceof PlayerEntity player)
+		if (attacker instanceof ServerPlayerEntity player)
 		{
 			var manager = getPlayerData(player);
 			if (manager.sweeping)
 			{
 				manager.sweeping = false;
-				if (manager.timing >= AbilityDuration)
+				if (manager.chargeRate >= AbilityDuration)
 				{
-					manager.timing = 0;
+					manager.chargeRate = 0;
+					manager.shouldSync = true;
 					World world = attacker.getWorld();
 					var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
 					var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
@@ -117,16 +121,46 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	}
 
 	@Override
-	public void onEnter(PlayerEntity entity, PlayerDataManager manager)
+	public void onEnter(PlayerEntity entity, ServerPlayerDataManager manager)
 	{
 		manager.sweeping = false;
-		manager.timing = 0;
+		manager.chargeRate = 0;
 	}
 
 	@Override
-	public void onLeave(PlayerEntity entity, PlayerDataManager manager)
+	public void onLeave(PlayerEntity entity, ServerPlayerDataManager manager)
 	{
 		manager.charged = false;
-		manager.timing = -1;
+		manager.chargeRate = -1;
+	}
+
+	@Override
+	public int abilityBarForegroundColor()
+	{
+		return CYAN_RGB;
+	}
+
+	@Override
+	public int abilityProcess(ClientPlayerDataManager data)
+	{
+		return data.charge_rate16;
+	}
+
+	@Override
+	public void writeClientRenderDataToBuf(ServerPlayerDataManager data, RegistryByteBuf buf)
+	{
+		buf.writeInt(data.chargeRate);
+	}
+
+	@Override
+	public void readClientRenderDataFromBuf(PlayerEntity entity, ClientPlayerDataManager data, ByteBuf buf)
+	{
+		int leftusetime = buf.readInt();
+		int c = Math.clamp(leftusetime * 16L / AbilityDuration, 0, 16);
+		if (c == 16 && data.charge_rate16 != 16)
+		{
+			playChargedOverSound(entity);
+		}
+		data.charge_rate16 = c;
 	}
 }

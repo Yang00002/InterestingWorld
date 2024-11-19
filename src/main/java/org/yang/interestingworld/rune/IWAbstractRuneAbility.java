@@ -1,16 +1,19 @@
 package org.yang.interestingworld.rune;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
 import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.playerdatamanager.PlayerDataManager;
+import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
+import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
 
 import java.util.List;
 
@@ -100,11 +103,11 @@ public class IWAbstractRuneAbility
 
 	}
 
-	public void onEnter(PlayerEntity entity, PlayerDataManager manager)
+	public void onEnter(PlayerEntity entity, ServerPlayerDataManager manager)
 	{
 	}
 
-	public void onLeave(PlayerEntity entity, PlayerDataManager manager)
+	public void onLeave(PlayerEntity entity, ServerPlayerDataManager manager)
 	{
 
 	}
@@ -125,7 +128,7 @@ public class IWAbstractRuneAbility
 	/**
 	 * TwoSide
 	 */
-	public boolean canSweeping(ItemStack stack, PlayerEntity entity, PlayerDataManager data)
+	public boolean canSweeping(ItemStack stack, PlayerEntity entity, ServerPlayerDataManager data)
 	{
 		return false;
 	}
@@ -201,8 +204,48 @@ public class IWAbstractRuneAbility
 		return null;
 	}
 
-	public void serverPlayerWeaponTick(PlayerEntity entity, PlayerDataManager data, ItemStack stack)
+	public void serverPlayerWeaponTick(PlayerEntity entity, ServerPlayerDataManager data, ItemStack stack)
 	{
 
+	}
+
+	public void writeClientRenderDataToBuf(ServerPlayerDataManager data, RegistryByteBuf buf)
+	{
+
+	}
+
+	public void readClientRenderDataFromBuf(PlayerEntity entity, ClientPlayerDataManager data, ByteBuf buf)
+	{
+
+	}
+
+	public boolean shouldRenderAbilityBar(ClientPlayerDataManager data)
+	{
+		return false;
+	}
+
+	public int abilityBarForegroundColor()
+	{
+		return 0x282828;
+	}
+
+	public int abilityProcess(ClientPlayerDataManager data)
+	{
+		return 0;
+	}
+
+	public boolean shouldRenderAbilityNumber(ClientPlayerDataManager data)
+	{
+		return false;
+	}
+
+	public int abilityNumber(ClientPlayerDataManager data)
+	{
+		return 0;
+	}
+
+	public int abilityNumberColor()
+	{
+		return 0;
 	}
 }

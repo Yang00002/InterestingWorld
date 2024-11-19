@@ -1,21 +1,53 @@
 package org.yang.interestingworld.mixin;
 
+import com.mojang.authlib.GameProfile;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.yang.interestingworld.playerdatamanager.PlayerMixinAccessor;
-import org.yang.interestingworld.playerdatamanager.PlayerDataManager;
+import org.yang.interestingworld.playerdatamanager.ServerPlayerDataAccessor;
+import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
 
 @Mixin(ServerPlayerEntity.class)
-public class MixinServerPlayerEntity
+public abstract class MixinServerPlayerEntity extends PlayerEntity implements ServerPlayerDataAccessor
 {
+	@Unique
+	private final ServerPlayerDataManager dataManager = new ServerPlayerDataManager();
+
+	public MixinServerPlayerEntity(World world, BlockPos pos, float yaw, GameProfile gameProfile)
+	{
+		super(world, pos, yaw, gameProfile);
+	}
+
 	@Inject(method = "playerTick", at = @At(value = "TAIL"))
 	public void onTick(CallbackInfo ci)
 	{
-		ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-		PlayerDataManager manager = ((PlayerMixinAccessor) this).getDataManager();
-		manager.syncWithClient(player);
+		dataManager.tick((ServerPlayerEntity) (Object) this);
 	}
+
+	@Inject(method = "readCustomDataFromNbt", at = @At(value = "TAIL"))
+	public void readPlayerEnergyData(NbtCompound nbt, CallbackInfo ci)
+	{
+		dataManager.readNbt(nbt);
+	}
+
+	@Inject(method = "writeCustomDataToNbt", at = @At(value = "TAIL"))
+	public void writePlayerEnergyData(NbtCompound nbt, CallbackInfo ci)
+	{
+		dataManager.writeNbt(nbt);
+	}
+
+	@Override
+	@Unique
+	public ServerPlayerDataManager getDataManager()
+	{
+		return dataManager;
+	}
+
 }

@@ -7,8 +7,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.yang.interestingworld.network.IWNetwork;
 import org.yang.interestingworld.network.IWNetwork.ItemBreakParticlePayload;
-import org.yang.interestingworld.playerdatamanager.PlayerMixinAccessor;
-import org.yang.interestingworld.playerdatamanager.PlayerDataManager;
+import org.yang.interestingworld.playerdatamanager.ClientPlayerDataAccessor;
+import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
+import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 
 public class IWClientNetwork
 {
@@ -37,9 +38,20 @@ public class IWClientNetwork
 												  ClientPlayNetworking.Context context)
 	{
 		ClientPlayerEntity player = context.player();
-		PlayerDataManager manager = ((PlayerMixinAccessor) player).getDataManager();
-		manager.setShownEnergy(payload.energy());
+		ClientPlayerDataManager manager = ((ClientPlayerDataAccessor) player).getDataManager();
+		manager.shown_energy = payload.energy();
 	}
+
+	private static void handlePlayerAbilityBarPayload(IWNetwork.AbilityPayload payload,
+													  ClientPlayNetworking.Context context)
+	{
+		ClientPlayerEntity player = context.player();
+		ClientPlayerDataManager manager = ((ClientPlayerDataAccessor) player).getDataManager();
+		IWAbstractRuneAbility ab = payload.ability();
+		manager.WeaponAbility = ab;
+		ab.readClientRenderDataFromBuf(player, manager, payload.clientData());
+	}
+
 
 	public static void initialize()
 	{
@@ -50,5 +62,8 @@ public class IWClientNetwork
 		PayloadTypeRegistry.playS2C().register(IWNetwork.PlayerEnergyPayload.ID, IWNetwork.PlayerEnergyPayload.CODEC);
 		ClientPlayNetworking.registerGlobalReceiver(IWNetwork.PlayerEnergyPayload.ID,
 				(payload, context) -> context.client().execute(() -> handlePlayerEnergyPayload(payload, context)));
+		PayloadTypeRegistry.playS2C().register(IWNetwork.AbilityPayload.ID, IWNetwork.AbilityPayload.CODEC);
+		ClientPlayNetworking.registerGlobalReceiver(IWNetwork.AbilityPayload.ID,
+				(payload, context) -> context.client().execute(() -> handlePlayerAbilityBarPayload(payload, context)));
 	}
 }

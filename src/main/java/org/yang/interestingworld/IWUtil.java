@@ -46,8 +46,8 @@ import org.yang.interestingworld.item.rune.AbilityRuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.network.IWNetwork;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
-import org.yang.interestingworld.playerdatamanager.PlayerMixinAccessor;
-import org.yang.interestingworld.playerdatamanager.PlayerDataManager;
+import org.yang.interestingworld.playerdatamanager.ServerPlayerDataAccessor;
+import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
 
@@ -276,9 +276,9 @@ public class IWUtil
 			return level;
 		}
 
-		public static PlayerDataManager getPlayerData(PlayerEntity player)
+		public static ServerPlayerDataManager getPlayerData(ServerPlayerEntity player)
 		{
-			return ((PlayerMixinAccessor) player).getDataManager();
+			return ((ServerPlayerDataAccessor) player).getDataManager();
 		}
 
 		// base + div, base - div, div, -div

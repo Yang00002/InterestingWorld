@@ -3,20 +3,29 @@ package org.yang.interestingworld.client.mixin;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.playerdatamanager.PlayerMixinAccessor;
+import org.yang.interestingworld.playerdatamanager.ClientPlayerDataAccessor;
+import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
+import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+
+import static org.yang.interestingworld.client.IWClientUtil.rgbDarkenToArgb;
+import static org.yang.interestingworld.client.IWClientUtil.rgbToArgb;
 
 @Mixin(InGameHud.class)
-public class ClientMixinInGameHud
+public abstract class ClientMixinInGameHud
 {
 	@Unique
 	private static final Identifier EMPTY_ENERGY = Identifier.of(IWUtil.Base.MOD_ID, "hud/energy/e_empty");
@@ -32,6 +41,9 @@ public class ClientMixinInGameHud
 	@Final
 	private MinecraftClient client;
 
+	@Shadow
+	public abstract TextRenderer getTextRenderer();
+
 	@Inject(method = "renderStatusBars", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;" +
 																			 "getProfiler()" +
 																			 "Lnet/minecraft/util/profiler/Profiler;",
@@ -40,9 +52,8 @@ public class ClientMixinInGameHud
 			3) int m, @Local(ordinal = 8) int r)
 
 	{
-		// m -> right
-		client.getProfiler().swap("energy");
-		int energy = ((PlayerMixinAccessor) playerEntity).getDataManager().getShownEnergy();
+		ClientPlayerDataManager manager = ((ClientPlayerDataAccessor) playerEntity).getDataManager();
+		int energy = manager.shown_energy;
 		RenderSystem.enableBlend();
 		if (energy > 20)
 		{
@@ -68,6 +79,30 @@ public class ClientMixinInGameHud
 			}
 		}
 		RenderSystem.disableBlend();
+		IWAbstractRuneAbility ability = manager.WeaponAbility;
+		if (ability.shouldRenderAbilityBar(manager))
+		{
+			int j = (context.getScaledWindowWidth() - 18) / 2;
+			int k = context.getScaledWindowHeight() - 50;
+			int div = ability.abilityProcess(manager);
+			int fc = ability.abilityBarForegroundColor();
+			if (div == 16) context.fill(j, k, j + 17, k + 5, rgbDarkenToArgb(fc, 0.2f));
+			else
+			{
+				context.fill(j, k, j + 17, k + 5, rgbToArgb(0));
+				context.fill(j + 1 + div, k + 1, j + 16, k + 4, rgbDarkenToArgb(fc, 0.2f));
+			}
+			if (div > 0) context.fill(j + 1, k + 1, j + div, k + 4, rgbToArgb(fc));
+		}
+		if (ability.shouldRenderAbilityNumber(manager))
+		{
+			String number = ability.abilityNumber(manager) + "";
+			int j = (context.getScaledWindowWidth() - this.getTextRenderer().getWidth(number)) / 2;
+			int k = context.getScaledWindowHeight() - 48;
+			RenderSystem.enableBlend();
+			context.drawText(getTextRenderer(), number, j - 1, k, 0, false);
+			RenderSystem.disableBlend();
+		}
 	}
 
 	@ModifyArg(method = "renderStatusBars", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui" +

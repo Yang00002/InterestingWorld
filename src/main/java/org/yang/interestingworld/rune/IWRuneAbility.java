@@ -1,9 +1,12 @@
 package org.yang.interestingworld.rune;
 
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
+import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
 
 import java.util.List;
 
@@ -38,8 +41,17 @@ public class IWRuneAbility extends IWAbstractRuneAbility
 	public boolean canWork()
 	{
 		IWPersistentData data = IWUtil.Server.getPersistentData();
-		if (data != null && level() <= data.worldEnergyLevel) return true;
-		return false;
+		return data != null && level() <= data.worldEnergyLevel;
 	}
 
+	@Override
+	public boolean shouldRenderAbilityBar(ClientPlayerDataManager data)
+	{
+		return true;
+	}
+
+	public void playChargedOverSound(PlayerEntity entity)
+	{
+		entity.playSound(SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE);
+	}
 }

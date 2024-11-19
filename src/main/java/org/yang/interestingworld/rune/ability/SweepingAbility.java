@@ -1,17 +1,21 @@
 package org.yang.interestingworld.rune.ability;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
-import org.yang.interestingworld.playerdatamanager.PlayerDataManager;
+import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
+import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
 import org.yang.interestingworld.rune.IWRuneAbility;
 
 import java.util.List;
 
-import static org.yang.interestingworld.IWUtil.EnergyTool.extractAutomicEnergy;
+import static org.yang.interestingworld.IWUtil.TextStyle.WHITE_RGB;
 
 public class SweepingAbility extends IWRuneAbility
 {
@@ -39,10 +43,59 @@ public class SweepingAbility extends IWRuneAbility
 		return false;
 	}
 
-	@Override
-	public boolean canSweeping(ItemStack stack, PlayerEntity entity, PlayerDataManager data)
+	public void writeClientRenderDataToBuf(ServerPlayerDataManager data, RegistryByteBuf buf)
 	{
-		if (entity.getWorld().isClient) return false;
-		return data.extractAutomicEnergy(stack, entity, 1);
+		buf.writeBoolean(data.charged);
 	}
+
+	@Override
+	public void readClientRenderDataFromBuf(PlayerEntity entity, ClientPlayerDataManager data, ByteBuf buf)
+	{
+		boolean e = buf.readBoolean();
+		if (e && !data.energy_enough_to_use)
+		{
+			playChargedOverSound(entity);
+		}
+		data.energy_enough_to_use = e;
+	}
+
+	@Override
+	public boolean canSweeping(ItemStack stack, PlayerEntity entity, ServerPlayerDataManager data)
+	{
+		if (entity instanceof ServerPlayerEntity player) return data.extractAutomicEnergy(stack, player, 1);
+		return false;
+	}
+
+	public int abilityBarForegroundColor()
+	{
+		return WHITE_RGB;
+	}
+
+	@Override
+	public void serverPlayerWeaponTick(PlayerEntity entity, ServerPlayerDataManager data, ItemStack stack)
+	{
+		if (data.getCurrentEnergy() < 1.0f)
+		{
+			boolean c = data.tryExtractAutomicEnergy(stack, (ServerPlayerEntity) entity, 1.0f);
+			if (c != data.charged) data.shouldSync = true;
+			data.charged = c;
+		}
+	}
+
+	public int abilityProcess(ClientPlayerDataManager data)
+	{
+		if (data.energy_enough_to_use || data.shown_energy > 0) return 16;
+		return 0;
+	}
+
+	public void onEnter(PlayerEntity entity, ServerPlayerDataManager manager)
+	{
+		manager.charged = false;
+	}
+
+	public void onLeave(PlayerEntity entity, ServerPlayerDataManager manager)
+	{
+		manager.charged = false;
+	}
+
 }

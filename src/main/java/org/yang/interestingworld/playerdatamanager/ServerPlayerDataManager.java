@@ -2,45 +2,44 @@ package org.yang.interestingworld.playerdatamanager;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.yang.interestingworld.IWUtil;
+import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.network.IWNetwork;
+import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+import org.yang.interestingworld.rune.IWRuneAbilitys;
 
-public class PlayerDataManager
+import static org.yang.interestingworld.IWUtil.RuneAbility.getAbility;
+
+public class ServerPlayerDataManager
 {
-	private int shown_energy = 0;
+	private IWAbstractRuneAbility WeaponAbility = IWRuneAbilitys.DEFAULT_ABILITY;
 	private float current_energy = 0;
-	private float last_energy = -1;
+	private int last_energy = -1;
 	private int energyRegenTimer = 0;
-	private int ticker = 0;
 	public boolean sweeping = false;
 	public boolean charged = false;
-	public int timing = -1;
-	public int maxtiming = -1;
+	public int chargeRate = -1;
+	public boolean isCharging = false;
+	public boolean shouldSync = false;
+	public int leftusetime = 0;
 
 	public void readNbt(NbtCompound nbt)
 	{
 		current_energy = nbt.getFloat("current_energy");
 		energyRegenTimer = nbt.getInt("energyregentimer");
-		ticker = nbt.getInt("energyticker");
-		sweeping = nbt.getBoolean("is_sweeping");
 	}
 
 	public void writeNbt(NbtCompound nbt)
 	{
 		nbt.putFloat("current_energy", current_energy);
 		nbt.putInt("energyregentimer", energyRegenTimer);
-		nbt.putInt("energyticker", ticker);
-		nbt.putBoolean("is_sweeping", sweeping);
 	}
 
-	public void update(PlayerEntity player)
+	public void updateEnergy(ServerPlayerEntity player)
 	{
-		if (ticker < 25200) ticker++;
-		else ticker = 0;
 		if (energyRegenTimer < 45) energyRegenTimer++;
 		if (current_energy < 40 && energyRegenTimer >= 5 && player.getHealth() >= player.getMaxHealth())
 		{
@@ -56,7 +55,49 @@ public class PlayerDataManager
 		}
 	}
 
-	public boolean extractAutomicEnergy(ItemStack stack, PlayerEntity user, float amount)
+
+	public void tick(ServerPlayerEntity player)
+	{
+		updateEnergy(player);
+		ItemStack stack = player.getWeaponStack();
+		if (!stack.isEmpty() && stack.getItem() instanceof EnergyToolItem)
+		{
+			var ability = getAbility(stack);
+			if (!ability.canWork() && WeaponAbility.index != 0)
+			{
+				WeaponAbility.onLeave(player, this);
+				WeaponAbility = IWRuneAbilitys.DEFAULT_ABILITY;
+				shouldSync = true;
+			}
+			else if (ability != WeaponAbility)
+			{
+				WeaponAbility.onLeave(player, this);
+				ability.onEnter(player, this);
+				WeaponAbility = ability;
+				shouldSync = true;
+			}
+		}
+		else if (WeaponAbility.index != 0)
+		{
+			WeaponAbility.onLeave(player, this);
+			WeaponAbility = IWRuneAbilitys.DEFAULT_ABILITY;
+			shouldSync = true;
+		}
+		WeaponAbility.serverPlayerWeaponTick(player, this, stack);
+		int ce = (int) current_energy;
+		if (last_energy != ce)
+		{
+			last_energy = ce;
+			ServerPlayNetworking.send(player, new IWNetwork.PlayerEnergyPayload(last_energy));
+		}
+		if (shouldSync)
+		{
+			shouldSync = false;
+			ServerPlayNetworking.send(player, new IWNetwork.AbilityPayload(WeaponAbility, this, null));
+		}
+	}
+
+	public boolean extractAutomicEnergy(ItemStack stack, ServerPlayerEntity user, float amount)
 	{
 		var ab = IWUtil.RuneAbility.getAbility(stack);
 		if (ab.canWork())
@@ -82,7 +123,7 @@ public class PlayerDataManager
 		return false;
 	}
 
-	public boolean tryExtractAutomicEnergy(ItemStack stack, PlayerEntity user, float amount)
+	public boolean tryExtractAutomicEnergy(ItemStack stack, ServerPlayerEntity user, float amount)
 	{
 		var ab = IWUtil.RuneAbility.getAbility(stack);
 		if (ab.canWork())
@@ -103,29 +144,8 @@ public class PlayerDataManager
 		return current_energy >= amount;
 	}
 
-	public void syncWithClient(ServerPlayerEntity player)
+	public float getCurrentEnergy()
 	{
-		if (last_energy != current_energy)
-		{
-			shown_energy = (int) current_energy;
-			ServerPlayNetworking.send(player, new IWNetwork.PlayerEnergyPayload(shown_energy));
-			last_energy = current_energy;
-		}
+		return current_energy;
 	}
-
-	public void setShownEnergy(int energy)
-	{
-		shown_energy = energy;
-	}
-
-	public int getShownEnergy()
-	{
-		return shown_energy;
-	}
-
-	public int getTicker()
-	{
-		return ticker;
-	}
-
 }

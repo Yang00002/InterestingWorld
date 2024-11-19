@@ -4,6 +4,7 @@
   "package": "org.yang.interestingworld.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "ClientMixinClientPlayerEntity",
     "ClientMixinDrawContext",
     "ClientMixinInGameHud",
     "OrderedForTextToolTipAccessor"
