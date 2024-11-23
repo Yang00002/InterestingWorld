@@ -9,7 +9,6 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
@@ -18,6 +17,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.yang.interestingworld.IWDamageTypes;
 import org.yang.interestingworld.IWEffects;
+import org.yang.interestingworld.IWSounds;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
@@ -38,7 +38,6 @@ public class SlashingAbility extends IWRuneAbility
 	public static final int EffectDuration = 120;
 	public static final double AttackMaxAngleCosine = 0.5;
 	public static final double AttackMaxLength = 4;
-	public static final double AttackYExpanse = 1.0;
 	public static final float EnergyCosume = 10;
 	public static final double KnockbackDistance = 0.4;
 
@@ -166,8 +165,9 @@ public class SlashingAbility extends IWRuneAbility
 					var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
 					var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
 					var damageSource = createDamageSource(world, IWDamageTypes.ENERGEE_MELEE, attacker);
-					IWUtil.EnergyTool.horizontalSweepEntity(attacker, AttackMaxAngleCosine, AttackMaxLength,
-							AttackYExpanse, target, (attacker1, entity, distance) -> {
+					IWUtil.Network.playSoundToPlayer(player, IWSounds.DOUBLE_SWEEP, SoundCategory.PLAYERS);
+					IWUtil.EnergyTool.sweepEntity(attacker, AttackMaxAngleCosine, AttackMaxLength, target,
+							(attacker1, entity, distance) -> {
 								entity.takeKnockback(KnockbackDistance, knox, knoz);
 								entity.damage(damageSource, AbilityDamage);
 								IWUtil.EntityAbout.addHiddenStatusEffectWithConsistence(entity, IWEffects.BLOOD,
@@ -176,9 +176,8 @@ public class SlashingAbility extends IWRuneAbility
 								double x = entity.getX();
 								double y = entity.getBodyY(0.5);
 								double z = entity.getZ();
-								IWUtil.Network.spawnParticleAtPos(world, ParticleTypes.SWEEP_ATTACK, x, y, z);
-								IWUtil.Network.playSoundAtPos(world, x, y, z, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP,
-										SoundCategory.PLAYERS);
+								IWUtil.Network.spawnParticlesAtPos(world, ParticleTypes.SWEEP_ATTACK, x, y, z, 3, 0.5,
+										0.5, 0.5);
 							});
 				}
 			}

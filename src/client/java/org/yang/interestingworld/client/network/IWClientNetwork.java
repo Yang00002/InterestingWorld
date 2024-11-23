@@ -3,7 +3,9 @@ package org.yang.interestingworld.client.network;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.yang.interestingworld.network.IWNetwork;
 import org.yang.interestingworld.network.IWNetwork.ItemBreakParticlePayload;
@@ -13,6 +15,7 @@ import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 
 public class IWClientNetwork
 {
+	private static final java.util.Random RANDOM = new java.util.Random();
 
 	private static void handleItemBreakParticlePayload(ItemBreakParticlePayload payload,
 													   ClientPlayNetworking.Context context)
@@ -52,6 +55,15 @@ public class IWClientNetwork
 		ab.readClientRenderDataFromBuf(player, manager, payload.clientData());
 	}
 
+	private static void handleDeferSoundPayload(IWNetwork.DeferSoundPayload payload,
+												ClientPlayNetworking.Context context)
+	{
+		var client = context.client();
+		PositionedSoundInstance positionedSoundInstance = new PositionedSoundInstance(payload.sound().value(),
+				payload.category(), payload.volume(), payload.pitch(), Random.create(RANDOM.nextLong()), payload.x(),
+				payload.y(), payload.z());
+		client.getSoundManager().play(positionedSoundInstance, payload.delay());
+	}
 
 	public static void initialize()
 	{
@@ -65,5 +77,8 @@ public class IWClientNetwork
 		PayloadTypeRegistry.playS2C().register(IWNetwork.AbilityPayload.ID, IWNetwork.AbilityPayload.CODEC);
 		ClientPlayNetworking.registerGlobalReceiver(IWNetwork.AbilityPayload.ID,
 				(payload, context) -> context.client().execute(() -> handlePlayerAbilityBarPayload(payload, context)));
+		PayloadTypeRegistry.playS2C().register(IWNetwork.DeferSoundPayload.ID, IWNetwork.DeferSoundPayload.CODEC);
+		ClientPlayNetworking.registerGlobalReceiver(IWNetwork.DeferSoundPayload.ID,
+				(payload, context) -> context.client().execute(() -> handleDeferSoundPayload(payload, context)));
 	}
 }

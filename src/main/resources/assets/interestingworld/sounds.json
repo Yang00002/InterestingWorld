@@ -1,0 +1,14 @@
+{
+  "abilitybar_full": {
+    "subtitle": "sound.interestingworld.abilitybar_full",
+    "sounds": [
+      "interestingworld:abilitybar_full"
+    ]
+  },
+  "double_sweep": {
+    "subtitle": "sound.interestingworld.double_sweep",
+    "sounds": [
+      "interestingworld:double_sweep"
+    ]
+  }
+}

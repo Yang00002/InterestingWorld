@@ -77,6 +77,8 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add("tooltip.rune.needlevel", "需求等级");
 		translationBuilder.add(IWBlocks.FORGING_BLOCK, "符文锻造台");
 		translationBuilder.add("tooltip.defaultenchantment", "自带：");
+		translationBuilder.add("sound.interestingworld.abilitybar_full", "能量充满");
+		translationBuilder.add("sound.interestingworld.double_sweep", "斩击");
 		try
 		{
 			Path existingFilePath = generator.getModContainer().findPath("assets/interestingworld/lang/zh_cn.json")

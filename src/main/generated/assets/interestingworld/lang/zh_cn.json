@@ -20,6 +20,8 @@
   "itemGroup.tools_group": "IW: 工具",
   "slashing_ability_detail": "右键消耗10点能量充能，充能后的第一次横扫攻击额外对前方一定范围内所有敌人造成3点伤害，并使它们流血6秒。流血的敌人每秒损失1点生命值。",
   "slashing_ability_title": "斩击",
+  "sound.interestingworld.abilitybar_full": "能量充满",
+  "sound.interestingworld.double_sweep": "斩击",
   "sweeping_ability_detail": "使武器可以横扫，每次横扫消耗1点能量。",
   "sweeping_ability_title": "横扫",
   "tooltip.defaultenchantment": "自带：",

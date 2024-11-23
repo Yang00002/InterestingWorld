@@ -12,20 +12,22 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.DamageUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Saddleable;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageType;
-import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
@@ -196,6 +198,7 @@ public class IWUtil
 			return new Vec3d(retx, rety, retz);
 		}
 
+		@Deprecated
 		public static Box getHorizontalAttackRangeBlock(double maxAngleCosin, double maxLength, double yExpanse,
 														double x, double y, double z, double baseY,
 														double NormalizedViewX, double NormalizedViewY,
@@ -246,6 +249,46 @@ public class IWUtil
 			return new Box(minX, minY, minZ, maxX, maxY, maxZ);
 		}
 
+		public static Box getConeAttackRangeBox(double maxLength, double x, double y, double z, double NormalizedViewX
+				, double NormalizedViewY, double NormalizedViewZ)
+		{
+			double dx = NormalizedViewX * maxLength;
+			double dy = NormalizedViewY * maxLength;
+			double dz = NormalizedViewZ * maxLength;
+			double x0, y0, z0, x1, y1, z1;
+			if (dx > 0)
+			{
+				x0 = x - dx;
+				x1 = x;
+			}
+			else
+			{
+				x0 = x;
+				x1 = x - dx;
+			}
+			if (dy > 0)
+			{
+				y0 = y - dy;
+				y1 = y;
+			}
+			else
+			{
+				y0 = y;
+				y1 = y - dy;
+			}
+			if (dz > 0)
+			{
+				z0 = z - dz;
+				z1 = z;
+			}
+			else
+			{
+				z0 = z;
+				z1 = z - dz;
+			}
+			return new Box(x0 - 2, y0 - 6, z0 - 2, x1 + 2, y1 + 2, z1 + 2);
+		}
+
 		public static double squares(double x, double y, double z)
 		{
 			return x * x + y * y + z * z;
@@ -288,9 +331,8 @@ public class IWUtil
 			void attack(LivingEntity attacker, LivingEntity entity, double distance);
 		}
 
-
-		public static void horizontalSweepEntity(LivingEntity attacker, double maxAnglecosin, double maxLength,
-												 double yExpanse, LivingEntity target, DistancedEntityAttacker dealer)
+		public static void sweepEntity(LivingEntity attacker, double maxAnglecosin, double maxLength,
+									   LivingEntity target, DistancedEntityAttacker dealer)
 		{
 			Vec3d eyeV = attacker.getEyePos();
 			double x = eyeV.x;
@@ -301,8 +343,7 @@ public class IWUtil
 			double viewX = viewV.x;
 			double viewY = viewV.y;
 			double viewZ = viewV.z;
-			Box collectBox = MathFunc.getHorizontalAttackRangeBlock(maxAnglecosin, maxLength, yExpanse, x, y, z,
-					attacker.getY(), viewX, viewY, viewZ);
+			Box collectBox = MathFunc.getConeAttackRangeBox(maxLength, x, y, z, viewX, viewY, viewZ);
 			World world = attacker.getWorld();
 			List<LivingEntity> list = world.getNonSpectatingEntities(LivingEntity.class, collectBox);
 			dealer.attack(attacker, target, eyeV.distanceTo(MathFunc.getVec3toEntity(target, x, y, z)));
@@ -311,10 +352,15 @@ public class IWUtil
 				if (entity == null) continue;
 				if (entity == attacker) continue;
 				if (entity == target) continue;
+				if (entity instanceof TameableEntity tameableEntity)
+				{
+					if (tameableEntity.isOwner(attacker)) continue;
+				}
+				if (Saddleable.class.isAssignableFrom(entity.getClass()))
+				{
+					if (((Saddleable) entity).isSaddled()) continue;
+				}
 				if (attacker.isTeammate(entity)) continue;
-				if (entity.hasPassenger(attacker)) continue;
-				if (attacker.hasPassenger(entity)) continue;
-				if (entity instanceof ArmorStandEntity && ((ArmorStandEntity) entity).isMarker()) continue;
 				Vec3d dis = MathFunc.getVec3toEntity(entity, x, y, z);
 				double len = dis.length();
 				double angle = (viewX * dis.x + viewY * dis.y + viewZ * dis.z) / len;
@@ -769,6 +815,14 @@ public class IWUtil
 			else Base.iwlogger.warn("spawnParticleAtPos 尝试将 ClientWorld 转为 ServerWorld");
 		}
 
+		public static void spawnParticlesAtPos(World world, ParticleEffect particle, double x, double y, double z,
+											   int count, double dx, double dy, double dz)
+		{
+			if (world instanceof ServerWorld)
+				((ServerWorld) world).spawnParticles(particle, x, y, z, count, dx, dy, dz, 0);
+			else Base.iwlogger.warn("spawnParticleAtPos 尝试将 ClientWorld 转为 ServerWorld");
+		}
+
 		public static void spawnParticleAtPos(World world, ParticleEffect particle, double x, double y, double z,
 											  int count, double dx, double dy, double dz, double speed)
 		{
@@ -801,6 +855,17 @@ public class IWUtil
 		public static void playSoundToPlayer(PlayerEntity player, SoundEvent sound, SoundCategory category)
 		{
 			if (player instanceof ServerPlayerEntity) player.playSoundToPlayer(sound, category, 1.0f, 1.0f);
+			else Base.iwlogger.warn("playSoundToPlayer 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
+		}
+
+		public static void playSoundToPlayer(PlayerEntity player, SoundEvent sound, SoundCategory category, int delay)
+		{
+			if (player instanceof ServerPlayerEntity sp)
+			{
+				ServerPlayNetworking.send(sp,
+						new IWNetwork.DeferSoundPayload(Registries.SOUND_EVENT.getEntry(sound), category,
+								(float) sp.getX(), (float) sp.getY(), (float) sp.getZ(), 1.0f, 1.0f, delay));
+			}
 			else Base.iwlogger.warn("playSoundToPlayer 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
 		}
 	}

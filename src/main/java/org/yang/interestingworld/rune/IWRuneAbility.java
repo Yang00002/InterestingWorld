@@ -2,8 +2,8 @@ package org.yang.interestingworld.rune;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import org.yang.interestingworld.IWSounds;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
 import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
@@ -52,6 +52,6 @@ public class IWRuneAbility extends IWAbstractRuneAbility
 
 	public void playChargedOverSound(PlayerEntity entity)
 	{
-		entity.playSound(SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE);
+		entity.playSound(IWSounds.ABILITYBAR_FULL, 1.0f, 1.0f);
 	}
 }
