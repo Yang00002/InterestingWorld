@@ -8,7 +8,6 @@ import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.DamageUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -64,8 +63,19 @@ public class IWUtil
 		public static float getArmoredDamage(LivingEntity entity, DamageSource source, float amount)
 		{
 			if (!source.isIn(DamageTypeTags.BYPASSES_ARMOR))
-				amount = DamageUtil.getDamageLeft(entity, amount, source, (float) entity.getArmor(),
+			{
+				var st = entity.getStatusEffect(IWEffects.HURTING);
+				if (st != null)
+				{
+					float mul = 1.0f;
+					var am = st.getAmplifier() + 1;
+					if (am != 1) mul = (1 + am / 10.0f);
+					amount = DamageUtil.getDamageLeft(entity, amount * mul, source, (float) entity.getArmor(),
+							(float) entity.getAttributeValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS)) / mul;
+				}
+				else amount = DamageUtil.getDamageLeft(entity, amount, source, (float) entity.getArmor(),
 						(float) entity.getAttributeValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS));
+			}
 			return amount;
 		}
 
@@ -83,6 +93,21 @@ public class IWUtil
 			int nextDuration = (level * duration + durationTick) / level;
 			entity.removeStatusEffectInternal(effect);
 			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, level - 1, false, false));
+		}
+
+		public static void addStatusEffect(LivingEntity entity, RegistryEntry<StatusEffect> effect, int durationTick)
+		{
+			StatusEffectInstance pre = entity.getStatusEffect(effect);
+			if (pre == null)
+			{
+				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, 0));
+				return;
+			}
+			int level = pre.getAmplifier() + 1;
+			int duration = pre.getDuration();
+			int nextDuration = (level * duration + durationTick) / level;
+			entity.removeStatusEffectInternal(effect);
+			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, level - 1));
 		}
 
 		private static int keepConsistence(int level0, int time0, int level1, int time1, int consistenceTimeTick)
@@ -165,7 +190,23 @@ public class IWUtil
 			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, maxlevel - 1, false, false));
 		}
 
-
+		public static void addStatusEffect(LivingEntity entity, RegistryEntry<StatusEffect> effect, int durationTick,
+										   int amplifier)
+		{
+			StatusEffectInstance pre = entity.getStatusEffect(effect);
+			if (pre == null)
+			{
+				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, amplifier));
+				return;
+			}
+			amplifier++;
+			int level = pre.getAmplifier() + 1;
+			int maxlevel = Math.max(level, amplifier);
+			int duration = pre.getDuration();
+			int nextDuration = (level * duration + durationTick * amplifier) / maxlevel;
+			entity.removeStatusEffectInternal(effect);
+			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, maxlevel - 1));
+		}
 	}
 
 	public static class MathFunc
@@ -249,44 +290,10 @@ public class IWUtil
 			return new Box(minX, minY, minZ, maxX, maxY, maxZ);
 		}
 
-		public static Box getConeAttackRangeBox(double maxLength, double x, double y, double z, double NormalizedViewX
-				, double NormalizedViewY, double NormalizedViewZ)
+		public static Box getSphereAttackRangeBox(double maxLength, double x, double y, double z)
 		{
-			double dx = NormalizedViewX * maxLength;
-			double dy = NormalizedViewY * maxLength;
-			double dz = NormalizedViewZ * maxLength;
-			double x0, y0, z0, x1, y1, z1;
-			if (dx > 0)
-			{
-				x0 = x - dx;
-				x1 = x;
-			}
-			else
-			{
-				x0 = x;
-				x1 = x - dx;
-			}
-			if (dy > 0)
-			{
-				y0 = y - dy;
-				y1 = y;
-			}
-			else
-			{
-				y0 = y;
-				y1 = y - dy;
-			}
-			if (dz > 0)
-			{
-				z0 = z - dz;
-				z1 = z;
-			}
-			else
-			{
-				z0 = z;
-				z1 = z - dz;
-			}
-			return new Box(x0 - 2, y0 - 6, z0 - 2, x1 + 2, y1 + 2, z1 + 2);
+			return new Box(x - maxLength - 2, y - maxLength - 6, z - maxLength - 2, x + maxLength + 2,
+					y + maxLength + 2, z + maxLength + 2);
 		}
 
 		public static double squares(double x, double y, double z)
@@ -331,6 +338,36 @@ public class IWUtil
 			void attack(LivingEntity attacker, LivingEntity entity, double distance);
 		}
 
+		public static void influenceEntityAround(LivingEntity attacker, double maxLength,
+												 DistancedEntityAttacker dealer)
+		{
+			Vec3d eyeV = attacker.getEyePos();
+			double x = eyeV.x;
+			double y = eyeV.y;
+			double z = eyeV.z;
+			Box collectBox = MathFunc.getSphereAttackRangeBox(maxLength, x, y, z);
+			World world = attacker.getWorld();
+			List<LivingEntity> list = world.getNonSpectatingEntities(LivingEntity.class, collectBox);
+			for (LivingEntity entity : list)
+			{
+				if (entity == null) continue;
+				if (entity == attacker) continue;
+				if (entity instanceof TameableEntity tameableEntity)
+				{
+					if (tameableEntity.isOwner(attacker)) continue;
+				}
+				if (Saddleable.class.isAssignableFrom(entity.getClass()))
+				{
+					if (((Saddleable) entity).isSaddled()) continue;
+				}
+				if (attacker.isTeammate(entity)) continue;
+				Vec3d dis = MathFunc.getVec3toEntity(entity, x, y, z);
+				double len = dis.length();
+				if (len <= maxLength) dealer.attack(attacker, entity, len);
+			}
+		}
+
+
 		public static void sweepEntity(LivingEntity attacker, double maxAnglecosin, double maxLength,
 									   LivingEntity target, DistancedEntityAttacker dealer)
 		{
@@ -343,7 +380,7 @@ public class IWUtil
 			double viewX = viewV.x;
 			double viewY = viewV.y;
 			double viewZ = viewV.z;
-			Box collectBox = MathFunc.getConeAttackRangeBox(maxLength, x, y, z, viewX, viewY, viewZ);
+			Box collectBox = MathFunc.getSphereAttackRangeBox(maxLength, x, y, z);
 			World world = attacker.getWorld();
 			List<LivingEntity> list = world.getNonSpectatingEntities(LivingEntity.class, collectBox);
 			dealer.attack(attacker, target, eyeV.distanceTo(MathFunc.getVec3toEntity(target, x, y, z)));
@@ -367,95 +404,6 @@ public class IWUtil
 				if (len <= maxLength && (len <= 0.1 || angle >= maxAnglecosin)) dealer.attack(attacker, entity, len);
 			}
 		}
-
-		public static float maxEnergy(ItemStack stack)
-		{
-			if (!stack.contains(IWComponents.MAX_ENERGY)) stack.set(IWComponents.MAX_ENERGY, 10f);
-			return stack.get(IWComponents.MAX_ENERGY);
-		}
-
-		public static float currentEnergy(ItemStack stack)
-		{
-			if (!stack.contains(IWComponents.CURRENT_ENERGY)) stack.set(IWComponents.CURRENT_ENERGY, 0f);
-			return stack.get(IWComponents.CURRENT_ENERGY);
-		}
-
-		/**
-		 * Do not run at client!
-		 */
-		public static void insertEnergy(ItemStack stack, Entity entity, float amount, float cur, float max)
-		{
-			float s = Math.min(cur + amount, max);
-			if (s + 0.001 > max) stack.set(IWComponents.CURRENT_ENERGY, max);
-			else stack.set(IWComponents.CURRENT_ENERGY, s);
-		}
-
-		/**
-		 * Do not run at client!
-		 */
-		public static boolean extractAutomicEnergy(ItemStack stack, Entity entity, float amount)
-		{
-			var ab = RuneAbility.getAbility(stack);
-			if (ab.canWork())
-			{
-				var fh = Return.FloatHolder.getInstance(amount);
-				var res = ab.extractPower(fh);
-				if (res == Return.RETURNTRUE)
-				{
-					return true;
-				}
-			}
-			float cur = currentEnergy(stack);
-			if (stack.hasEnchantments())
-			{
-				var level = EnergyTool.getEnchantmentLevel(entity.getWorld(), stack, Enchantments.UNBREAKING);
-				if (level >= 10) return true;
-				amount *= 1.0f - 0.1f * level;
-			}
-			if (cur >= amount)
-			{
-				stack.set(IWComponents.CURRENT_ENERGY, cur - amount);
-				return true;
-			}
-			return false;
-		}
-
-		public static boolean tryExtractAutomicEnergy(ItemStack stack, Entity entity, float amount)
-		{
-			var ab = RuneAbility.getAbility(stack);
-			if (ab.canWork())
-			{
-				var fh = Return.FloatHolder.getInstance(amount);
-				var res = ab.extractPower(fh);
-				if (res == Return.RETURNTRUE)
-				{
-					return true;
-				}
-			}
-			float cur = currentEnergy(stack);
-			if (stack.hasEnchantments())
-			{
-				var level = EnergyTool.getEnchantmentLevel(entity.getWorld(), stack, Enchantments.UNBREAKING);
-				if (level >= 10) return true;
-				amount *= 1.0f - 0.1f * level;
-			}
-			return cur >= amount;
-		}
-
-		public static int getBaseRegenNeed(ItemStack stack)
-		{
-			if (!stack.contains(IWComponents.BASE_ENERGY_REGENERATION_NEED))
-				stack.set(IWComponents.BASE_ENERGY_REGENERATION_NEED, 10);
-			return stack.get(IWComponents.BASE_ENERGY_REGENERATION_NEED);
-		}
-
-		public static float getBaseRegenCount(ItemStack stack)
-		{
-			if (!stack.contains(IWComponents.BASE_ENERGY_REGENERATION_COUNT))
-				stack.set(IWComponents.BASE_ENERGY_REGENERATION_COUNT, 10f);
-			return stack.get(IWComponents.BASE_ENERGY_REGENERATION_COUNT);
-		}
-
 	}
 
 	public static class Components
@@ -632,6 +580,7 @@ public class IWUtil
 		public static final int WHITE_RGB = 0XFFFFFF;
 		public static final int PURE_GREEN_RGB = 0X00FF00;
 		public static final int RED_RGB = 0xFF5555;
+		public static final int PINK_RGB = 0Xff738b;
 		public static final int YELLOW_RGB = 0XFFFF55;
 		public static final int CYAN_RGB = 0X55FFFF;
 

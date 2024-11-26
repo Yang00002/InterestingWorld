@@ -109,12 +109,13 @@ public class ServerPlayerDataManager
 				return true;
 			}
 		}
+		/*
 		if (stack.hasEnchantments())
 		{
 			var level = IWUtil.EnergyTool.getEnchantmentLevel(user.getWorld(), stack, Enchantments.UNBREAKING);
 			if (level >= 10) return true;
 			amount *= 1.0f - 0.1f * level;
-		}
+		}*/
 		if (current_energy >= amount)
 		{
 			current_energy -= amount;

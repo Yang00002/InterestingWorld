@@ -20,6 +20,8 @@ import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
 import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
+import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+import org.yang.interestingworld.rune.IWRuneAbilitys;
 
 import java.util.List;
 
@@ -134,7 +136,7 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	}
 
 	@Override
-	public int abilityBarForegroundColor()
+	public int abilityBarForegroundColor(ClientPlayerDataManager data)
 	{
 		return CYAN_RGB;
 	}
@@ -152,10 +154,16 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	}
 
 	@Override
+	public IWAbstractRuneAbility getToolIndexParent()
+	{
+		return IWRuneAbilitys.SLASHING_ABILITY;
+	}
+
+	@Override
 	public void readClientRenderDataFromBuf(PlayerEntity entity, ClientPlayerDataManager data, ByteBuf buf)
 	{
-		int leftusetime = buf.readInt();
-		int c = Math.clamp(leftusetime * 16L / AbilityDuration, 0, 16);
+		int chargeRate = buf.readInt();
+		int c = Math.clamp(chargeRate * 16L / AbilityDuration, 0, 16);
 		if (c == 16 && data.charge_rate16 != 16)
 		{
 			playChargedOverSound(entity);

@@ -2,10 +2,13 @@ package org.yang.interestingworld.item.tool;
 
 import net.fabricmc.fabric.api.item.v1.FabricItem;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ToolItem;
+import net.minecraft.item.ToolMaterial;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
@@ -17,16 +20,14 @@ import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 
 import java.util.List;
-import java.util.Random;
 
 import static org.yang.interestingworld.IWUtil.Return.*;
 import static org.yang.interestingworld.IWUtil.RuneAbility.getAbility;
 import static org.yang.interestingworld.IWUtil.RuneAbility.getColor;
 
 
-public class EnergyToolItem extends Item implements canSweeping, FabricItem
+public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
 {
-	protected static final Random RANDOM = new Random();
 
 	@Override
 	public boolean allowComponentsUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack,
@@ -110,9 +111,9 @@ public class EnergyToolItem extends Item implements canSweeping, FabricItem
 		}
 	}
 
-	public EnergyToolItem(Item.Settings settings)
+	public EnergyToolItem(ToolMaterial material, Item.Settings settings)
 	{
-		super(settings.maxCount(1));
+		super(material, settings.maxCount(1));
 	}
 
 	/**
@@ -143,6 +144,7 @@ public class EnergyToolItem extends Item implements canSweeping, FabricItem
 	{
 		IWAbstractRuneAbility ab = getAbility(stack);
 		if (ab.canWork()) ab.postDamageEntity(stack, target, attacker);
+		stack.damage(1, attacker, EquipmentSlot.MAINHAND);
 	}
 
 	@Override

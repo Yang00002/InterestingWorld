@@ -20,9 +20,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static org.yang.interestingworld.IWUtil.EnergyTool.maxEnergy;
-
-
 public class IWItemGroups
 {
 	private interface ItemInGroupInitializer
@@ -88,7 +85,6 @@ public class IWItemGroups
 			if (item != null && item instanceof EnergyToolItem)
 			{
 				ItemStack stack = item.getDefaultStack();
-				stack.set(IWComponents.CURRENT_ENERGY, stack.getOrDefault(IWComponents.MAX_ENERGY, 0f));
 				if (enchantments != null)
 				{
 					var wrapper = displayContext.lookup().getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
@@ -185,9 +181,7 @@ public class IWItemGroups
 
 	private static ItemStack getToolDisplay()
 	{
-		ItemStack it = IWItems.BLOOD_SWORD.getDefaultStack();
-		it.set(IWComponents.CURRENT_ENERGY, maxEnergy(it));
-		return it;
+		return IWItems.BLOOD_SWORD.getDefaultStack();
 	}
 
 	private static ItemStack getRuneDisplay()

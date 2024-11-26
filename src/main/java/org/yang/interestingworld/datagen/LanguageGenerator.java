@@ -7,8 +7,10 @@ import org.yang.interestingworld.IWBlocks;
 import org.yang.interestingworld.IWEffects;
 import org.yang.interestingworld.IWItemGroups;
 import org.yang.interestingworld.IWItems;
+import org.yang.interestingworld.rune.ability.InfiniteCurseAbility;
 import org.yang.interestingworld.rune.ability.InfiniteSlashingAbility;
 import org.yang.interestingworld.rune.ability.SlashingAbility;
+import org.yang.interestingworld.rune.ability.SweetCurseAbility;
 
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
@@ -65,7 +67,9 @@ public class LanguageGenerator extends FabricLanguageProvider
 														  toString(SlashingAbility.AbilityDamage) +
 														  "点伤害，并使它们流血" +
 														  toString((float) SlashingAbility.EffectDuration / 20) +
-														  "秒。流血的敌人每秒损失1点生命值。");
+														  "秒。流血的敌人每秒损失1点生命值。本技能冷却时间为" +
+														  toString((float) SlashingAbility.AbilityDuration / 20) +
+														  "s。");
 		translationBuilder.add("infiniteslashing_ability_title", "无限斩击");
 		translationBuilder.add("infiniteslashing_ability_detail",
 				"你的武器不再消耗能量。横扫攻击将额外对前方大范围内所有敌人造成" +
@@ -73,6 +77,18 @@ public class LanguageGenerator extends FabricLanguageProvider
 				toString((float) InfiniteSlashingAbility.EffectDuration / 20) + "秒。流血的敌人每秒损失" +
 				toString(InfiniteSlashingAbility.EffectAmplipier + 1) + "点生命值。本技能冷却时间为" +
 				toString((float) InfiniteSlashingAbility.AbilityDuration / 20) + "s。");
+		translationBuilder.add("sweetcurse_ability_title", "甜蜜诅咒");
+		translationBuilder.add("sweetcurse_ability_detail",
+				"右键消耗" + toString(SweetCurseAbility.EnergyCosume) + "点能量使你周围的敌人受到" +
+				toString((float) SweetCurseAbility.EffectDuration / 20) +
+				"s甜蜜诅咒，受到诅咒的敌人将缓慢恢复生命，但其受到的伤害将增加" +
+				toString(SweetCurseAbility.HurtingAmplifier + 1) + "0%。本技能冷却时间为" +
+				toString((float) SweetCurseAbility.AbilityDuration / 20) + "s。");
+		translationBuilder.add("infinitecurse_ability_title", "无限诅咒");
+		translationBuilder.add("infinitecurse_ability_detail",
+				"你的武器不再消耗能量。右键对周围大范围敌人施加永久诅咒, 受到诅咒的敌人将更容易受伤, 且其收到的伤害将增加" +
+				toString(InfiniteCurseAbility.HurtingAmplifier + 1) + "0%。本技能冷却时间为" +
+				toString((float) InfiniteCurseAbility.AbilityDuration / 20) + "s。");
 		translationBuilder.add("banedabilitydetail", "你还不能使用此能力。");
 		translationBuilder.add("tooltip.rune.needlevel", "需求等级");
 		translationBuilder.add(IWBlocks.FORGING_BLOCK, "符文锻造台");

@@ -14,7 +14,6 @@ public class IWDamageTypes
 
     public static final RegistryKey<DamageType> BLOOD_EFFECT = RegistryKey.of(RegistryKeys.DAMAGE_TYPE,
             Identifier.of(MOD_ID, "blood_effect"));
-
     public static void initialize()
     {
 

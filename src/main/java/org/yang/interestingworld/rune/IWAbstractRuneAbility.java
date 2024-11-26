@@ -34,11 +34,6 @@ public class IWAbstractRuneAbility
 		return IGNORE;
 	}
 
-	public ItemStack getTiedItemStack()
-	{
-		return null;
-	}
-
 	public void appendToolTip(List<Text> tooltip)
 	{
 	}
@@ -77,15 +72,6 @@ public class IWAbstractRuneAbility
 	public void ServerInventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
 	}
-
-	/**
-	 * ClientOnly
-	 */
-	public IWUtil.Return.AbilityItemBarMessageTaker getAbilityItemBarRenderMessage(ItemStack stack)
-	{
-		return null;
-	}
-
 	/**
 	 * ClientOnly
 	 */
@@ -224,7 +210,7 @@ public class IWAbstractRuneAbility
 		return false;
 	}
 
-	public int abilityBarForegroundColor()
+	public int abilityBarForegroundColor(ClientPlayerDataManager data)
 	{
 		return 0x282828;
 	}

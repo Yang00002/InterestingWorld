@@ -9,6 +9,7 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
@@ -29,11 +30,12 @@ import java.util.List;
 import static org.yang.interestingworld.IWUtil.EnergyTool.getPlayerData;
 import static org.yang.interestingworld.IWUtil.Registry.createDamageSource;
 import static org.yang.interestingworld.IWUtil.Return.*;
+import static org.yang.interestingworld.IWUtil.TextStyle.GRAY_RGB;
 import static org.yang.interestingworld.IWUtil.TextStyle.RED_RGB;
 
 public class SlashingAbility extends IWRuneAbility
 {
-	public static final short MaxUseTime = 15;
+	public static final short AbilityDuration = 30;
 	public static final float AbilityDamage = 3;
 	public static final int EffectDuration = 120;
 	public static final double AttackMaxAngleCosine = 0.5;
@@ -71,79 +73,27 @@ public class SlashingAbility extends IWRuneAbility
 	}
 
 	@Override
-	public int getMaxUseTime(ItemStack stack, LivingEntity user, int before)
-	{
-		return MaxUseTime;
-	}
-
-	@Override
 	public byte use(World world, PlayerEntity user, Hand hand, ItemStack stack)
 	{
 		if (user instanceof ServerPlayerEntity player)
 		{
 			var data = getPlayerData(player);
-			if (data.charged || !data.tryExtractAutomicEnergy(stack, player, EnergyCosume)) return FAIL;
-			return CONSUME;
+			if (data.charged || data.chargeRate < AbilityDuration ||
+				!data.extractAutomicEnergy(stack, player, EnergyCosume)) return FAIL;
+			data.charged = true;
+			data.shouldSync = true;
+			return SUCCESS;
 		}
 		return PASS;
 	}
 
 	@Override
-	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
+	public void serverPlayerWeaponTick(PlayerEntity entity, ServerPlayerDataManager data, ItemStack stack)
 	{
-		if (user instanceof ServerPlayerEntity player)
+		if (data.chargeRate < AbilityDuration)
 		{
-			var data = getPlayerData(player);
-			if (remainingUseTicks <= 0)
-			{
-				boolean res = data.extractAutomicEnergy(stack, player, EnergyCosume);
-				if (res) data.charged = true;
-				data.isCharging = false;
-			}
-		}
-	}
-
-
-	/*
-	@Override
-	public IWUtil.Return.AbilityItemBarMessageTaker getAbilityItemBarRenderMessage(ItemStack stack)
-	{
-		boolean isCharged = stack.getOrDefault(IWComponents.CHARGE_OVER, false);
-		if (isCharged)
-		{
-			AbilityItemBarMessageTaker taker = new AbilityItemBarMessageTaker();
-			taker.baseColor = 0;
-			taker.step = 13;
-			taker.contentColor = RED_RGB;
-			return taker;
-		}
-		else
-		{
-			int rt = stack.getOrDefault(IWComponents.LEFT_USE_TIME, (short) -1);
-			if (rt >= 0)
-			{
-				AbilityItemBarMessageTaker taker = new AbilityItemBarMessageTaker();
-				taker.baseColor = 0;
-				taker.step = (rt < MaxUseTime) ? (MaxUseTime - rt) * 13 / MaxUseTime : (0);
-				taker.contentColor = GRAY_RGB;
-				return taker;
-			}
-		}
-		return null;
-	}*/
-
-	@Override
-	public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks)
-	{
-		if (remainingUseTicks >= 0 && user instanceof ServerPlayerEntity player)
-		{
-			var data = getPlayerData(player);
-			if (remainingUseTicks != data.leftusetime)
-			{
-				data.leftusetime = remainingUseTicks;
-				data.shouldSync = true;
-			}
-			if (remainingUseTicks == 0 && data.isCharging) user.stopUsingItem();
+			data.chargeRate++;
+			data.shouldSync = true;
 		}
 	}
 
@@ -159,7 +109,7 @@ public class SlashingAbility extends IWRuneAbility
 				if (manager.charged)
 				{
 					manager.charged = false;
-					manager.leftusetime = MaxUseTime;
+					manager.chargeRate = 0;
 					manager.shouldSync = true;
 					World world = attacker.getWorld();
 					var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
@@ -193,7 +143,7 @@ public class SlashingAbility extends IWRuneAbility
 	@Override
 	public void onEnter(PlayerEntity entity, ServerPlayerDataManager manager)
 	{
-		manager.leftusetime = MaxUseTime;
+		manager.chargeRate = 0;
 		manager.charged = false;
 		manager.sweeping = false;
 		manager.isCharging = false;
@@ -202,22 +152,16 @@ public class SlashingAbility extends IWRuneAbility
 	@Override
 	public void onLeave(PlayerEntity entity, ServerPlayerDataManager manager)
 	{
-		manager.leftusetime = 0;
+		manager.chargeRate = -1;
 		manager.charged = false;
 		manager.sweeping = false;
 		manager.isCharging = false;
 	}
 
 	@Override
-	public boolean isUsedOnRelease(ItemStack stack, boolean before)
+	public int abilityBarForegroundColor(ClientPlayerDataManager data)
 	{
-		return true;
-	}
-
-	@Override
-	public int abilityBarForegroundColor()
-	{
-		return RED_RGB;
+		return data.charged ? RED_RGB : GRAY_RGB;
 	}
 
 	@Override
@@ -229,18 +173,25 @@ public class SlashingAbility extends IWRuneAbility
 	@Override
 	public void writeClientRenderDataToBuf(ServerPlayerDataManager data, RegistryByteBuf buf)
 	{
-		buf.writeInt(data.leftusetime);
+		buf.writeInt(data.chargeRate);
+		buf.writeBoolean(data.charged);
 	}
 
 	@Override
 	public void readClientRenderDataFromBuf(PlayerEntity entity, ClientPlayerDataManager data, ByteBuf buf)
 	{
-		int leftusetime = buf.readInt();
-		int c = Math.clamp((MaxUseTime - leftusetime) * 16L / MaxUseTime, 0, 16);
+		int chargeRate = buf.readInt();
+		int c = Math.clamp(chargeRate * 16L / AbilityDuration, 0, 16);
 		if (c == 16 && data.charge_rate16 != 16)
 		{
 			playChargedOverSound(entity);
 		}
 		data.charge_rate16 = c;
+		boolean ch = buf.readBoolean();
+		if(ch && !data.charged)
+		{
+			entity.playSound(SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE);
+		}
+		data.charged = ch;
 	}
 }

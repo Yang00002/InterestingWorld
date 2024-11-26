@@ -1,9 +1,7 @@
 package org.yang.interestingworld.rune;
 
 import org.yang.interestingworld.IWItemGroups;
-import org.yang.interestingworld.rune.ability.InfiniteSlashingAbility;
-import org.yang.interestingworld.rune.ability.SlashingAbility;
-import org.yang.interestingworld.rune.ability.SweepingAbility;
+import org.yang.interestingworld.rune.ability.*;
 
 import java.util.LinkedList;
 
@@ -14,6 +12,9 @@ public class IWRuneAbilitys
 	public static IWAbstractRuneAbility SWEEP_ABILITY = new SweepingAbility();
 	public static IWAbstractRuneAbility SLASHING_ABILITY = new SlashingAbility();
 	public static IWAbstractRuneAbility INFINITESLASHING_ABILITY = new InfiniteSlashingAbility();
+	public static IWAbstractRuneAbility SWEETCURSE_ABILITY = new SweetCurseAbility();
+	public static IWAbstractRuneAbility INFINITECURSE_ABILITY = new InfiniteCurseAbility();
+
 	private static short ABILITY_COUNT = 0;
 
 	private static class AbilityRegister
@@ -83,7 +84,7 @@ public class IWRuneAbilitys
 		{
 			if (toolIds[idx] == -1)
 			{
-				IWAbstractRuneAbility ab = ABILITY_LIST[idx].getRuneIndexParent();
+				IWAbstractRuneAbility ab = ABILITY_LIST[idx].getToolIndexParent();
 				if (ab == null)
 				{
 					toolIds[idx] = toolIdAllocator;
@@ -111,6 +112,8 @@ public class IWRuneAbilitys
 		register.register(SWEEP_ABILITY);
 		register.register(SLASHING_ABILITY);
 		register.register(INFINITESLASHING_ABILITY);
+		register.register(SWEETCURSE_ABILITY);
+		register.register(INFINITECURSE_ABILITY);
 		register.build();
 	}
 

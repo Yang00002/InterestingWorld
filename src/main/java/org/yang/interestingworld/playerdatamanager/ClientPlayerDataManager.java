@@ -9,4 +9,5 @@ public class ClientPlayerDataManager
 	public int shown_energy = 0;
 	public boolean energy_enough_to_use = false;
 	public int charge_rate16 = 0;
+	public boolean charged = false;
 }

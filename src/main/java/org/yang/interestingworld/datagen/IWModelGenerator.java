@@ -144,7 +144,7 @@ public class IWModelGenerator extends FabricModelProvider
 			String newPath = "interestingworld:item/" + path;
 			String s = "{\"parent\":\"minecraft:item/" + parent + "\",\"textures\": {\"layer0\":\"" + newPath + "\"}}";
 			itemModelGenerator.writer.accept(Identifier.of(newPath), () -> JsonParser.parseString(s));
-			pathCache.put(ability.runeIndex, newPath);
+			pathCache.put(ability.toolIndex, newPath);
 		}
 
 		void addTexture(ItemModelGenerator itemModelGenerator, IWAbstractRuneAbility ability, String path)
@@ -153,7 +153,7 @@ public class IWModelGenerator extends FabricModelProvider
 			String newPath = "interestingworld:item/" + path;
 			String s = "{\"parent\":\"minecraft:item/generated\",\"textures\": {\"layer0\":\"" + newPath + "\"}}";
 			itemModelGenerator.writer.accept(Identifier.of(newPath), () -> JsonParser.parseString(s));
-			pathCache.put(ability.runeIndex, newPath);
+			pathCache.put(ability.toolIndex, newPath);
 		}
 
 		void build()

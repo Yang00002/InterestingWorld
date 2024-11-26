@@ -9,7 +9,10 @@ import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.slot.Slot;
-import org.yang.interestingworld.*;
+import org.yang.interestingworld.IWBlocks;
+import org.yang.interestingworld.IWItems;
+import org.yang.interestingworld.IWResources;
+import org.yang.interestingworld.IWScreenHandlers;
 import org.yang.interestingworld.item.rune.AbilityRuneItem;
 import org.yang.interestingworld.item.rune.RuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
@@ -179,8 +182,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			canTakeOutput.set(0);
 			return;
 		}
-		if (stackTool.getOrDefault(IWComponents.MAX_ENERGY, 1f) * 0.9 >
-			stackTool.getOrDefault(IWComponents.CURRENT_ENERGY, 1f))
+		if (stackTool.getMaxDamage() * 0.1 < stackTool.getDamage())
 		{
 			canTakeOutput.set(0);
 			return;
@@ -261,10 +263,10 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		ItemStack stackOutput = inventory.getStack(2);
 		if (!stackOutput.isEmpty()) return;
 		if (!(stackTool.getItem() instanceof EnergyToolItem)) return;
-		float currentEnergy = stackTool.getOrDefault(IWComponents.CURRENT_ENERGY, 1f);
-		float maxEnergy = stackTool.getOrDefault(IWComponents.MAX_ENERGY, 1f);
-		float energyRatio = currentEnergy / maxEnergy;
-		if (energyRatio <= 0.89) return;
+		float currentDamage = stackTool.getDamage();
+		float maxDamage = stackTool.getMaxDamage();
+		float damageRatio = currentDamage / maxDamage;
+		if (damageRatio >= 0.11) return;
 		if (stackRune.getItem() instanceof AbilityRuneItem)
 		{
 			if (getAbility(stackTool).index != 0) return;
@@ -287,16 +289,15 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			setAbility(newRune, ability);
 			inventory.setStack(2, newRune);
 			inventory.removeStack(1);
-			float c = player.getRandom().nextFloat() + extractItemForSavingTool(ability.level()) + energyRatio - 1.0f;
+			float c = player.getRandom().nextFloat() + extractItemForSavingTool(ability.level()) - damageRatio;
 			if (c < 0.0)
 			{
 				inventory.removeStack(0);
 				return;
 			}
 			removeToolAbility(stackTool);
-			stackTool.set(IWComponents.CURRENT_ENERGY, maxEnergy * c);
+			stackTool.setDamage((int) (maxDamage * (1 - c)));
 			inventory.setStack(0, stackTool);
-			return;
 		}
 	}
 

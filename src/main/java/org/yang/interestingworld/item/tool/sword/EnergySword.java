@@ -7,6 +7,7 @@ import net.minecraft.component.type.ToolComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ToolMaterial;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -18,9 +19,9 @@ import java.util.List;
 public class EnergySword extends EnergyToolItem
 {
 
-	public EnergySword(Item.Settings settings)
+	public EnergySword(ToolMaterial material, Item.Settings settings)
 	{
-		super(settings.component(DataComponentTypes.TOOL, createToolComponent()));
+		super(material, settings.component(DataComponentTypes.TOOL, createToolComponent()));
 	}
 
 	private static ToolComponent createToolComponent()

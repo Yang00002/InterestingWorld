@@ -66,7 +66,8 @@ public class SweepingAbility extends IWRuneAbility
 		return false;
 	}
 
-	public int abilityBarForegroundColor()
+	@Override
+	public int abilityBarForegroundColor(ClientPlayerDataManager data)
 	{
 		return WHITE_RGB;
 	}

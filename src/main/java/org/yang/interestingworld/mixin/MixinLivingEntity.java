@@ -6,22 +6,24 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.*;
 import org.yang.interestingworld.IWEffects;
 import org.yang.interestingworld.IWEnchantments;
 import org.yang.interestingworld.IWUtil;
+
+import java.util.Map;
 
 
 @Debug(export = true)
@@ -45,36 +47,17 @@ public abstract class MixinLivingEntity extends Entity implements Attackable
 	@Shadow
 	protected float lastDamageTaken;
 
+	@Shadow
+	public abstract Map<RegistryEntry<StatusEffect>, StatusEffectInstance> getActiveStatusEffects();
+
+	@Shadow
+	public abstract @Nullable StatusEffectInstance getStatusEffect(RegistryEntry<StatusEffect> effect);
+
 	public MixinLivingEntity(EntityType<?> type, World world)
 	{
 		super(type, world);
 	}
 
-	/*
-	@Inject(method = "damage(Lnet/minecraft/entity/damage/DamageSource;F)Z", at = @At(value = "INVOKE", target =
-	"Lnet" +
-																												 "/minecraft/entity/LimbAnimator;setSpeed(F)V"))
-	private void injected(CallbackInfoReturnable<Boolean> cir)
-	{
-		maxHurtTimeCache = maxHurtTime;
-		hurtTimeCache = ((LivingEntity) (Object) this).hurtTime;
-		timeUntilRegenCache = timeUntilRegen;
-		lastDamageTakenCache = lastDamageTaken;
-	}
-
-	@Inject(method = "damage(Lnet/minecraft/entity/damage/DamageSource;F)Z", at = @At(value = "INVOKE", target =
-	"Lnet" +
-																												 "/minecraft/entity/damage/DamageSource;getAttacker()Lnet/minecraft/entity/Entity;"))
-	private void injected2(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
-	{
-		if (source.isIn(DamageTypeTags.BYPASSES_COOLDOWN))
-		{
-			maxHurtTime = maxHurtTimeCache;
-			((LivingEntity) (Object) this).hurtTime = hurtTimeCache;
-			timeUntilRegen = timeUntilRegenCache;
-			lastDamageTaken = lastDamageTakenCache;
-		}
-	}*/
 	@Unique
 	private int hurtGate = 20;
 
@@ -86,6 +69,18 @@ public abstract class MixinLivingEntity extends Entity implements Attackable
 		{
 			lastDamageTaken = value;
 		}
+	}
+
+	@ModifyVariable(method = "damage(Lnet/minecraft/entity/damage/DamageSource;F)Z", at = @At("HEAD"), argsOnly = true)
+	private float injected(float y)
+	{
+		var st = getStatusEffect(IWEffects.HURTING);
+		if (st != null)
+		{
+			var am = st.getAmplifier() + 1;
+			if (am != 1) return y * (1 + am / 10.0f);
+		}
+		return y;
 	}
 
 	@ModifyConstant(method = "damage(Lnet/minecraft/entity/damage/DamageSource;F)Z", constant = @Constant(intValue =
@@ -118,5 +113,4 @@ public abstract class MixinLivingEntity extends Entity implements Attackable
 		hurtGate = Math.min(10 + level, 19);
 		return hurtGate;
 	}
-
 }

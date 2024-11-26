@@ -85,7 +85,7 @@ public abstract class ClientMixinInGameHud
 			int j = (context.getScaledWindowWidth() - 18) / 2;
 			int k = context.getScaledWindowHeight() - 50;
 			int div = ability.abilityProcess(manager);
-			int fc = ability.abilityBarForegroundColor();
+			int fc = ability.abilityBarForegroundColor(manager);
 			if (div == 16) context.fill(j, k, j + 17, k + 5, rgbDarkenToArgb(fc, 0.2f));
 			else
 			{

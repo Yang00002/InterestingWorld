@@ -43,7 +43,6 @@ dependencies {
     modRuntimeOnly files("runtimemods/malilib-fabric-1.21.1-0.21.0.jar")
     modRuntimeOnly files("runtimemods/minihud-fabric-1.21.1-0.32.50.jar")
     modRuntimeOnly files("runtimemods/Jade-1.21.1-Fabric-15.8.2.jar")
-
 }
 
 processResources {
