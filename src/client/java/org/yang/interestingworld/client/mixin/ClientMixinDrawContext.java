@@ -5,8 +5,12 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.gui.tooltip.TooltipPositioner;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -14,7 +18,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.yang.interestingworld.IWComponents;
+import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.client.tooltip.TooltipHelper;
+import org.yang.interestingworld.item.tool.EnergyToolItem;
+import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +68,7 @@ public abstract class ClientMixinDrawContext
 	@Shadow
 	public abstract void fill(RenderLayer layer, int x1, int y1, int x2, int y2, int color);
 
-	/*
+
 	@Inject(method = "drawItemInSlot(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;" +
 					 "IILjava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math" +
 																				   "/MatrixStack;push()V", shift =
@@ -69,49 +77,29 @@ public abstract class ClientMixinDrawContext
 								 CallbackInfo ci)
 	{
 		Item item = stack.getItem();
-		if (item instanceof EnergyToolItem)
+		if (item instanceof EnergyToolItem && stack.contains(IWComponents.MAX_ENERGY))
 		{
 			float maxEnergy = stack.getOrDefault(IWComponents.MAX_ENERGY, 1f);
 			float currentEnergy = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 1f);
+			if (maxEnergy <= currentEnergy) return;
+			int cl = Math.clamp((int) ((currentEnergy * 13.0f) / maxEnergy), 0, 13);
 			IWAbstractRuneAbility ab = IWUtil.RuneAbility.getAbility(stack);
-			boolean canwork = ab.canWork();
 			int l = y + 13;
 			int k = x + 2;
-			IWUtil.Return.AbilityItemBarMessageTaker message = null;
-			if (canwork) message = ab.getAbilityItemBarRenderMessage(stack);
-			if ((!canwork || ab.canEnergyItemBarVisible()) && maxEnergy > currentEnergy)
+			int c = ab.canWork() ? ab.getColor() : IWUtil.TextStyle.GRAY_RGB;
+			if (stack.isItemBarVisible())
 			{
-				float frac = currentEnergy / maxEnergy;
-				int step;
-				int color;
-				if (currentEnergy < 0)
-				{
-					step = 0;
-					color = 0;
-				}
-				else
-				{
-					step = MathHelper.clamp(Math.round(13.0f * frac), 0, 13);
-					if (frac > 1.0f) frac = 1.0f;
-					color = MathHelper.hsvToRgb(frac / 3.0F, 1.0F, 1.0F);
-				}
-				if (message == null)
-				{
-					fill(RenderLayer.getGuiOverlay(), k, l, k + 13, l + 2, -16777216);
-					fill(RenderLayer.getGuiOverlay(), k, l, k + step, l + 1, color | -16777216);
-				}
-				else
-				{
-					fill(RenderLayer.getGuiOverlay(), k, l - 1, k + 13, l + 1, message.baseColor | -16777216);
-					fill(RenderLayer.getGuiOverlay(), k, l - 1, k + message.step, l, message.contentColor | -16777216);
-					fill(RenderLayer.getGuiOverlay(), k, l + 1, k + 13, l + 3, -16777216);
-					fill(RenderLayer.getGuiOverlay(), k, l + 1, k + step, l + 2, color | -16777216);
-				}
+				int i = stack.getItemBarStep();
+				int j = stack.getItemBarColor();
+				fill(RenderLayer.getGuiOverlay(), k, l - 1, k + 13, l + 1, -16777216);
+				fill(RenderLayer.getGuiOverlay(), k, l - 1, k + cl, l, c | -16777216);
+				fill(RenderLayer.getGuiOverlay(), k, l + 1, k + 13, l + 3, -16777216);
+				fill(RenderLayer.getGuiOverlay(), k, l + 1, k + i, l + 2, j | -16777216);
 			}
-			else if (message != null)
+			else
 			{
-				fill(RenderLayer.getGuiOverlay(), k, l, k + 13, l + 2, message.baseColor | -16777216);
-				fill(RenderLayer.getGuiOverlay(), k, l, k + message.step, l + 1, message.contentColor | -16777216);
+				fill(RenderLayer.getGuiOverlay(), k, l, k + 13, l + 2, -16777216);
+				fill(RenderLayer.getGuiOverlay(), k, l, k + cl, l + 1, c | -16777216);
 			}
 			ClientPlayerEntity clientPlayerEntity = client.player;
 			float f = clientPlayerEntity == null ? 0.0F : clientPlayerEntity.getItemCooldownManager()
@@ -125,5 +113,5 @@ public abstract class ClientMixinDrawContext
 			matrices.pop();
 			ci.cancel();
 		}
-	}*/
+	}
 }

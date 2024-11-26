@@ -1,10 +1,10 @@
 package org.yang.interestingworld.playerdatamanager;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.network.IWNetwork;
@@ -24,7 +24,6 @@ public class ServerPlayerDataManager
 	public int chargeRate = -1;
 	public boolean isCharging = false;
 	public boolean shouldSync = false;
-	public int leftusetime = 0;
 
 	public void readNbt(NbtCompound nbt)
 	{
@@ -38,28 +37,50 @@ public class ServerPlayerDataManager
 		nbt.putInt("energyregentimer", energyRegenTimer);
 	}
 
-	public void updateEnergy(ServerPlayerEntity player)
+	public void updateEnergy(ServerPlayerEntity player, ItemStack stack)
 	{
-		if (energyRegenTimer < 45) energyRegenTimer++;
-		if (current_energy < 40 && energyRegenTimer >= 5 && player.getHealth() >= player.getMaxHealth())
+		if (energyRegenTimer < Integer.MAX_VALUE) energyRegenTimer++;
+		if (player.getHealth() >= player.getMaxHealth())
 		{
-			var hunger = player.getHungerManager();
-			int food = hunger.getFoodLevel();
-			if (food < 18) return;
-			float saturation = hunger.getSaturationLevel();
-			if (energyRegenTimer < 45 - (int) saturation * 2) return;
-			if (saturation >= 1.0f) hunger.setSaturationLevel(saturation - 1.0f);
-			else hunger.setFoodLevel(food - 1);
-			current_energy++;
-			energyRegenTimer = 0;
+			if (current_energy < 20)
+			{
+				if (energyRegenTimer >= 5)
+				{
+					var hunger = player.getHungerManager();
+					int food = hunger.getFoodLevel();
+					if (food < 18) return;
+					float saturation = hunger.getSaturationLevel();
+					if (energyRegenTimer < 45 - (int) saturation * 2) return;
+					if (saturation >= 1.0f) hunger.setSaturationLevel(saturation - 1.0f);
+					else hunger.setFoodLevel(food - 1);
+					current_energy++;
+					energyRegenTimer = 0;
+				}
+			}
+			else if (!stack.isEmpty())
+			{
+				float max = IWUtil.Components.maxEnergy(stack);
+				float cur = IWUtil.Components.currentEnergy(stack);
+				float rate = stack.getOrDefault(IWComponents.ENERGY_REGEN_RATE, 0.0f);
+				if (max > cur && rate != 0.0f)
+				{
+					var hunger = player.getHungerManager();
+					int food = hunger.getFoodLevel();
+					if (food < 18) return;
+					float saturation = hunger.getSaturationLevel();
+					if (energyRegenTimer * rate < 45 - (int) saturation * 2) return;
+					stack.set(IWComponents.CURRENT_ENERGY, Math.min(max, cur + 1));
+					energyRegenTimer = 0;
+				}
+			}
 		}
 	}
 
 
 	public void tick(ServerPlayerEntity player)
 	{
-		updateEnergy(player);
 		ItemStack stack = player.getWeaponStack();
+		updateEnergy(player, stack);
 		if (!stack.isEmpty() && stack.getItem() instanceof EnergyToolItem)
 		{
 			var ability = getAbility(stack);
@@ -109,14 +130,21 @@ public class ServerPlayerDataManager
 				return true;
 			}
 		}
-		/*
-		if (stack.hasEnchantments())
+		float e = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f);
+		if (e > 0.0f)
 		{
-			var level = IWUtil.EnergyTool.getEnchantmentLevel(user.getWorld(), stack, Enchantments.UNBREAKING);
-			if (level >= 10) return true;
-			amount *= 1.0f - 0.1f * level;
-		}*/
-		if (current_energy >= amount)
+			if (current_energy + e >= amount)
+			{
+				if (e < amount)
+				{
+					current_energy -= amount - e;
+					stack.set(IWComponents.CURRENT_ENERGY, 0.0f);
+				}
+				else stack.set(IWComponents.CURRENT_ENERGY, e - amount);
+				return true;
+			}
+		}
+		else if (current_energy >= amount)
 		{
 			current_energy -= amount;
 			return true;
@@ -136,13 +164,8 @@ public class ServerPlayerDataManager
 				return true;
 			}
 		}
-		if (stack.hasEnchantments())
-		{
-			var level = IWUtil.EnergyTool.getEnchantmentLevel(user.getWorld(), stack, Enchantments.UNBREAKING);
-			if (level >= 10) return true;
-			amount *= 1.0f - 0.1f * level;
-		}
-		return current_energy >= amount;
+		float e = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f);
+		return current_energy + e >= amount;
 	}
 
 	public float getCurrentEnergy()

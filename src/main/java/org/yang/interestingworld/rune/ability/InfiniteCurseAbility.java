@@ -65,7 +65,7 @@ public class InfiniteCurseAbility extends IWRuneAbility
 			influenceEntityAround(user, AttackMaxLength, (attacker, entity, distance) -> {
 				entity.addStatusEffect(new StatusEffectInstance(IWEffects.HURTING, -1, HurtingAmplifier));
 				entity.addStatusEffect(
-						new StatusEffectInstance(IWEffects.COOLDOWN, -1, CooldownAmplifier, false, true));
+						new StatusEffectInstance(IWEffects.COOLDOWN, -1, CooldownAmplifier, false, false));
 			});
 			return SUCCESS;
 		}

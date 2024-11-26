@@ -10,10 +10,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWUtil;
@@ -21,9 +24,12 @@ import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 
 import java.util.List;
 
+import static org.yang.interestingworld.IWUtil.Components.currentEnergy;
+import static org.yang.interestingworld.IWUtil.Components.maxEnergy;
 import static org.yang.interestingworld.IWUtil.Return.*;
 import static org.yang.interestingworld.IWUtil.RuneAbility.getAbility;
 import static org.yang.interestingworld.IWUtil.RuneAbility.getColor;
+import static org.yang.interestingworld.IWUtil.TextStyle.PURE_GREEN_RGB;
 
 
 public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
@@ -147,9 +153,26 @@ public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
 		stack.damage(1, attacker, EquipmentSlot.MAINHAND);
 	}
 
+	private static void appendEneryText(MutableText text, ItemStack stack)
+	{
+		int max = (int) maxEnergy(stack);
+		int cur = Math.clamp((int) currentEnergy(stack), 0, max);
+		String num = String.valueOf(cur);
+		text.append(Text.literal(num).withColor(MathHelper.hsvToRgb((float) cur / max / 3.0F, 1.0F, 1.0F)))
+				.append(Text.literal(" / ").formatted(Formatting.GRAY))
+				.append(Text.literal(String.valueOf(max)).withColor(PURE_GREEN_RGB));
+	}
+
 	@Override
 	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type)
 	{
+		MutableText text = Text.empty();
+		if (stack.contains(IWComponents.MAX_ENERGY))
+		{
+			text.append(Text.translatable("tooltip.energy.count").formatted(Formatting.GRAY)).append(" ");
+			appendEneryText(text, stack);
+			tooltip.add(text);
+		}
 		var ab = getAbility(stack);
 		if (ab.canWork()) ab.appendToolTip(tooltip);
 		else ab.appendBanedToolTip(tooltip);

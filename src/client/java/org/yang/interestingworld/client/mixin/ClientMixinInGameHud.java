@@ -35,11 +35,6 @@ public abstract class ClientMixinInGameHud
 	private static final Identifier HALF_ENERGY = Identifier.of(IWUtil.Base.MOD_ID, "hud/energy/e_half");
 	@Unique
 	private static final Identifier FFULL_ENERGY = Identifier.of(IWUtil.Base.MOD_ID, "hud/energy/e_glowing");
-	@Unique
-	private static final Identifier FHALF_ENERGY = Identifier.of(IWUtil.Base.MOD_ID, "hud/energy/e_fhalf");
-	@Shadow
-	@Final
-	private MinecraftClient client;
 
 	@Shadow
 	public abstract TextRenderer getTextRenderer();
@@ -55,16 +50,12 @@ public abstract class ClientMixinInGameHud
 		ClientPlayerDataManager manager = ((ClientPlayerDataAccessor) playerEntity).getDataManager();
 		int energy = manager.shown_energy;
 		RenderSystem.enableBlend();
-		if (energy > 20)
+		if (energy >= 20)
 		{
-			energy -= 20;
 			for (int j = 0; j < 10; j++)
 			{
-				int t = j * 2 + 1;
 				int l = m - j * 8 - 9;
-				if (t > energy) context.drawGuiTexture(FULL_ENERGY, l, r, 9, 9);
-				else if (t == energy) context.drawGuiTexture(FHALF_ENERGY, l, r, 9, 9);
-				else context.drawGuiTexture(FFULL_ENERGY, l, r, 9, 9);
+				context.drawGuiTexture(FFULL_ENERGY, l, r, 9, 9);
 			}
 		}
 		else

@@ -9,6 +9,12 @@ import net.minecraft.util.Identifier;
 
 public class IWComponents
 {
+	public static final ComponentType<Float> MAX_ENERGY = Registry.register(Registries.DATA_COMPONENT_TYPE,
+			Identifier.of(IWUtil.Base.MOD_ID, "me"), ComponentType.<Float>builder().codec(Codec.FLOAT).build());
+	public static final ComponentType<Float> CURRENT_ENERGY = Registry.register(Registries.DATA_COMPONENT_TYPE,
+			Identifier.of(IWUtil.Base.MOD_ID, "ce"), ComponentType.<Float>builder().codec(Codec.FLOAT).build());
+	public static ComponentType<Float> ENERGY_REGEN_RATE = Registry.register(Registries.DATA_COMPONENT_TYPE,
+			Identifier.of(IWUtil.Base.MOD_ID, "err"), ComponentType.<Float>builder().codec(Codec.FLOAT).build());
 	public static ComponentType<Integer> ITEM_COLOR = Registry.register(Registries.DATA_COMPONENT_TYPE,
 			Identifier.of(IWUtil.Base.MOD_ID, "ico"), ComponentType.<Integer>builder().codec(Codec.INT).build());
 	public static ComponentType<Short> ABILITY_INDEX = Registry.register(Registries.DATA_COMPONENT_TYPE,

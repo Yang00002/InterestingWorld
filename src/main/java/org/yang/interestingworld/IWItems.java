@@ -38,20 +38,24 @@ public class IWItems
 
 	public static void initialize()
 	{
-		STICK = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(3)
+		STICK = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(3).setEnergy(5).setRegen(0.1f)
 				.build("energy_stick", ToolMaterials.WOOD, EnergyToolItem::new);
-		BLOOD_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(4.5).setBaseAttackSpeed(1.8)
-				.setEntityInteractionRangeAdding(-0.25).build("blood_sword", ToolMaterials.STONE, EnergySword::new);
-		STONE_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(5).setBaseAttackSpeed(1.6)
-				.build("stone_sword", ToolMaterials.STONE, EnergySword::new);
-		IRON_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(6).setBaseAttackSpeed(1.6)
-				.build("iron_sword", ToolMaterials.IRON, EnergySword::new);
-		GOLDEN_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(4).setBaseAttackSpeed(2.0)
-				.build("golden_sword", ToolMaterials.GOLD, EnergySword::new);
-		DIAMOND_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(7).setBaseAttackSpeed(1.6)
-				.build("diamond_sword", ToolMaterials.DIAMOND, EnergySword::new);
+		BLOOD_SWORD =
+				EnergyToolItemBuilder.getInstance().setBaseAttackDamage(4.5).setBaseAttackSpeed(1.8).setEnergy(10)
+				.setRegen(0.15f).setEntityInteractionRangeAdding(-0.25)
+				.build("blood_sword", ToolMaterials.STONE, EnergySword::new);
+		STONE_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(5).setBaseAttackSpeed(1.6).setEnergy(10)
+				.setRegen(0.15f).build("stone_sword", ToolMaterials.STONE, EnergySword::new);
+		IRON_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(6).setBaseAttackSpeed(1.6).setEnergy(15)
+				.setRegen(0.2f).build("iron_sword", ToolMaterials.IRON, EnergySword::new);
+		GOLDEN_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(4).setBaseAttackSpeed(2.0).setEnergy(5)
+				.setRegen(0.35f).build("golden_sword", ToolMaterials.GOLD, EnergySword::new);
+		DIAMOND_SWORD =
+				EnergyToolItemBuilder.getInstance().setBaseAttackDamage(7).setBaseAttackSpeed(1.6).setEnergy(20)
+				.setRegen(0.25f).build("diamond_sword", ToolMaterials.DIAMOND, EnergySword::new);
 		NETHERITE_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(8).setBaseAttackSpeed(1.6)
-				.setFireResistence().build("netherite_sword", ToolMaterials.NETHERITE, EnergySword::new);
+				.setEnergy(25).setRegen(0.3f).setFireResistence()
+				.build("netherite_sword", ToolMaterials.NETHERITE, EnergySword::new);
 		EMPTY_RUNE = createCommonItem("rune", RuneItem::new);
 		COMMON_ABILITY_RUNE = createCommonItem("ability_rune", AbilityRuneItem::new);
 
@@ -82,6 +86,8 @@ public class IWItems
 
 	public static class EnergyToolItemBuilder
 	{
+		private float maxEnergy = 0;
+		private float regenRate = 0;
 		private double attackDamageAdding = 0;
 		private double attackSpeedAdding = 0;
 		private double entityInteractionRangeAdding = 0;
@@ -89,6 +95,18 @@ public class IWItems
 
 		private final Identifier BASE_ENTITY_INTERACTION_RANGE = Identifier.of(IWUtil.Base.MOD_ID,
 				"base_entity_interaction_range");
+
+		public EnergyToolItemBuilder setEnergy(float max)
+		{
+			maxEnergy = max;
+			return this;
+		}
+
+		public EnergyToolItemBuilder setRegen(float regenRateParameter)
+		{
+			regenRate = regenRateParameter;
+			return this;
+		}
 
 		public EnergyToolItemBuilder setFireResistence()
 		{
@@ -123,6 +141,15 @@ public class IWItems
 				Item.Settings, T> function)
 		{
 			Item.Settings settings = new Item.Settings();
+			if (maxEnergy > 0)
+			{
+				settings = settings.component(IWComponents.MAX_ENERGY, maxEnergy)
+						.component(IWComponents.CURRENT_ENERGY, maxEnergy);
+			}
+			if (regenRate > 0)
+			{
+				settings = settings.component(IWComponents.ENERGY_REGEN_RATE, regenRate);
+			}
 			if (fireresistence) settings = settings.fireproof();
 			var builder = AttributeModifiersComponent.builder();
 			builder = builder.add(EntityAttributes.GENERIC_ATTACK_DAMAGE,

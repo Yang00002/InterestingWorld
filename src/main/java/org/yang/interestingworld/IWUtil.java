@@ -88,8 +88,14 @@ public class IWUtil
 				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, 0, false, false));
 				return;
 			}
-			int level = pre.getAmplifier() + 1;
 			int duration = pre.getDuration();
+			if (duration == -1) return;
+			else if (durationTick == -1)
+			{
+				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, 0, false, false));
+				return;
+			}
+			int level = pre.getAmplifier() + 1;
 			int nextDuration = (level * duration + durationTick) / level;
 			entity.removeStatusEffectInternal(effect);
 			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, level - 1, false, false));
@@ -103,8 +109,14 @@ public class IWUtil
 				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, 0));
 				return;
 			}
-			int level = pre.getAmplifier() + 1;
 			int duration = pre.getDuration();
+			if (duration == -1) return;
+			else if (durationTick == -1)
+			{
+				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, 0));
+				return;
+			}
+			int level = pre.getAmplifier() + 1;
 			int nextDuration = (level * duration + durationTick) / level;
 			entity.removeStatusEffectInternal(effect);
 			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, level - 1));
@@ -132,8 +144,14 @@ public class IWUtil
 				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, 0, false, false));
 				return;
 			}
-			int prelevel = pre.getAmplifier() + 1;
 			int preDuration = pre.getDuration();
+			if (preDuration == -1) return;
+			else if (durationTick == -1)
+			{
+				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, 0, false, false));
+				return;
+			}
+			int prelevel = pre.getAmplifier() + 1;
 			entity.removeStatusEffectInternal(effect);
 			if (prelevel > 1)
 
@@ -156,14 +174,20 @@ public class IWUtil
 				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, amplifier, false, false));
 				return;
 			}
-			int prelevel = pre.getAmplifier() + 1;
 			int preDuration = pre.getDuration();
+			if (preDuration == -1 || durationTick == -1)
+			{
+				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, amplifier, false, false));
+				return;
+			}
+			int prelevel = pre.getAmplifier() + 1;
 			entity.removeStatusEffectInternal(effect);
 			if (prelevel > amplifier + 1)
-
+			{
 				entity.addStatusEffect(new StatusEffectInstance(effect,
 						keepConsistence(amplifier + 1, durationTick, prelevel, preDuration, consistenceTimeTick),
 						prelevel - 1, false, false));
+			}
 			else entity.addStatusEffect(new StatusEffectInstance(effect,
 					keepConsistence(prelevel, preDuration, amplifier + 1, durationTick, consistenceTimeTick),
 					amplifier,
@@ -181,10 +205,16 @@ public class IWUtil
 				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, amplifier, false, false));
 				return;
 			}
+			int duration = pre.getDuration();
+			if (duration == -1 || durationTick == -1)
+			{
+				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, amplifier, false, false));
+				return;
+			}
 			amplifier++;
 			int level = pre.getAmplifier() + 1;
 			int maxlevel = Math.max(level, amplifier);
-			int duration = pre.getDuration();
+
 			int nextDuration = (level * duration + durationTick * amplifier) / maxlevel;
 			entity.removeStatusEffectInternal(effect);
 			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, maxlevel - 1, false, false));
@@ -199,10 +229,16 @@ public class IWUtil
 				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, amplifier));
 				return;
 			}
+			int duration = pre.getDuration();
+			if (duration == -1 || durationTick == -1)
+			{
+				entity.addStatusEffect(new StatusEffectInstance(effect, durationTick, amplifier, false, false));
+				return;
+			}
 			amplifier++;
 			int level = pre.getAmplifier() + 1;
 			int maxlevel = Math.max(level, amplifier);
-			int duration = pre.getDuration();
+
 			int nextDuration = (level * duration + durationTick * amplifier) / maxlevel;
 			entity.removeStatusEffectInternal(effect);
 			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, maxlevel - 1));
@@ -481,6 +517,15 @@ public class IWUtil
 			return !ec.isEmpty();
 		}
 
+		public static float maxEnergy(ItemStack stack)
+		{
+			return stack.getOrDefault(IWComponents.MAX_ENERGY, 0.0f);
+		}
+
+		public static float currentEnergy(ItemStack stack)
+		{
+			return stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f);
+		}
 	}
 
 	public static class RuneAbility
