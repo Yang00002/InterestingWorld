@@ -18,6 +18,18 @@
       "predicate": {
         "custom_model_data": 3
       }
+    },
+    {
+      "model": "interestingworld:item/sweetcurse_ability_rune",
+      "predicate": {
+        "custom_model_data": 4
+      }
+    },
+    {
+      "model": "interestingworld:item/infinitecurse_ability_rune",
+      "predicate": {
+        "custom_model_data": 5
+      }
     }
   ],
   "textures": {

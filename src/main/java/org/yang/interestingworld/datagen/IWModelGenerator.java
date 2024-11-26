@@ -174,6 +174,9 @@ public class IWModelGenerator extends FabricModelProvider
 		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SLASHING_ABILITY, "slashing_ability_rune");
 		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEEP_ABILITY, "sweeping_ability_rune");
 		ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITESLASHING_ABILITY, "infiniteslashing_ability_rune");
+		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEETCURSE_ABILITY, "sweetcurse_ability_rune");
+		ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITECURSE_ABILITY, "infinitecurse_ability_rune");
+
 		ar.build();
 		JsonElement j = new Gson().toJsonTree(ar);
 		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.COMMON_ABILITY_RUNE), () -> j);
