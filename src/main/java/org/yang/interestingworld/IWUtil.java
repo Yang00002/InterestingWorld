@@ -43,7 +43,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.yang.interestingworld.item.rune.AbilityRuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.network.IWNetwork;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
@@ -55,6 +54,8 @@ import org.yang.interestingworld.rune.IWRuneAbilitys;
 import java.util.List;
 
 import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
+import static org.yang.interestingworld.IWBlocks.addBlockItemToItemGroupWhenEnterWorld;
+import static org.yang.interestingworld.IWItems.addItemToItemGroupWhenEnterWorld;
 
 public class IWUtil
 {
@@ -543,35 +544,32 @@ public class IWUtil
 				Item item = stack.getItem();
 				stack.set(IWComponents.ABILITY_INDEX, ability.index);
 				stack.set(IWComponents.ABILITY_COLOR_RGB, ability.getColor());
-				stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.runeIndex));
 				if (item instanceof EnergyToolItem)
 				{
+					stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
 					origin.onRemoveAbility(stack);
 					ability.onSetAbility(stack);
 				}
+				else stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.runeIndex));
 			}
 		}
 
 		public static void setAbility(ItemStack stack, short index)
 		{
-			Item item = stack.getItem();
-			boolean isRune = item instanceof AbilityRuneItem;
-			IWAbstractRuneAbility ability = IWRuneAbilitys.getAbilityofIndex(index);
-			if (ability.index == 0 || ability.index != index)
+			IWAbstractRuneAbility origin = getAbility(stack);
+			IWAbstractRuneAbility ability = getAbility(index);
+			if (origin.index != index)
 			{
-				if (!isRune) removeToolAbility(stack);
-			}
-			else
-			{
-				IWAbstractRuneAbility origin = getAbility(stack);
-				if (origin.index != index)
+				Item item = stack.getItem();
+				stack.set(IWComponents.ABILITY_INDEX, index);
+				stack.set(IWComponents.ABILITY_COLOR_RGB, ability.getColor());
+				if (item instanceof EnergyToolItem)
 				{
-					stack.set(IWComponents.ABILITY_INDEX, ability.index);
 					stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
-					stack.set(IWComponents.ABILITY_COLOR_RGB, ability.getColor());
 					origin.onRemoveAbility(stack);
 					ability.onSetAbility(stack);
 				}
+				else stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.runeIndex));
 			}
 		}
 
@@ -656,11 +654,15 @@ public class IWUtil
 
 		private static void onServerStarted(MinecraftServer server)
 		{
+			IWUtil.Base.iwlogger.info("server Start");
 			persistentData = IWPersistentData.getServerState(currentServer);
+			addItemToItemGroupWhenEnterWorld();
+			addBlockItemToItemGroupWhenEnterWorld();
 		}
 
 		private static void onServerStopped(MinecraftServer server)
 		{
+			IWUtil.Base.iwlogger.info("server Stop");
 			if (currentServer == server)
 			{
 				currentServer = null;

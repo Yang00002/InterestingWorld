@@ -27,17 +27,12 @@ import static org.yang.interestingworld.IWUtil.Return.*;
 import static org.yang.interestingworld.IWUtil.TextStyle.CYAN_RGB;
 import static org.yang.interestingworld.IWUtil.TextStyle.PINK_RGB;
 
-public class InfiniteCurseAbility extends IWRuneAbility
+public class InfiniteCurseAbility extends InfiniteAbility
 {
 	public static final short AbilityDuration = 40;
 	public static final int CooldownAmplifier = 1;
 	public static final int HurtingAmplifier = 9;
 	public static final double AttackMaxLength = 4;
-
-	public int getColor()
-	{
-		return CYAN_RGB;
-	}
 
 	@Override
 	public void appendToolTip(List<Text> tooltip)

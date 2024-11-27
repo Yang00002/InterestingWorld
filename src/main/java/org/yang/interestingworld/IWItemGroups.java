@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import static org.yang.interestingworld.IWUtil.Base.iwlogger;
+
 public class IWItemGroups
 {
 	private interface ItemInGroupInitializer
@@ -194,6 +196,7 @@ public class IWItemGroups
 	private static void applyData(RegistryKey<ItemGroup> groupRegistryKey, ItemGroup.DisplayContext displayContext,
 								  ItemGroup.Entries entries)
 	{
+		iwlogger.info("adding itemGroup " + groupRegistryKey.getValue().toUnderscoreSeparatedString());
 		if (data != null)
 		{
 			if (data.containsKey(groupRegistryKey))

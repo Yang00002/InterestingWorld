@@ -3,10 +3,7 @@ package org.yang.interestingworld.datagen;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.registry.RegistryWrapper;
-import org.yang.interestingworld.IWBlocks;
-import org.yang.interestingworld.IWEffects;
-import org.yang.interestingworld.IWItemGroups;
-import org.yang.interestingworld.IWItems;
+import org.yang.interestingworld.*;
 import org.yang.interestingworld.rune.ability.InfiniteCurseAbility;
 import org.yang.interestingworld.rune.ability.InfiniteSlashingAbility;
 import org.yang.interestingworld.rune.ability.SlashingAbility;
@@ -95,6 +92,9 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add("tooltip.defaultenchantment", "自带：");
 		translationBuilder.add("sound.interestingworld.abilitybar_full", "能量充满");
 		translationBuilder.add("sound.interestingworld.double_sweep", "斩击");
+		translationBuilder.add("iw.worldlevel_set_success", "世界等级已设置为 %s。");
+		translationBuilder.add("iw.worldlevel_set_fail", "无法将世界等级设置为 %s，只能设置为一个非负数。");
+		translationBuilder.add(IWEntities.DUMMY, "测试假人");
 		try
 		{
 			Path existingFilePath = generator.getModContainer().findPath("assets/interestingworld/lang/zh_cn.json")

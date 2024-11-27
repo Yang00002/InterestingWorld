@@ -32,7 +32,7 @@ import static org.yang.interestingworld.IWUtil.TextStyle.PINK_RGB;
 public class SweetCurseAbility extends IWRuneAbility
 {
 	public static final short AbilityDuration = 60;
-	public static final int RengenAmplifier = 0;
+	public static final int RengenAmplifier = 1;
 	public static final int EffectDuration = 160;
 	public static final int HurtingAmplifier = 4;
 	public static final double AttackMaxLength = 3;

@@ -22,6 +22,8 @@ public class Interestingworld implements ModInitializer
 		IWScreenHandlers.initialize();
 		IWResources.initialize();
 		IWSounds.initialize();
+		IWCommands.initialize();
+		IWEntities.initialize();
 	}
 
 

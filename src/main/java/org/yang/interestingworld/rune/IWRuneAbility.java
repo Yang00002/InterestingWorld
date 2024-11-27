@@ -34,7 +34,7 @@ public class IWRuneAbility extends IWAbstractRuneAbility
 		tooltip.add(Text.empty());
 		tooltip.add(Text.literal("【").append(getTitleText()).append("】")
 				.setStyle(IWUtil.TextStyle.getBoldTextStyle(GRAY_RGB)));
-		tooltip.add(getTitleText().withColor(GRAY_RGB));
+		tooltip.add(Text.translatable("banedabilitydetail").withColor(GRAY_RGB));
 	}
 
 	@Override

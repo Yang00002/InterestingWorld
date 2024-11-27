@@ -2,6 +2,7 @@ package org.yang.interestingworld.rune.ability;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

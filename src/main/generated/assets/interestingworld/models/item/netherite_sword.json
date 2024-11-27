@@ -6,6 +6,18 @@
       "predicate": {
         "custom_model_data": 2
       }
+    },
+    {
+      "model": "interestingworld:item/netherite_sword_sweetcurse",
+      "predicate": {
+        "custom_model_data": 3
+      }
+    },
+    {
+      "model": "interestingworld:item/netherite_sword_infinitecurse",
+      "predicate": {
+        "custom_model_data": 4
+      }
     }
   ],
   "textures": {

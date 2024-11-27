@@ -84,11 +84,14 @@ public class ServerPlayerDataManager
 		if (!stack.isEmpty() && stack.getItem() instanceof EnergyToolItem)
 		{
 			var ability = getAbility(stack);
-			if (!ability.canWork() && WeaponAbility.index != 0)
+			if (!ability.canWork())
 			{
-				WeaponAbility.onLeave(player, this);
-				WeaponAbility = IWRuneAbilitys.DEFAULT_ABILITY;
-				shouldSync = true;
+				if(WeaponAbility.index != 0)
+				{
+					WeaponAbility.onLeave(player, this);
+					WeaponAbility = IWRuneAbilitys.DEFAULT_ABILITY;
+					shouldSync = true;
+				}
 			}
 			else if (ability != WeaponAbility)
 			{

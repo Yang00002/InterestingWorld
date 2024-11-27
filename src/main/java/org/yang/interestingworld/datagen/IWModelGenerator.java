@@ -11,7 +11,6 @@ import net.minecraft.data.client.ItemModelGenerator;
 import net.minecraft.data.client.ModelIds;
 import net.minecraft.data.client.Models;
 import net.minecraft.item.Item;
-import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import org.yang.interestingworld.IWBlocks;
 import org.yang.interestingworld.IWItems;
@@ -194,19 +193,33 @@ public class IWModelGenerator extends FabricModelProvider
 			AbilityItemModelDataStructure ar = new AbilityItemModelDataStructure(
 					"minecraft:" + Materials[i] + "_sword");
 			ar.addTexture(itemModelGenerator, IWRuneAbilitys.SLASHING_ABILITY, Materials[i] + "_sword_slashing");
+			ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEETCURSE_ABILITY, Materials[i] + "_sword_sweetcurse");
+			ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITECURSE_ABILITY, Materials[i] + "_sword_infinitecurse");
 			ar.build();
 			JsonElement j = new Gson().toJsonTree(ar);
 			itemModelGenerator.writer.accept(ModelIds.getItemModelId(items[i]), () -> j);
 		}
 	}
 
+	private static void buildStickModel(ItemModelGenerator itemModelGenerator)
+	{
+		AbilityItemModelDataStructure ar = new AbilityItemModelDataStructure("minecraft:stick");
+		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEEP_ABILITY, "stick_sweeping");
+		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SLASHING_ABILITY, "stick_slashing");
+		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEETCURSE_ABILITY, "stick_sweetcurse");
+		ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITECURSE_ABILITY, "stick_infinitecurse");
+		ar.build();
+		JsonElement j = new Gson().toJsonTree(ar);
+		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.STICK), () -> j);
+	}
+
 	@Override
 	public void generateItemModels(ItemModelGenerator itemModelGenerator)
 	{
-		itemModelGenerator.register(IWItems.STICK, Items.STICK, Models.HANDHELD);
 		itemModelGenerator.register(IWItems.BLOOD_SWORD, Models.HANDHELD);
 		itemModelGenerator.register(IWItems.EMPTY_RUNE, Models.GENERATED);
 		buildAbilityRuneModel(itemModelGenerator);
 		buildSwordModel(itemModelGenerator);
+		buildStickModel(itemModelGenerator);
 	}
 }

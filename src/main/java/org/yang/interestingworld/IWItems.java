@@ -48,8 +48,8 @@ public class IWItems
 				.setRegen(0.15f).build("stone_sword", ToolMaterials.STONE, EnergySword::new);
 		IRON_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(6).setBaseAttackSpeed(1.6).setEnergy(15)
 				.setRegen(0.2f).build("iron_sword", ToolMaterials.IRON, EnergySword::new);
-		GOLDEN_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(4).setBaseAttackSpeed(2.0).setEnergy(5)
-				.setRegen(0.35f).build("golden_sword", ToolMaterials.GOLD, EnergySword::new);
+		GOLDEN_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(4).setBaseAttackSpeed(2.0).setEnergy(10)
+				.setRegen(1.0f).build("golden_sword", ToolMaterials.GOLD, EnergySword::new);
 		DIAMOND_SWORD =
 				EnergyToolItemBuilder.getInstance().setBaseAttackDamage(7).setBaseAttackSpeed(1.6).setEnergy(20)
 				.setRegen(0.25f).build("diamond_sword", ToolMaterials.DIAMOND, EnergySword::new);
@@ -58,8 +58,10 @@ public class IWItems
 				.build("netherite_sword", ToolMaterials.NETHERITE, EnergySword::new);
 		EMPTY_RUNE = createCommonItem("rune", RuneItem::new);
 		COMMON_ABILITY_RUNE = createCommonItem("ability_rune", AbilityRuneItem::new);
+	}
 
-
+	public static void addItemToItemGroupWhenEnterWorld()
+	{
 		addItemToGroup(EnergyToolInitializer.getInstance(STICK).addEnchantment(Enchantments.SHARPNESS, 1)
 				.setAbility(IWRuneAbilitys.SWEEP_ABILITY), TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(BLOOD_SWORD).addEnchantment(Enchantments.UNBREAKING, 5)
@@ -72,7 +74,6 @@ public class IWItems
 		addItemToGroup(EnergyToolInitializer.getInstance(DIAMOND_SWORD), TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(NETHERITE_SWORD), TOOLS_GROUP);
 		addItemToGroup(CommonItemInitializer.getInstance(EMPTY_RUNE), RUNES_GROUP);
-
 	}
 
 	public static Item createCommonItem(String id, Function<Item.Settings, Item> itemGetter)

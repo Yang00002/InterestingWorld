@@ -26,7 +26,10 @@ public class IWBlocks
 	public static void initialize()
 	{
 		FORGING_BLOCK = createBlock(new ForgingBlock(AbstractBlock.Settings.create()), "forging_block");
+	}
 
+	public static void addBlockItemToItemGroupWhenEnterWorld()
+	{
 		addItemToGroup(CommonItemInitializer.getInstance(FORGING_BLOCK.asItem()), BLOCKS_GROUP);
 	}
 }
