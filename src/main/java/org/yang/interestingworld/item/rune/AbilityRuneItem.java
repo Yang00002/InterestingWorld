@@ -44,6 +44,6 @@ public class AbilityRuneItem extends RuneItem
 
 	public AbilityRuneItem(Item.Settings settings)
 	{
-		super(settings);
+		super(settings.maxCount(1));
 	}
 }

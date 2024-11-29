@@ -17,6 +17,7 @@ import org.yang.interestingworld.block.forgingblock.ForgingBlockScreenHandler;
 
 public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler> implements ScreenHandlerListener
 {
+	// x,y 绘画左上端点坐标, u,v 缩放过的材质内开始坐标, width height 绘画窗口大小, texture width texture height 材质大小, 代表缩放
 	private class ForgingBlockButton extends ClickableWidget
 	{
 		private static final Identifier ARROW_TEXTURE = Identifier.of(IWUtil.Base.MOD_ID,
@@ -81,6 +82,8 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 
 	private static final Identifier TEXTURE = Identifier.of(IWUtil.Base.MOD_ID,
 			"textures/gui/container/forging_block/main.png");
+	private static final Identifier EXPERIENCE = Identifier.of(IWUtil.Base.MOD_ID,
+			"textures/gui/container/forging_block/experience.png");
 
 	private final PlayerEntity player;
 
@@ -101,39 +104,20 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 	protected void drawForeground(DrawContext context, int mouseX, int mouseY)
 	{
 		super.drawForeground(context, mouseX, mouseY);
-		/*
-		int i = this.handler.getLevelCost();
-		if (i > 0)
+		int i = this.handler.getExperienceCost();
+		if (i > 0 && this.client != null && this.client.player != null)
 		{
-			int j = 8453920;
-			Object text;
-			if (i >= 40 && !this.client.player.getAbilities().creativeMode)
-			{
-				text = TOO_EXPENSIVE_TEXT;
-				j = 16736352;
-			}
-			else if (!((ForgingBlockScreenHandler) this.handler).getSlot(2).hasStack())
-			{
-				text = null;
-			}
-			else
-			{
-				text = Text.translatable("container.repair.cost", new Object[]{i});
-				if (!((ForgingBlockScreenHandler) this.handler).getSlot(2).canTakeItems(this.player))
-				{
-					j = 16736352;
-				}
-			}
-
-			if (text != null)
-			{
-				int k = this.backgroundWidth - 8 - this.textRenderer.getWidth((StringVisitable) text) - 2;
-				int l = 69;
-				context.fill(k - 2, 67, this.backgroundWidth - 8, 79, 1325400064);
-				context.drawTextWithShadow(this.textRenderer, (Text) text, k, 69, j);
-			}
+			int t = this.client.player.totalExperience;
+			int j = this.client.player.totalExperience >= i ? 8453920 : 16736352;
+			Text text = Text.translatable("forgingblock.repair.cost", i, t);
+			int k = this.backgroundWidth - 8 - this.textRenderer.getWidth(text) - 20;
+			context.fill(k - 2, 67, this.backgroundWidth - 8, 79, 1325400064);
+			context.drawTextWithShadow(this.textRenderer, text, k, 69, j);
+			int size = Math.min(i / 1500, 10);
+			int idx = size % 4 * 12;
+			int idy = size / 4 * 12;
+			context.drawTexture(EXPERIENCE, this.backgroundWidth - 24, 67, idx, idy, 12, 12, 48, 48);
 		}
-*/
 	}
 
 	@Override
@@ -158,25 +142,10 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 		this.handler.removeListener(this);
 	}
 
+	@Override
 	protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY)
 	{
 		context.drawTexture(TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight, 176, 202);
-		/*
-		context.drawGuiTexture(this.handler.getSlot(0).hasStack() ? TEXT_FIELD_TEXTURE
-																  :
-							   TEXT_FIELD_DISABLED_TEXTURE,
-				this.x + 59, this.y + 20, 110, 16);
-
-		 */
-	}
-
-	protected void drawInvalidRecipeArrow(DrawContext context, int x, int y)
-	{
-		//	if ((this.handler.getSlot(0).hasStack() || this.handler.getSlot(1).hasStack()) &&
-		//		!this.handler.getSlot(this.handler.getResultSlotIndex()).hasStack())
-		//	{
-		//		context.drawGuiTexture(ERROR_TEXTURE, x + 99, y + 45, 28, 21);
-		//	}
 	}
 
 	public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack)

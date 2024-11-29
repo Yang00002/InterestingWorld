@@ -12,23 +12,12 @@ import org.yang.interestingworld.rune.ability.SweetCurseAbility;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
+import static org.yang.interestingworld.IWUtil.TextStyle.numberToString;
 import static org.yang.interestingworld.datagen.IWDataGen.generator;
 
 public class LanguageGenerator extends FabricLanguageProvider
 {
-	String toString(float f)
-	{
-		String s = String.format("%.1f", f);
-		if (s.endsWith(".0")) s = String.format("%.0f", f);
-		return s;
-	}
 
-	String toString(double f)
-	{
-		String s = String.format("%.1f", f);
-		if (s.endsWith(".0")) s = String.format("%.0f", f);
-		return s;
-	}
 
 	LanguageGenerator(FabricDataOutput dataGenerator,
 					  CompletableFuture<RegistryWrapper.WrapperLookup> completableFuture)
@@ -40,7 +29,7 @@ public class LanguageGenerator extends FabricLanguageProvider
 	public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup,
 									 TranslationBuilder translationBuilder)
 	{
-		translationBuilder.add(IWItems.BLOOD_SWORD, "血刃");
+		translationBuilder.add(IWItems.BLAZEROD, "烈焰棒子");
 		translationBuilder.add(IWItems.STICK, "棍子");
 		translationBuilder.add(IWItems.STONE_SWORD, "石剑");
 		translationBuilder.add(IWItems.IRON_SWORD, "铁剑");
@@ -48,44 +37,47 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add(IWItems.DIAMOND_SWORD, "钻石剑");
 		translationBuilder.add(IWItems.NETHERITE_SWORD, "下界合金剑");
 		translationBuilder.add(IWItems.EMPTY_RUNE, "空白符文");
+		translationBuilder.add(IWItems.ENCHANTMENT_RUNE, "附魔符文");
 		translationBuilder.add("abilityrune.suffix", "符文");
 		translationBuilder.add(IWItemGroups.TOOLS_GROUP, "IW: 工具");
 		translationBuilder.add(IWItemGroups.RUNES_GROUP, "IW：符文");
 		translationBuilder.add(IWItemGroups.BLOCKS_GROUP, "IW：方块");
 		translationBuilder.add(IWEffects.BLOOD.value(), "流血");
 		translationBuilder.add(IWEffects.COOLDOWN.value(), "受击");
+		translationBuilder.add(IWEffects.HURTING.value(), "易伤");
+		translationBuilder.add("forgingblock.repair.cost","附魔花费：%s / %s");
 		translationBuilder.add("enchantment.interestingworld.fast_hit", "迅捷打击");
 		translationBuilder.add("tooltip.energy.count", "储存能量");
 		translationBuilder.add("sweeping_ability_title", "横扫");
 		translationBuilder.add("sweeping_ability_detail", "使武器可以横扫，每次横扫消耗1点能量。");
 		translationBuilder.add("slashing_ability_title", "斩击");
-		translationBuilder.add("slashing_ability_detail", "右键消耗" + toString(SlashingAbility.EnergyCosume) +
+		translationBuilder.add("slashing_ability_detail", "右键消耗" + numberToString(SlashingAbility.EnergyCosume) +
 														  "点能量充能，充能后的第一次横扫攻击额外对前方一定范围内所有敌人造成" +
-														  toString(SlashingAbility.AbilityDamage) +
+														  numberToString(SlashingAbility.AbilityDamage) +
 														  "点伤害，并使它们流血" +
-														  toString((float) SlashingAbility.EffectDuration / 20) +
+														  numberToString((float) SlashingAbility.EffectDuration / 20) +
 														  "秒。流血的敌人每秒损失1点生命值。本技能冷却时间为" +
-														  toString((float) SlashingAbility.AbilityDuration / 20) +
+														  numberToString((float) SlashingAbility.AbilityDuration / 20) +
 														  "s。");
 		translationBuilder.add("infiniteslashing_ability_title", "无限斩击");
 		translationBuilder.add("infiniteslashing_ability_detail",
 				"你的武器不再消耗能量。横扫攻击将额外对前方大范围内所有敌人造成" +
-				toString(InfiniteSlashingAbility.AbilityDamage) + "点伤害，并使它们流血" +
-				toString((float) InfiniteSlashingAbility.EffectDuration / 20) + "秒。流血的敌人每秒损失" +
-				toString(InfiniteSlashingAbility.EffectAmplipier + 1) + "点生命值。本技能冷却时间为" +
-				toString((float) InfiniteSlashingAbility.AbilityDuration / 20) + "s。");
+				numberToString(InfiniteSlashingAbility.AbilityDamage) + "点伤害，并使它们流血" +
+				numberToString((float) InfiniteSlashingAbility.EffectDuration / 20) + "秒。流血的敌人每秒损失" +
+				numberToString(InfiniteSlashingAbility.EffectAmplipier + 1) + "点生命值。本技能冷却时间为" +
+				numberToString((float) InfiniteSlashingAbility.AbilityDuration / 20) + "s。");
 		translationBuilder.add("sweetcurse_ability_title", "甜蜜诅咒");
 		translationBuilder.add("sweetcurse_ability_detail",
-				"右键消耗" + toString(SweetCurseAbility.EnergyCosume) + "点能量使你周围的敌人受到" +
-				toString((float) SweetCurseAbility.EffectDuration / 20) +
+				"右键消耗" + numberToString(SweetCurseAbility.EnergyCosume) + "点能量使你周围的敌人受到" +
+				numberToString((float) SweetCurseAbility.EffectDuration / 20) +
 				"s甜蜜诅咒，受到诅咒的敌人将缓慢恢复生命，但其受到的伤害将增加" +
-				toString(SweetCurseAbility.HurtingAmplifier + 1) + "0%。本技能冷却时间为" +
-				toString((float) SweetCurseAbility.AbilityDuration / 20) + "s。");
+				numberToString(SweetCurseAbility.HurtingAmplifier + 1) + "0%。本技能冷却时间为" +
+				numberToString((float) SweetCurseAbility.AbilityDuration / 20) + "s。");
 		translationBuilder.add("infinitecurse_ability_title", "无限诅咒");
 		translationBuilder.add("infinitecurse_ability_detail",
 				"你的武器不再消耗能量。右键对周围大范围敌人施加永久诅咒, 受到诅咒的敌人将更容易受伤, 且其收到的伤害将增加" +
-				toString(InfiniteCurseAbility.HurtingAmplifier + 1) + "0%。本技能冷却时间为" +
-				toString((float) InfiniteCurseAbility.AbilityDuration / 20) + "s。");
+				numberToString(InfiniteCurseAbility.HurtingAmplifier + 1) + "0%。本技能冷却时间为" +
+				numberToString((float) InfiniteCurseAbility.AbilityDuration / 20) + "s。");
 		translationBuilder.add("banedabilitydetail", "你还不能使用此能力。");
 		translationBuilder.add("tooltip.rune.needlevel", "需求等级");
 		translationBuilder.add(IWBlocks.FORGING_BLOCK, "符文锻造台");

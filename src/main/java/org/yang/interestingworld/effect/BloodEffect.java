@@ -6,9 +6,6 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import org.yang.interestingworld.IWDamageTypes;
 import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.datagen.TagGenerator;
-
-import static org.yang.interestingworld.IWUtil.Base.iwlogger;
 
 public class BloodEffect extends StatusEffect
 {

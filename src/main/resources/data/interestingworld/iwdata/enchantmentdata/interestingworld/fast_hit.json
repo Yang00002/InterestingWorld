@@ -1,0 +1,10 @@
+{
+  "maxAchieveLevel": 3,
+  "maxRandomLevel": 8,
+  "maxAllowLevel": 9,
+  "levelCostParameterA": 10000,
+  "levelCostParameterB": -1000,
+  "levelCostParameterC": 10,
+  "conflictCostPunishment": -1,
+  "weight": 1
+}

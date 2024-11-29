@@ -109,7 +109,7 @@ public abstract class MixinLivingEntity extends Entity implements Attackable
 			hurtGate = (int) cooldownGate;
 			return cooldownGate;
 		}
-		int level = IWUtil.EnergyTool.getEnchantmentLevel(this.getWorld(), weapon, IWEnchantments.FAST_HIT);
+		int level = IWUtil.RuneEnchantment.getEnchantmentLevel(this.getWorld(), weapon, IWEnchantments.FAST_HIT);
 		hurtGate = Math.min(10 + level, 19);
 		return hurtGate;
 	}

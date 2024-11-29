@@ -24,6 +24,8 @@ public class IWComponents
 	public static ComponentType<ItemEnchantmentsComponent> DEFAULT_ENCHANTMENTS = Registry.register(
 			Registries.DATA_COMPONENT_TYPE, Identifier.of(IWUtil.Base.MOD_ID, "de"),
 			ComponentType.<ItemEnchantmentsComponent>builder().codec(ItemEnchantmentsComponent.CODEC).build());
+	public static ComponentType<Integer> DATA_FLAGS = Registry.register(Registries.DATA_COMPONENT_TYPE,
+			Identifier.of(IWUtil.Base.MOD_ID, "of"), ComponentType.<Integer>builder().codec(Codec.INT).build());
 
 	public static void initialize()
 	{

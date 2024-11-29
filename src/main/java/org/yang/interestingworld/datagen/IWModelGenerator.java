@@ -194,7 +194,8 @@ public class IWModelGenerator extends FabricModelProvider
 					"minecraft:" + Materials[i] + "_sword");
 			ar.addTexture(itemModelGenerator, IWRuneAbilitys.SLASHING_ABILITY, Materials[i] + "_sword_slashing");
 			ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEETCURSE_ABILITY, Materials[i] + "_sword_sweetcurse");
-			ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITECURSE_ABILITY, Materials[i] + "_sword_infinitecurse");
+			ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITECURSE_ABILITY,
+					Materials[i] + "_sword_infinitecurse");
 			ar.build();
 			JsonElement j = new Gson().toJsonTree(ar);
 			itemModelGenerator.writer.accept(ModelIds.getItemModelId(items[i]), () -> j);
@@ -213,13 +214,25 @@ public class IWModelGenerator extends FabricModelProvider
 		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.STICK), () -> j);
 	}
 
+	private static void buildBlazeRodModel(ItemModelGenerator itemModelGenerator)
+	{
+		AbilityItemModelDataStructure ar = new AbilityItemModelDataStructure("minecraft:blaze_rod");
+		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEEP_ABILITY, "blazerod_sweeping");
+		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SLASHING_ABILITY, "blazerod_slashing");
+		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEETCURSE_ABILITY, "blazerod_sweetcurse");
+		ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITECURSE_ABILITY, "blazerod_infinitecurse");
+		ar.build();
+		JsonElement j = new Gson().toJsonTree(ar);
+		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.BLAZEROD), () -> j);
+	}
+
 	@Override
 	public void generateItemModels(ItemModelGenerator itemModelGenerator)
 	{
-		itemModelGenerator.register(IWItems.BLOOD_SWORD, Models.HANDHELD);
 		itemModelGenerator.register(IWItems.EMPTY_RUNE, Models.GENERATED);
 		buildAbilityRuneModel(itemModelGenerator);
 		buildSwordModel(itemModelGenerator);
 		buildStickModel(itemModelGenerator);
+		buildBlazeRodModel(itemModelGenerator);
 	}
 }

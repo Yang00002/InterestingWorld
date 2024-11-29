@@ -83,7 +83,7 @@ public class SlashingAbility extends IWRuneAbility
 				!data.extractAutomicEnergy(stack, player, EnergyCosume)) return FAIL;
 			data.charged = true;
 			data.shouldSync = true;
-			return SUCCESS;
+			return FAIL;
 		}
 		return PASS;
 	}

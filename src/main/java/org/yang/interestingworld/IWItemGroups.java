@@ -1,6 +1,7 @@
 package org.yang.interestingworld;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.Item;
@@ -103,6 +104,8 @@ public class IWItemGroups
 						if (level > 0) builder.add(wrapper.getOrThrow(enchantment), level);
 					});
 					stack.set(IWComponents.DEFAULT_ENCHANTMENTS, builder.build());
+					stack.set(DataComponentTypes.ENCHANTMENTS, builder.build());
+					stack.set(IWComponents.DATA_FLAGS, IWUtil.RuneEnchantment.HAVE_DEFAULT_ENCHANTMENT_BYTE);
 				}
 				if (ability != null) IWUtil.RuneAbility.setAbility(stack, ability);
 				entries.add(stack);
@@ -183,7 +186,7 @@ public class IWItemGroups
 
 	private static ItemStack getToolDisplay()
 	{
-		return IWItems.BLOOD_SWORD.getDefaultStack();
+		return IWItems.NETHERITE_SWORD.getDefaultStack();
 	}
 
 	private static ItemStack getRuneDisplay()

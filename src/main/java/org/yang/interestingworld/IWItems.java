@@ -12,10 +12,10 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import org.yang.interestingworld.item.rune.AbilityRuneItem;
+import org.yang.interestingworld.item.rune.EnchantmentRuneItem;
 import org.yang.interestingworld.item.rune.RuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.item.tool.sword.EnergySword;
-import org.yang.interestingworld.rune.IWRuneAbilitys;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -27,7 +27,7 @@ import static org.yang.interestingworld.IWItemGroups.*;
 public class IWItems
 {
 	public static Item STICK = null;
-	public static Item BLOOD_SWORD = null;
+	public static Item BLAZEROD = null;
 	public static Item STONE_SWORD = null;
 	public static Item IRON_SWORD = null;
 	public static Item GOLDEN_SWORD = null;
@@ -35,15 +35,14 @@ public class IWItems
 	public static Item NETHERITE_SWORD = null;
 	public static Item EMPTY_RUNE = null;
 	public static Item COMMON_ABILITY_RUNE = null;
+	public static Item ENCHANTMENT_RUNE = null;
 
 	public static void initialize()
 	{
 		STICK = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(3).setEnergy(5).setRegen(0.1f)
 				.build("energy_stick", ToolMaterials.WOOD, EnergyToolItem::new);
-		BLOOD_SWORD =
-				EnergyToolItemBuilder.getInstance().setBaseAttackDamage(4.5).setBaseAttackSpeed(1.8).setEnergy(10)
-				.setRegen(0.15f).setEntityInteractionRangeAdding(-0.25)
-				.build("blood_sword", ToolMaterials.STONE, EnergySword::new);
+		BLAZEROD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(4).setEnergy(10).setRegen(0.15f)
+				.build("energy_blazerod", ToolMaterials.STONE, EnergyToolItem::new);
 		STONE_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(5).setBaseAttackSpeed(1.6).setEnergy(10)
 				.setRegen(0.15f).build("stone_sword", ToolMaterials.STONE, EnergySword::new);
 		IRON_SWORD = EnergyToolItemBuilder.getInstance().setBaseAttackDamage(6).setBaseAttackSpeed(1.6).setEnergy(15)
@@ -58,14 +57,14 @@ public class IWItems
 				.build("netherite_sword", ToolMaterials.NETHERITE, EnergySword::new);
 		EMPTY_RUNE = createCommonItem("rune", RuneItem::new);
 		COMMON_ABILITY_RUNE = createCommonItem("ability_rune", AbilityRuneItem::new);
+		ENCHANTMENT_RUNE = createCommonItem("enchantment_rune", EnchantmentRuneItem::new);
 	}
 
 	public static void addItemToItemGroupWhenEnterWorld()
 	{
-		addItemToGroup(EnergyToolInitializer.getInstance(STICK).addEnchantment(Enchantments.SHARPNESS, 1)
-				.setAbility(IWRuneAbilitys.SWEEP_ABILITY), TOOLS_GROUP);
-		addItemToGroup(EnergyToolInitializer.getInstance(BLOOD_SWORD).addEnchantment(Enchantments.UNBREAKING, 5)
-				.setAbility(IWRuneAbilitys.SLASHING_ABILITY), TOOLS_GROUP);
+		addItemToGroup(EnergyToolInitializer.getInstance(STICK), TOOLS_GROUP);
+		addItemToGroup(EnergyToolInitializer.getInstance(BLAZEROD).addDefaultEnchantment(Enchantments.FIRE_ASPECT, 1),
+				TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(STONE_SWORD), TOOLS_GROUP);
 		addItemToGroup(EnergyToolInitializer.getInstance(IRON_SWORD), TOOLS_GROUP);
 		addItemToGroup(

@@ -75,7 +75,7 @@ public class SweetCurseAbility extends IWRuneAbility
 					addHiddenStatusEffect(entity, IWEffects.HURTING, EffectDuration, HurtingAmplifier);
 				}
 			});
-			return SUCCESS;
+			return FAIL;
 		}
 		return PASS;
 	}

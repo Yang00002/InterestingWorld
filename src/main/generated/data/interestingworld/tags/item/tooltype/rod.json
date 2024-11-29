@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "interestingworld:energy_stick",
+      "required": false
+    },
+    {
+      "id": "interestingworld:energy_blazerod",
+      "required": false
+    }
+  ]
+}

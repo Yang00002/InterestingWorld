@@ -62,7 +62,7 @@ public class InfiniteCurseAbility extends InfiniteAbility
 				entity.addStatusEffect(
 						new StatusEffectInstance(IWEffects.COOLDOWN, -1, CooldownAmplifier, false, false));
 			});
-			return SUCCESS;
+			return FAIL;
 		}
 		return PASS;
 	}

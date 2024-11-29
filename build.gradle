@@ -40,9 +40,11 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modRuntimeOnly files("runtimemods/malilib-fabric-1.21.1-0.21.0.jar")
+    modRuntimeOnly files("runtimemods/malilib-fabric-1.21-0.21.2.jar")
     modRuntimeOnly files("runtimemods/minihud-fabric-1.21.1-0.32.50.jar")
     modRuntimeOnly files("runtimemods/Jade-1.21.1-Fabric-15.8.2.jar")
+    modRuntimeOnly files("runtimemods/tweakeroo-fabric-1.21-0.21.52.jar")
+   // modRuntimeOnly files("runtimemods/I18nUpdateMod-3.6.0-all.jar")
 }
 
 processResources {

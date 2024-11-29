@@ -45,7 +45,7 @@ public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
 	@Override
 	public boolean hasGlint(ItemStack stack)
 	{
-		return stack.contains(IWComponents.ABILITY_INDEX) || stack.hasEnchantments();
+		return stack.contains(IWComponents.ABILITY_INDEX) || IWUtil.RuneEnchantment.haveRealEnchantment(stack);
 	}
 
 	/**
@@ -178,26 +178,17 @@ public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
 		else ab.appendBanedToolTip(tooltip);
 		if (ab.index != 0)
 		{
-			if (stack.hasEnchantments()) tooltip.add(Text.empty());
-			else
+			if (stack.hasEnchantments())
 			{
-				var def = stack.get(IWComponents.DEFAULT_ENCHANTMENTS);
-				if (def != null)
-				{
-					tooltip.add(Text.empty());
+				tooltip.add(Text.empty());
+				if (IWUtil.RuneEnchantment.onlyHaveDefaultEnchantment(stack))
 					tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(IWUtil.TextStyle.GRAY_RGB));
-					def.appendTooltip(context, tooltip::add, type);
-				}
 			}
 		}
 		else
 		{
-			var def = stack.get(IWComponents.DEFAULT_ENCHANTMENTS);
-			if (def != null)
-			{
+			if (IWUtil.RuneEnchantment.onlyHaveDefaultEnchantment(stack))
 				tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(IWUtil.TextStyle.GRAY_RGB));
-				def.appendTooltip(context, tooltip::add, type);
-			}
 		}
 	}
 

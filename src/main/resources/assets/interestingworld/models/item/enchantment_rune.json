@@ -1,0 +1,38 @@
+{
+  "parent": "minecraft:item/generated",
+  "overrides": [
+    {
+      "model": "interestingworld:item/ec_rune_0",
+      "predicate": {
+        "custom_model_data": 0
+      }
+    },
+    {
+      "model": "interestingworld:item/ec_rune_1",
+      "predicate": {
+        "custom_model_data": 1
+      }
+    },
+    {
+      "model": "interestingworld:item/ec_rune_2",
+      "predicate": {
+        "custom_model_data": 2
+      }
+    },
+    {
+      "model": "interestingworld:item/ec_rune_3",
+      "predicate": {
+        "custom_model_data": 3
+      }
+    },
+    {
+      "model": "interestingworld:item/ec_rune_4",
+      "predicate": {
+        "custom_model_data": 4
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "interestingworld:item/rune"
+  }
+}

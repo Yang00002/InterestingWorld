@@ -51,11 +51,17 @@ import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
 import static org.yang.interestingworld.IWBlocks.addBlockItemToItemGroupWhenEnterWorld;
 import static org.yang.interestingworld.IWItems.addItemToItemGroupWhenEnterWorld;
+import static org.yang.interestingworld.IWResources.EnchantmentData.EnchantmentData;
+import static org.yang.interestingworld.IWResources.ToolEnchantmentType.ToolEnchantmentType;
+import static org.yang.interestingworld.IWUtil.Base.iwlogger;
 
 public class IWUtil
 {
@@ -353,15 +359,6 @@ public class IWUtil
 
 	public static class EnergyTool
 	{
-		public static int getEnchantmentLevel(World world, ItemStack stack, RegistryKey<Enchantment> key)
-		{
-			int level = stack.getEnchantments().getLevel(Registry.getEnchantmentEntry(world, key));
-			if (level == 0 && stack.contains(IWComponents.DEFAULT_ENCHANTMENTS))
-			{
-				return stack.get(IWComponents.DEFAULT_ENCHANTMENTS).getLevel(Registry.getEnchantmentEntry(world, key));
-			}
-			return level;
-		}
 
 		public static ServerPlayerDataManager getPlayerData(ServerPlayerEntity player)
 		{
@@ -617,8 +614,175 @@ public class IWUtil
 		}
 	}
 
+	public static class RuneEnchantment
+	{
+		public static final int HAVE_DEFAULT_ENCHANTMENT_BYTE = 1;
+		public static final int HAVE_REAL_ENCHANTMENT_BYTE = 2;
+
+		public static boolean onlyHaveDefaultEnchantment(ItemStack stack)
+		{
+			return haveDefaultEnchantment(stack) && !haveRealEnchantment(stack);
+		}
+
+		public static boolean haveDefaultEnchantment(ItemStack stack)
+		{
+			int data = stack.getOrDefault(IWComponents.DATA_FLAGS, 0);
+			return (data & HAVE_DEFAULT_ENCHANTMENT_BYTE) != 0;
+		}
+
+		public static boolean haveRealEnchantment(ItemStack stack)
+		{
+			int data = stack.getOrDefault(IWComponents.DATA_FLAGS, 0);
+			return (data & HAVE_REAL_ENCHANTMENT_BYTE) != 0;
+		}
+
+		public static void setFlagOfRealEnchant(ItemStack stack)
+		{
+			int data = stack.getOrDefault(IWComponents.DATA_FLAGS, 0);
+			stack.set(IWComponents.DATA_FLAGS, (data & ~HAVE_DEFAULT_ENCHANTMENT_BYTE) | HAVE_REAL_ENCHANTMENT_BYTE);
+		}
+
+
+		public static int getEnchantmentLevel(World world, ItemStack stack, RegistryKey<Enchantment> key)
+		{
+			return stack.getEnchantments().getLevel(Registry.getEnchantmentEntry(world, key));
+		}
+
+		public static boolean isConflict(Collection<RegistryEntry<Enchantment>> enchantmentCollection,
+										 RegistryEntry<Enchantment> target)
+		{
+			var tv = target.value();
+			for (var i : enchantmentCollection)
+			{
+				var v = i.value();
+				if (v == tv) continue;
+				if (v.exclusiveSet().contains(target)) return true;
+			}
+			return false;
+		}
+
+		public static int canEnchantTo(ItemEnchantmentsComponent enchantmentsComponent, ItemStack stack, World world)
+		{
+			//寻找 stack 对应的物品类
+			for (var tag : IWTags.EnergyToolTypeTags.getAll())
+			{
+				if (stack.isIn(tag))
+				{
+					//该类是否有附魔
+					if (!ToolEnchantmentType.containsKey(tag)) return -1;
+					//该类附魔
+					Set<RegistryKey<Enchantment>> enchantmentSet = ToolEnchantmentType.get(tag);
+					int cost = 0;
+					Set<RegistryEntry<Enchantment>> applyedEnchantmentSet = new LinkedHashSet<>(
+							stack.getOrDefault(IWComponents.DEFAULT_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT)
+									.getEnchantments());
+					var wrapper = IWUtil.Registry.getEnchantmentWrapper(world);
+					for (var enchantmentKey : enchantmentSet)
+					{
+						//附魔是否被加载
+						if (!EnchantmentData.containsKey(enchantmentKey))
+						{
+							enchantmentSet.remove(enchantmentKey);
+							continue;
+						}
+						var optionalEnchantmentEntry = wrapper.getOptional(enchantmentKey);
+						//附魔是否存在
+						if (optionalEnchantmentEntry.isEmpty())
+						{
+							enchantmentSet.remove(enchantmentKey);
+						}
+						else
+						{
+							var enchantmentEntry = optionalEnchantmentEntry.get();
+							//附魔在符文上
+							int applyLevel = enchantmentsComponent.getLevel(enchantmentEntry);
+							if (applyLevel == 0) continue;
+							var data = EnchantmentData.get(enchantmentKey);
+							//默认附魔未达到最大等级
+							int deflevel = stack.getEnchantments().getLevel(enchantmentEntry);
+							if (deflevel > data.getMaxAllowLevel()) continue;
+							int addLevel = Math.min(data.getMaxAllowLevel() - deflevel, applyLevel);
+							if (!isConflict(applyedEnchantmentSet, enchantmentEntry))
+								cost += data.getLevelCost(addLevel);
+							else if (data.allowConflict())
+								cost += data.getLevelCost(addLevel) + data.getConflictCostPunishment();
+						}
+					}
+					if (cost != 0) return cost;
+				}
+			}
+			return -1;
+		}
+
+		public static void applyEnchant(ItemEnchantmentsComponent enchantmentsComponent, ItemStack toolStack,
+										World world)
+		{
+			//寻找 stack 对应的物品类
+			for (var tag : IWTags.EnergyToolTypeTags.getAll())
+			{
+				if (toolStack.isIn(tag))
+				{
+					//该类是否有附魔
+					if (!ToolEnchantmentType.containsKey(tag)) return;
+					//该类附魔
+					Set<RegistryKey<Enchantment>> enchantmentSet = ToolEnchantmentType.get(tag);
+					ItemEnchantmentsComponent before = toolStack.getOrDefault(IWComponents.DEFAULT_ENCHANTMENTS,
+							ItemEnchantmentsComponent.DEFAULT);
+					ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(before);
+					var wrapper = IWUtil.Registry.getEnchantmentWrapper(world);
+					for (var enchantmentKey : enchantmentSet)
+					{
+						//附魔是否被加载
+						if (!EnchantmentData.containsKey(enchantmentKey))
+						{
+							enchantmentSet.remove(enchantmentKey);
+							continue;
+						}
+						var optionalEnchantmentEntry = wrapper.getOptional(enchantmentKey);
+						//附魔是否存在
+						if (optionalEnchantmentEntry.isEmpty())
+						{
+							enchantmentSet.remove(enchantmentKey);
+						}
+						else
+						{
+							var enchantmentEntry = optionalEnchantmentEntry.get();
+							//附魔在符文上
+							int applyLevel = enchantmentsComponent.getLevel(enchantmentEntry);
+							if (applyLevel == 0) continue;
+							var data = EnchantmentData.get(enchantmentKey);
+							//默认附魔未达到最大等级
+							int deflevel = toolStack.getEnchantments().getLevel(enchantmentEntry);
+							if (deflevel > data.getMaxAllowLevel()) continue;
+							int targetLevel = Math.min(data.getMaxAllowLevel(), applyLevel + deflevel);
+							if (isConflict(builder.getEnchantments(), enchantmentEntry) && !data.allowConflict())
+								continue;
+							builder.set(enchantmentEntry, targetLevel);
+						}
+					}
+					toolStack.set(DataComponentTypes.ENCHANTMENTS, builder.build());
+					setFlagOfRealEnchant(toolStack);
+				}
+			}
+		}
+	}
+
 	public static class TextStyle
 	{
+		public static String numberToString(float f)
+		{
+			String s = String.format("%.1f", f);
+			if (s.endsWith(".0")) s = String.format("%.0f", f);
+			return s;
+		}
+
+		public static String numberToString(double f)
+		{
+			String s = String.format("%.1f", f);
+			if (s.endsWith(".0")) s = String.format("%.0f", f);
+			return s;
+		}
+
 		public static final int GRAY_RGB = 0XAAAAAA;
 		public static final int WHITE_RGB = 0XFFFFFF;
 		public static final int PURE_GREEN_RGB = 0X00FF00;
@@ -654,7 +818,7 @@ public class IWUtil
 
 		private static void onServerStarted(MinecraftServer server)
 		{
-			IWUtil.Base.iwlogger.info("server Start");
+			iwlogger.info("server Start");
 			persistentData = IWPersistentData.getServerState(currentServer);
 			addItemToItemGroupWhenEnterWorld();
 			addBlockItemToItemGroupWhenEnterWorld();
@@ -662,7 +826,7 @@ public class IWUtil
 
 		private static void onServerStopped(MinecraftServer server)
 		{
-			IWUtil.Base.iwlogger.info("server Stop");
+			iwlogger.info("server Stop");
 			if (currentServer == server)
 			{
 				currentServer = null;
@@ -723,9 +887,15 @@ public class IWUtil
 
 	public static class Registry
 	{
+		//不安全
 		public static RegistryEntry<Enchantment> getEnchantmentEntry(World world, RegistryKey<Enchantment> key)
 		{
 			return world.getRegistryManager().getWrapperOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(key);
+		}
+
+		public static RegistryWrapper<Enchantment> getEnchantmentWrapper(World world)
+		{
+			return world.getRegistryManager().getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
 		}
 
 		public static RegistryEntry<Enchantment> getEnchantmentEntry(RegistryWrapper.WrapperLookup wrapperLookup,
@@ -768,7 +938,7 @@ public class IWUtil
 						new IWNetwork.ItemBreakParticlePayload(new ItemStackParticleEffect(ParticleTypes.ITEM,
 								stack)));
 			}
-			else Base.iwlogger.warn("spawnItemParticle 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
+			else iwlogger.warn("spawnItemParticle 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
 		}
 
 		public static void spawnDamageIndicatorParticle(Entity entity, int amount)
@@ -779,7 +949,7 @@ public class IWUtil
 				((ServerWorld) entity.getWorld()).spawnParticles(ParticleTypes.DAMAGE_INDICATOR, entity.getX(),
 						entity.getBodyY(0.5), entity.getZ(), amount, 0.1, 0.0, 0.1, 0.2);
 			}
-			else Base.iwlogger.warn("spawnDamageIndicatorParticle 尝试将 ClientWorld 转为 ServerWorld");
+			else iwlogger.warn("spawnDamageIndicatorParticle 尝试将 ClientWorld 转为 ServerWorld");
 		}
 
 		public static void spawnDamageIndicatorParticle(Entity entity, float damage)
@@ -790,7 +960,7 @@ public class IWUtil
 				((ServerWorld) entity.getWorld()).spawnParticles(ParticleTypes.DAMAGE_INDICATOR, entity.getX(),
 						entity.getBodyY(0.5), entity.getZ(), (int) damage, 0.1, 0.0, 0.1, 0.2);
 			}
-			else Base.iwlogger.warn("spawnDamageIndicatorParticle 尝试将 ClientWorld 转为 ServerWorld");
+			else iwlogger.warn("spawnDamageIndicatorParticle 尝试将 ClientWorld 转为 ServerWorld");
 		}
 
 		public static void spawnParticleAtEntity(Entity entity, ParticleEffect particle)
@@ -802,13 +972,13 @@ public class IWUtil
 						, 0,
 						0, 0, 0);
 			}
-			else Base.iwlogger.warn("spawnParticleAtEntity 尝试将 ClientWorld 转为 ServerWorld");
+			else iwlogger.warn("spawnParticleAtEntity 尝试将 ClientWorld 转为 ServerWorld");
 		}
 
 		public static void spawnParticleAtPos(World world, ParticleEffect particle, double x, double y, double z)
 		{
 			if (world instanceof ServerWorld) ((ServerWorld) world).spawnParticles(particle, x, y, z, 1, 0, 0, 0, 0);
-			else Base.iwlogger.warn("spawnParticleAtPos 尝试将 ClientWorld 转为 ServerWorld");
+			else iwlogger.warn("spawnParticleAtPos 尝试将 ClientWorld 转为 ServerWorld");
 		}
 
 		public static void spawnParticlesAtPos(World world, ParticleEffect particle, double x, double y, double z,
@@ -816,7 +986,7 @@ public class IWUtil
 		{
 			if (world instanceof ServerWorld)
 				((ServerWorld) world).spawnParticles(particle, x, y, z, count, dx, dy, dz, 0);
-			else Base.iwlogger.warn("spawnParticleAtPos 尝试将 ClientWorld 转为 ServerWorld");
+			else iwlogger.warn("spawnParticleAtPos 尝试将 ClientWorld 转为 ServerWorld");
 		}
 
 		public static void spawnParticleAtPos(World world, ParticleEffect particle, double x, double y, double z,
@@ -824,7 +994,7 @@ public class IWUtil
 		{
 			if (world instanceof ServerWorld)
 				((ServerWorld) world).spawnParticles(particle, x, y, z, count, dx, dy, dz, speed);
-			else Base.iwlogger.warn("spawnParticleAtPos 尝试将 ClientWorld 转为 ServerWorld");
+			else iwlogger.warn("spawnParticleAtPos 尝试将 ClientWorld 转为 ServerWorld");
 		}
 
 		public static void playSoundAtEntity(Entity entity, SoundEvent sound, SoundCategory category)
@@ -835,7 +1005,7 @@ public class IWUtil
 				world.playSound(null, entity.getX(), entity.getBodyY(0.5), entity.getZ(), sound, category, 1.0f, 1.0f,
 						0);
 			}
-			else Base.iwlogger.warn("playSoundAtEntity 尝试将 ClientWorld 转为 ServerWorld");
+			else iwlogger.warn("playSoundAtEntity 尝试将 ClientWorld 转为 ServerWorld");
 		}
 
 		public static void playSoundAtPos(World world, double x, double y, double z, SoundEvent sound,
@@ -845,13 +1015,13 @@ public class IWUtil
 			{
 				world.playSound(null, x, y, z, sound, category, 1.0f, 1.0f, 0);
 			}
-			else Base.iwlogger.warn("playSoundAtPos 尝试将 ClientWorld 转为 ServerWorld");
+			else iwlogger.warn("playSoundAtPos 尝试将 ClientWorld 转为 ServerWorld");
 		}
 
 		public static void playSoundToPlayer(PlayerEntity player, SoundEvent sound, SoundCategory category)
 		{
 			if (player instanceof ServerPlayerEntity) player.playSoundToPlayer(sound, category, 1.0f, 1.0f);
-			else Base.iwlogger.warn("playSoundToPlayer 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
+			else iwlogger.warn("playSoundToPlayer 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
 		}
 
 		public static void playSoundToPlayer(PlayerEntity player, SoundEvent sound, SoundCategory category, int delay)
@@ -862,7 +1032,7 @@ public class IWUtil
 						new IWNetwork.DeferSoundPayload(Registries.SOUND_EVENT.getEntry(sound), category,
 								(float) sp.getX(), (float) sp.getY(), (float) sp.getZ(), 1.0f, 1.0f, delay));
 			}
-			else Base.iwlogger.warn("playSoundToPlayer 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
+			else iwlogger.warn("playSoundToPlayer 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
 		}
 	}
 }

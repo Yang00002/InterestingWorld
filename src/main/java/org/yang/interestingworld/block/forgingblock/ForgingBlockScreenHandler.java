@@ -1,5 +1,7 @@
 package org.yang.interestingworld.block.forgingblock;
 
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -9,16 +11,16 @@ import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.slot.Slot;
-import org.yang.interestingworld.IWBlocks;
-import org.yang.interestingworld.IWItems;
-import org.yang.interestingworld.IWResources;
-import org.yang.interestingworld.IWScreenHandlers;
+import org.yang.interestingworld.*;
 import org.yang.interestingworld.item.rune.AbilityRuneItem;
+import org.yang.interestingworld.item.rune.EnchantmentRuneItem;
 import org.yang.interestingworld.item.rune.RuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 
+import static org.yang.interestingworld.IWUtil.Base.iwlogger;
 import static org.yang.interestingworld.IWUtil.RuneAbility.*;
+import static org.yang.interestingworld.IWUtil.RuneEnchantment.*;
 
 public class ForgingBlockScreenHandler extends ScreenHandler
 {
@@ -29,6 +31,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	private static final int PLAYER_INVENTORY_START_SLOT_INDEX = 12;
 	private static final int PLAYER_HOTBAR_END_SLOT_INDEX = 48;
 	private final Property canTakeOutput;
+	private final Property experienceCost;
 
 	private static boolean isInIngredientSlot(int slot)
 	{
@@ -53,9 +56,9 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		for (int i = 0; i < 9; i++)
 		{
 			ItemStack s = inventory.getStack(i + 3);
-			if (!s.isEmpty() && IWResources.RuneItemValue.containsKey(s.getItem()))
+			if (!s.isEmpty() && IWResources.RuneItemValue.RuneItemValue.containsKey(s.getItem()))
 			{
-				valuePerItem[i] = IWResources.RuneItemValue.get(s.getItem());
+				valuePerItem[i] = IWResources.RuneItemValue.RuneItemValue.get(s.getItem());
 				countOfItem[i] = s.getCount();
 			}
 			hashIndex[i] = i;
@@ -205,14 +208,46 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		}
 		if (stackRune.getItem() == IWItems.EMPTY_RUNE)
 		{
+			if (IWUtil.RuneEnchantment.haveRealEnchantment(stackTool))
+			{
+				canTakeOutput.set(1);
+				return;
+			}
 			IWAbstractRuneAbility ability = getAbility(stackTool);
-			if (ability.index == 0)
+			if (ability.index != 0)
+			{
+				canTakeOutput.set(1);
+				return;
+			}
+		}
+		if (stackRune.getItem() == IWItems.ENCHANTMENT_RUNE)
+		{
+			EnchantmentRuneItem it = (EnchantmentRuneItem) stackRune.getItem();
+			if (it.getLevel(stackRune) > IWUtil.Server.getPersistentData().worldEnergyLevel)
 			{
 				canTakeOutput.set(0);
 				return;
 			}
-			canTakeOutput.set(1);
-			return;
+			if (stackRune.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT)
+					.isEmpty())
+			{
+				canTakeOutput.set(0);
+				return;
+			}
+			if (haveRealEnchantment(stackTool))
+			{
+				canTakeOutput.set(0);
+				return;
+			}
+			int cost = canEnchantTo(
+					stackRune.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT),
+					stackTool, player.getWorld());
+			if (cost != -1)
+			{
+				experienceCost.set(cost);
+				canTakeOutput.set(2);
+				return;
+			}
 		}
 		canTakeOutput.set(0);
 	}
@@ -242,6 +277,9 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		canTakeOutput = Property.create();
 		this.addProperty(canTakeOutput);
 		canTakeOutput.set(0);
+		experienceCost = Property.create();
+		this.addProperty(experienceCost);
+		experienceCost.set(0);
 	}
 
 	@Override
@@ -281,8 +319,26 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			}
 			return;
 		}
+		if (stackRune.getItem() instanceof EnchantmentRuneItem enchantmentRuneItem)
+		{
+			if (player.totalExperience < experienceCost.get()) return;
+			if (enchantmentRuneItem.getLevel(stackRune) > IWUtil.Server.getPersistentData().worldEnergyLevel) return;
+			if (stackRune.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT)
+					.isEmpty()) return;
+			if (haveRealEnchantment(stackTool)) return;
+			applyEnchant(
+					stackRune.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT),
+					stackTool, player.getWorld());
+			player.addExperience(-experienceCost.get());
+			experienceCost.set(0);
+			inventory.setStack(2, stackTool);
+			inventory.removeStack(0);
+			inventory.setStack(1, IWItems.EMPTY_RUNE.getDefaultStack());
+			return;
+		}
 		if (stackRune.getItem() == IWItems.EMPTY_RUNE)
 		{
+			if (haveRealEnchantment(stackTool)) return;
 			IWAbstractRuneAbility ability = getAbility(stackTool);
 			if (ability.index == 0) return;
 			ItemStack newRune = IWItems.COMMON_ABILITY_RUNE.getDefaultStack();
@@ -358,7 +414,25 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 
 	public boolean canTakeOutput()
 	{
-		return canTakeOutput.get() != 0;
+		int cd = canTakeOutput.get();
+		switch (cd)
+		{
+			case 1 ->
+			{
+				return true;
+			}
+			case 2 ->
+			{
+				return player.totalExperience >= experienceCost.get();
+			}
+		}
+		return false;
+	}
+
+	public int getExperienceCost()
+	{
+		if (canTakeOutput.get() == 2) return experienceCost.get();
+		else return -1;
 	}
 
 }
