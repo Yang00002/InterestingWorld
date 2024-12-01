@@ -1,6 +1,7 @@
 {
   "values": [
-    "sharpness",
-    "interestingworld:fast_hit"
+    "interestingworld:sharpness",
+    "interestingworld:fast_hit",
+    "interestingworld:fast_attack"
   ]
 }

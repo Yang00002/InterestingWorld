@@ -14,16 +14,17 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.block.forgingblock.ForgingBlockScreenHandler;
+import org.yang.interestingworld.util.Base;
 
 public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler> implements ScreenHandlerListener
 {
 	// x,y 绘画左上端点坐标, u,v 缩放过的材质内开始坐标, width height 绘画窗口大小, texture width texture height 材质大小, 代表缩放
 	private class ForgingBlockButton extends ClickableWidget
 	{
-		private static final Identifier ARROW_TEXTURE = Identifier.of(IWUtil.Base.MOD_ID,
+		private static final Identifier ARROW_TEXTURE = Identifier.of(Base.MOD_ID,
 				"textures/gui/container/forging_block/arrow.png");
 
-		private static final Identifier HOVER_TEXTURE = Identifier.of(IWUtil.Base.MOD_ID,
+		private static final Identifier HOVER_TEXTURE = Identifier.of(Base.MOD_ID,
 				"textures/gui/container/forging_block/hover.png");
 
 		public ForgingBlockButton(int x, int y, int width, int height, Text message)
@@ -80,9 +81,9 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 		}
 	}
 
-	private static final Identifier TEXTURE = Identifier.of(IWUtil.Base.MOD_ID,
+	private static final Identifier TEXTURE = Identifier.of(Base.MOD_ID,
 			"textures/gui/container/forging_block/main.png");
-	private static final Identifier EXPERIENCE = Identifier.of(IWUtil.Base.MOD_ID,
+	private static final Identifier EXPERIENCE = Identifier.of(Base.MOD_ID,
 			"textures/gui/container/forging_block/experience.png");
 
 	private final PlayerEntity player;

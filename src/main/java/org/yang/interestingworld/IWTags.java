@@ -8,14 +8,16 @@ import net.minecraft.util.Identifier;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.yang.interestingworld.util.Base.MOD_ID;
+
 public class IWTags
 {
 	public static class EnergyToolTypeTags
 	{
 		public static final TagKey<Item> ROD = TagKey.of(RegistryKeys.ITEM,
-				Identifier.of(IWUtil.Base.MOD_ID, "tooltype/rod"));
+				Identifier.of(MOD_ID, "tooltype/rod"));
 		public static final TagKey<Item> SWORD = TagKey.of(RegistryKeys.ITEM,
-				Identifier.of(IWUtil.Base.MOD_ID, "tooltype/sword"));
+				Identifier.of(MOD_ID, "tooltype/sword"));
 
 		public static List<TagKey<Item>> getAll()
 		{

@@ -13,11 +13,13 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
+import org.yang.interestingworld.util.Base;
 
 import java.io.InputStream;
 import java.util.*;
 
-import static org.yang.interestingworld.IWUtil.Base.iwlogger;
+import static org.yang.interestingworld.util.Base.MOD_ID;
+import static org.yang.interestingworld.util.Base.iwlogger;
 
 public class IWResources
 {
@@ -81,7 +83,7 @@ public class IWResources
 			@Override
 			public Identifier getFabricId()
 			{
-				return Identifier.of(IWUtil.Base.MOD_ID, "runeitemvalue");
+				return Identifier.of(MOD_ID, "runeitemvalue");
 			}
 		}
 	}
@@ -141,7 +143,7 @@ public class IWResources
 			@Override
 			public Identifier getFabricId()
 			{
-				return Identifier.of(IWUtil.Base.MOD_ID, "toolenchantmenttype");
+				return Identifier.of(MOD_ID, "toolenchantmenttype");
 			}
 		}
 	}
@@ -232,7 +234,7 @@ public class IWResources
 			@Override
 			public Identifier getFabricId()
 			{
-				return Identifier.of(IWUtil.Base.MOD_ID, "enchantmentdata");
+				return Identifier.of(MOD_ID, "enchantmentdata");
 			}
 		}
 	}

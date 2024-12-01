@@ -29,6 +29,20 @@ public class LanguageGenerator extends FabricLanguageProvider
 	public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup,
 									 TranslationBuilder translationBuilder)
 	{
+		translationBuilder.add("enchantment.level.11", "XI");
+		translationBuilder.add("enchantment.level.12", "XII");
+		translationBuilder.add("enchantment.level.13", "XIII");
+		translationBuilder.add("enchantment.level.14", "XIV");
+		translationBuilder.add("enchantment.level.15", "XV");
+		translationBuilder.add("enchantment.level.16", "XVI");
+		translationBuilder.add("enchantment.level.17", "XVII");
+		translationBuilder.add("enchantment.level.18", "XVIII");
+		translationBuilder.add("enchantment.level.19", "XIX");
+		translationBuilder.add("enchantment.level.20", "XX");
+		translationBuilder.add("enchantment.level.21", "XXI");
+		translationBuilder.add("enchantment.level.22", "XXII");
+		translationBuilder.add("enchantment.level.23", "XXIII");
+		translationBuilder.add("enchantment.level.24", "XXIV");
 		translationBuilder.add(IWItems.BLAZEROD, "烈焰棒子");
 		translationBuilder.add(IWItems.STICK, "棍子");
 		translationBuilder.add(IWItems.STONE_SWORD, "石剑");
@@ -47,6 +61,7 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add(IWEffects.HURTING.value(), "易伤");
 		translationBuilder.add("forgingblock.repair.cost","附魔花费：%s / %s");
 		translationBuilder.add("enchantment.interestingworld.fast_hit", "迅捷打击");
+		translationBuilder.add("enchantment.interestingworld.fast_attack", "快速挥舞");
 		translationBuilder.add("tooltip.energy.count", "储存能量");
 		translationBuilder.add("sweeping_ability_title", "横扫");
 		translationBuilder.add("sweeping_ability_detail", "使武器可以横扫，每次横扫消耗1点能量。");

@@ -25,6 +25,7 @@ import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.client.tooltip.TooltipHelper;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+import org.yang.interestingworld.util.RuneAbility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +90,7 @@ public abstract class ClientMixinDrawContext
 			float currentEnergy = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 1f);
 			if (maxEnergy <= currentEnergy) return;
 			int cl = Math.clamp((int) ((currentEnergy * 13.0f) / maxEnergy), 0, 13);
-			IWAbstractRuneAbility ab = IWUtil.RuneAbility.getAbility(stack);
+			IWAbstractRuneAbility ab = RuneAbility.getAbility(stack);
 			int l = y + 13;
 			int k = x + 2;
 			int c = ab.canWork() ? ab.getColor() : IWUtil.TextStyle.GRAY_RGB;

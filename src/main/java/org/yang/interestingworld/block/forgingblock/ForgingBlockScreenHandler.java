@@ -18,9 +18,8 @@ import org.yang.interestingworld.item.rune.RuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 
-import static org.yang.interestingworld.IWUtil.Base.iwlogger;
-import static org.yang.interestingworld.IWUtil.RuneAbility.*;
-import static org.yang.interestingworld.IWUtil.RuneEnchantment.*;
+import static org.yang.interestingworld.util.RuneAbility.*;
+import static org.yang.interestingworld.util.RuneEnchantment.*;
 
 public class ForgingBlockScreenHandler extends ScreenHandler
 {
@@ -208,7 +207,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		}
 		if (stackRune.getItem() == IWItems.EMPTY_RUNE)
 		{
-			if (IWUtil.RuneEnchantment.haveRealEnchantment(stackTool))
+			if (haveRealEnchantment(stackTool))
 			{
 				canTakeOutput.set(1);
 				return;
@@ -230,11 +229,6 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			}
 			if (stackRune.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT)
 					.isEmpty())
-			{
-				canTakeOutput.set(0);
-				return;
-			}
-			if (haveRealEnchantment(stackTool))
 			{
 				canTakeOutput.set(0);
 				return;
@@ -325,7 +319,6 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			if (enchantmentRuneItem.getLevel(stackRune) > IWUtil.Server.getPersistentData().worldEnergyLevel) return;
 			if (stackRune.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT)
 					.isEmpty()) return;
-			if (haveRealEnchantment(stackTool)) return;
 			applyEnchant(
 					stackRune.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT),
 					stackTool, player.getWorld());

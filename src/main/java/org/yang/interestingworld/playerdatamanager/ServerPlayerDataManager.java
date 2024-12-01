@@ -10,8 +10,10 @@ import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.network.IWNetwork;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
+import org.yang.interestingworld.util.RuneAbility;
 
-import static org.yang.interestingworld.IWUtil.RuneAbility.getAbility;
+import static org.yang.interestingworld.util.RuneAbility.getAbility;
+
 
 public class ServerPlayerDataManager
 {
@@ -123,7 +125,7 @@ public class ServerPlayerDataManager
 
 	public boolean extractAutomicEnergy(ItemStack stack, ServerPlayerEntity user, float amount)
 	{
-		var ab = IWUtil.RuneAbility.getAbility(stack);
+		var ab = RuneAbility.getAbility(stack);
 		if (ab.canWork())
 		{
 			var fh = IWUtil.Return.FloatHolder.getInstance(amount);
@@ -157,7 +159,7 @@ public class ServerPlayerDataManager
 
 	public boolean tryExtractAutomicEnergy(ItemStack stack, ServerPlayerEntity user, float amount)
 	{
-		var ab = IWUtil.RuneAbility.getAbility(stack);
+		var ab = RuneAbility.getAbility(stack);
 		if (ab.canWork())
 		{
 			var fh = IWUtil.Return.FloatHolder.getInstance(amount);

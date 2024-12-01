@@ -5,7 +5,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 
-import static org.yang.interestingworld.IWUtil.Base.MOD_ID;
+import static org.yang.interestingworld.util.Base.MOD_ID;
 
 public class IWDamageTypes
 {

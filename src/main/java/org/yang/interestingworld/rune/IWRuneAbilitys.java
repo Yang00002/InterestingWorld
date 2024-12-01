@@ -51,9 +51,6 @@ public class IWRuneAbilitys
 				searchTool(i);
 				ABILITY_LIST[i].runeIndex = runeIds[i];
 				ABILITY_LIST[i].toolIndex = toolIds[i];
-				if (i != 0)
-					IWItemGroups.addItemToGroup(IWItemGroups.AbilityRuneItemInitializer.getInstance(ABILITY_LIST[i]),
-							IWItemGroups.RUNES_GROUP);
 			}
 		}
 
@@ -104,6 +101,12 @@ public class IWRuneAbilitys
 		}
 	}
 
+	public static void addRunesToItemGroup()
+	{
+		for (int i = 1; i < ABILITY_COUNT; i++)
+			IWItemGroups.addItemToGroup(IWItemGroups.AbilityRuneItemInitializer.getInstance(ABILITY_LIST[i]),
+					IWItemGroups.RUNES_GROUP);
+	}
 
 	public static void initialize()
 	{

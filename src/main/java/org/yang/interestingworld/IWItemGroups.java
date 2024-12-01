@@ -16,12 +16,15 @@ import net.minecraft.util.Identifier;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
+import org.yang.interestingworld.util.RuneAbility;
+import org.yang.interestingworld.util.RuneEnchantment;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static org.yang.interestingworld.IWUtil.Base.iwlogger;
+import static org.yang.interestingworld.util.Base.MOD_ID;
+import static org.yang.interestingworld.util.Base.iwlogger;
 
 public class IWItemGroups
 {
@@ -105,9 +108,9 @@ public class IWItemGroups
 					});
 					stack.set(IWComponents.DEFAULT_ENCHANTMENTS, builder.build());
 					stack.set(DataComponentTypes.ENCHANTMENTS, builder.build());
-					stack.set(IWComponents.DATA_FLAGS, IWUtil.RuneEnchantment.HAVE_DEFAULT_ENCHANTMENT_BYTE);
+					stack.set(IWComponents.DATA_FLAGS, RuneEnchantment.HAVE_DEFAULT_ENCHANTMENT_BYTE);
 				}
-				if (ability != null) IWUtil.RuneAbility.setAbility(stack, ability);
+				if (ability != null) RuneAbility.setAbility(stack, ability);
 				entries.add(stack);
 			}
 		}
@@ -160,7 +163,7 @@ public class IWItemGroups
 		public void construct(ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries)
 		{
 			ItemStack stack = IWItems.COMMON_ABILITY_RUNE.getDefaultStack();
-			IWUtil.RuneAbility.setAbility(stack, ability);
+			RuneAbility.setAbility(stack, ability);
 			entries.add(stack);
 		}
 	}
@@ -192,7 +195,7 @@ public class IWItemGroups
 	private static ItemStack getRuneDisplay()
 	{
 		ItemStack it = IWItems.COMMON_ABILITY_RUNE.getDefaultStack();
-		IWUtil.RuneAbility.setAbility(it, IWRuneAbilitys.SWEEP_ABILITY);
+		RuneAbility.setAbility(it, IWRuneAbilitys.SWEEP_ABILITY);
 		return it;
 	}
 
@@ -223,13 +226,13 @@ public class IWItemGroups
 
 
 	public static final RegistryKey<ItemGroup> TOOLS_GROUP = RegistryKey.of(Registries.ITEM_GROUP.getKey(),
-			Identifier.of(IWUtil.Base.MOD_ID, "tools_group"));
+			Identifier.of(MOD_ID, "tools_group"));
 
 	public static final RegistryKey<ItemGroup> RUNES_GROUP = RegistryKey.of(Registries.ITEM_GROUP.getKey(),
-			Identifier.of(IWUtil.Base.MOD_ID, "runes_group"));
+			Identifier.of(MOD_ID, "runes_group"));
 
 	public static final RegistryKey<ItemGroup> BLOCKS_GROUP = RegistryKey.of(Registries.ITEM_GROUP.getKey(),
-			Identifier.of(IWUtil.Base.MOD_ID, "blocks_group"));
+			Identifier.of(MOD_ID, "blocks_group"));
 
 	public static void initialize()
 	{

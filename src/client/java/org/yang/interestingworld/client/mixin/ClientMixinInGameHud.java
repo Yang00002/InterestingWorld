@@ -20,6 +20,7 @@ import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.playerdatamanager.ClientPlayerDataAccessor;
 import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+import org.yang.interestingworld.util.Base;
 
 import static org.yang.interestingworld.client.IWClientUtil.rgbDarkenToArgb;
 import static org.yang.interestingworld.client.IWClientUtil.rgbToArgb;
@@ -28,13 +29,13 @@ import static org.yang.interestingworld.client.IWClientUtil.rgbToArgb;
 public abstract class ClientMixinInGameHud
 {
 	@Unique
-	private static final Identifier EMPTY_ENERGY = Identifier.of(IWUtil.Base.MOD_ID, "hud/energy/e_empty");
+	private static final Identifier EMPTY_ENERGY = Identifier.of(Base.MOD_ID, "hud/energy/e_empty");
 	@Unique
-	private static final Identifier FULL_ENERGY = Identifier.of(IWUtil.Base.MOD_ID, "hud/energy/e_full");
+	private static final Identifier FULL_ENERGY = Identifier.of(Base.MOD_ID, "hud/energy/e_full");
 	@Unique
-	private static final Identifier HALF_ENERGY = Identifier.of(IWUtil.Base.MOD_ID, "hud/energy/e_half");
+	private static final Identifier HALF_ENERGY = Identifier.of(Base.MOD_ID, "hud/energy/e_half");
 	@Unique
-	private static final Identifier FFULL_ENERGY = Identifier.of(IWUtil.Base.MOD_ID, "hud/energy/e_glowing");
+	private static final Identifier FFULL_ENERGY = Identifier.of(Base.MOD_ID, "hud/energy/e_glowing");
 
 	@Shadow
 	public abstract TextRenderer getTextRenderer();

@@ -10,6 +10,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
@@ -27,6 +30,7 @@ public class DummyEntity extends LivingEntity
 {
 	private static final class DamageStatistic
 	{
+		private boolean preTraceMax = false;
 		private int tick = 0;
 		private int noDamageSecond = 0;
 		private int forgetSecond = 9;
@@ -35,10 +39,13 @@ public class DummyEntity extends LivingEntity
 		private float averageDamage = 0;
 		private int secondInvolve = 0;
 		private float preAverageDamage = 0.001f;
+		private float preMaxDamage = -1;
+		private float maxDamage = 0;
 
 		public void damage(float amount)
 		{
 			damageThatSecond += amount;
+			if (amount > maxDamage) maxDamage = amount;
 		}
 
 		public void heal(float amount)
@@ -59,6 +66,7 @@ public class DummyEntity extends LivingEntity
 						allDamage = 0;
 						averageDamage = 0;
 						secondInvolve = 0;
+						maxDamage = 0;
 						return;
 					}
 					else noDamageSecond++;
@@ -85,11 +93,31 @@ public class DummyEntity extends LivingEntity
 			return averageDamage;
 		}
 
-		public boolean shouldUpdate()
+		public float getMaxDamage()
 		{
+			return maxDamage;
+		}
+
+		public boolean shouldUpdate(boolean traceMax)
+		{
+			if (preTraceMax != traceMax)
+			{
+				preTraceMax = traceMax;
+				preMaxDamage = maxDamage;
+				preAverageDamage = averageDamage;
+				return true;
+			}
 			if (tick == 0)
 			{
-				if (preAverageDamage != averageDamage)
+				if (traceMax)
+				{
+					if (preMaxDamage != maxDamage)
+					{
+						preMaxDamage = maxDamage;
+						return true;
+					}
+				}
+				else if (preAverageDamage != averageDamage)
 				{
 					preAverageDamage = averageDamage;
 					return true;
@@ -97,12 +125,13 @@ public class DummyEntity extends LivingEntity
 			}
 			return false;
 		}
+
 	}
 
+	private boolean traceMax = false;
 	private final DamageStatistic damageStatistic = new DamageStatistic();
 	private final DefaultedList<ItemStack> armorItems = DefaultedList.ofSize(4, ItemStack.EMPTY);
 	private final DefaultedList<ItemStack> handItems = DefaultedList.ofSize(2, ItemStack.EMPTY);
-	private ItemStack bodyArmor = ItemStack.EMPTY;
 
 	public DummyEntity(EntityType<? extends LivingEntity> entityType, World world)
 	{
@@ -116,15 +145,80 @@ public class DummyEntity extends LivingEntity
 	}
 
 	@Override
+	public void readCustomDataFromNbt(NbtCompound nbt)
+	{
+		super.readCustomDataFromNbt(nbt);
+		if (nbt.contains("trace_max")) traceMax = nbt.getBoolean("trace_max");
+		if (nbt.contains("ArmorItems", NbtElement.LIST_TYPE))
+		{
+			NbtList nbtList = nbt.getList("ArmorItems", NbtElement.COMPOUND_TYPE);
+
+			for (int i = 0; i < this.armorItems.size(); i++)
+			{
+				NbtCompound nbtCompound = nbtList.getCompound(i);
+				this.armorItems.set(i, ItemStack.fromNbtOrEmpty(this.getRegistryManager(), nbtCompound));
+			}
+		}
+		if (nbt.contains("HandItems", NbtElement.LIST_TYPE))
+		{
+			NbtList nbtList = nbt.getList("HandItems", NbtElement.COMPOUND_TYPE);
+
+			for (int i = 0; i < this.handItems.size(); i++)
+			{
+				NbtCompound nbtCompound = nbtList.getCompound(i);
+				this.handItems.set(i, ItemStack.fromNbtOrEmpty(this.getRegistryManager(), nbtCompound));
+			}
+		}
+	}
+
+	@Override
+	public void writeCustomDataToNbt(NbtCompound nbt)
+	{
+		super.writeCustomDataToNbt(nbt);
+		nbt.putBoolean("trace_max", traceMax);
+		NbtList nbtList = new NbtList();
+
+		for (ItemStack itemStack : this.armorItems)
+		{
+			if (!itemStack.isEmpty())
+			{
+				nbtList.add(itemStack.encode(this.getRegistryManager()));
+			}
+			else
+			{
+				nbtList.add(new NbtCompound());
+			}
+		}
+
+		nbt.put("ArmorItems", nbtList);
+		NbtList nbtList3 = new NbtList();
+
+		for (ItemStack itemStack2 : this.handItems)
+		{
+			if (!itemStack2.isEmpty())
+			{
+				nbtList3.add(itemStack2.encode(this.getRegistryManager()));
+			}
+			else
+			{
+				nbtList3.add(new NbtCompound());
+			}
+		}
+
+		nbt.put("HandItems", nbtList3);
+	}
+
+	@Override
 	public void baseTick()
 	{
 		super.baseTick();
 		if (this.isAlive() && !this.getWorld().isClient)
 		{
 			damageStatistic.tick();
-			if (damageStatistic.shouldUpdate())
+			if (damageStatistic.shouldUpdate(traceMax))
 			{
-				setCustomName(Text.literal(numberToString(damageStatistic.getAverageDamage())));
+				if (traceMax) setCustomName(Text.literal(numberToString(damageStatistic.getMaxDamage())));
+				else setCustomName(Text.literal(numberToString(damageStatistic.getAverageDamage())));
 			}
 		}
 	}
@@ -138,18 +232,18 @@ public class DummyEntity extends LivingEntity
 		Item it = stack.getItem();
 		if (it == Items.SHIELD)
 		{
+			if (getEquippedStack(EquipmentSlot.OFFHAND).getItem() == Items.SHIELD)
+			{
+				var at = this.getAttributes();
+				var kn = at.getCustomInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE);
+				if (kn != null) kn.setBaseValue(0.0);
+				equipStack(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+				return ActionResult.SUCCESS;
+			}
 			var at = this.getAttributes();
 			var kn = at.getCustomInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE);
 			if (kn != null) kn.setBaseValue(1.0);
-			equipStack(EquipmentSlot.OFFHAND, stack.copy());
-			return ActionResult.SUCCESS;
-		}
-		else if (it == Items.STICK)
-		{
-			var at = this.getAttributes();
-			var kn = at.getCustomInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE);
-			if (kn != null) kn.setBaseValue(0.0);
-			equipStack(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+			equipStack(EquipmentSlot.OFFHAND, Items.SHIELD.getDefaultStack());
 			return ActionResult.SUCCESS;
 		}
 		else if (it == Items.BLAZE_POWDER)
@@ -161,6 +255,35 @@ public class DummyEntity extends LivingEntity
 		{
 			this.clearStatusEffects();
 			return ActionResult.SUCCESS;
+		}
+		else if (it == Items.IRON_SWORD)
+		{
+			if (getEquippedStack(EquipmentSlot.MAINHAND).getItem() == Items.IRON_SWORD)
+			{
+				traceMax = false;
+				equipStack(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+				return ActionResult.SUCCESS;
+			}
+			traceMax = true;
+			equipStack(EquipmentSlot.MAINHAND, Items.IRON_SWORD.getDefaultStack());
+			return ActionResult.SUCCESS;
+		}
+		else
+		{
+			var slot = getPreferredEquipmentSlot(stack);
+			if (slot == EquipmentSlot.HEAD || slot == EquipmentSlot.FEET || slot == EquipmentSlot.LEGS ||
+				slot == EquipmentSlot.CHEST)
+			{
+				if (this.getEquippedStack(slot).getItem() == it)
+				{
+					this.equipStack(slot, ItemStack.EMPTY);
+				}
+				else
+				{
+					this.equipStack(slot, stack.copy());
+				}
+				return ActionResult.SUCCESS;
+			}
 		}
 		return ActionResult.PASS;
 	}
@@ -213,7 +336,7 @@ public class DummyEntity extends LivingEntity
 		{
 			case HAND -> this.handItems.get(slot.getEntitySlotId());
 			case HUMANOID_ARMOR -> this.armorItems.get(slot.getEntitySlotId());
-			case ANIMAL_ARMOR -> this.bodyArmor;
+			case ANIMAL_ARMOR -> ItemStack.EMPTY;
 		};
 	}
 
@@ -229,10 +352,6 @@ public class DummyEntity extends LivingEntity
 			case HUMANOID_ARMOR:
 				this.onEquipStack(slot, this.armorItems.set(slot.getEntitySlotId(), stack), stack);
 				break;
-			case ANIMAL_ARMOR:
-				ItemStack itemStack = this.bodyArmor;
-				this.bodyArmor = stack;
-				this.onEquipStack(slot, itemStack, stack);
 		}
 	}
 
@@ -240,5 +359,19 @@ public class DummyEntity extends LivingEntity
 	public Arm getMainArm()
 	{
 		return Arm.RIGHT;
+	}
+
+	@Override
+	public boolean canUseSlot(EquipmentSlot slot)
+	{
+		switch (slot)
+		{
+			case EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND, EquipmentSlot.HEAD, EquipmentSlot.CHEST,
+					EquipmentSlot.LEGS, EquipmentSlot.FEET ->
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

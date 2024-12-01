@@ -12,6 +12,7 @@ import net.minecraft.entity.DamageUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Saddleable;
+import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
@@ -61,7 +62,8 @@ import static org.yang.interestingworld.IWBlocks.addBlockItemToItemGroupWhenEnte
 import static org.yang.interestingworld.IWItems.addItemToItemGroupWhenEnterWorld;
 import static org.yang.interestingworld.IWResources.EnchantmentData.EnchantmentData;
 import static org.yang.interestingworld.IWResources.ToolEnchantmentType.ToolEnchantmentType;
-import static org.yang.interestingworld.IWUtil.Base.iwlogger;
+import static org.yang.interestingworld.rune.IWRuneAbilitys.addRunesToItemGroup;
+import static org.yang.interestingworld.util.Base.iwlogger;
 
 public class IWUtil
 {
@@ -442,6 +444,48 @@ public class IWUtil
 
 	public static class Components
 	{
+		public static class MutableAttributeContainer
+		{
+			private boolean haveBasicDamage = false;
+			private boolean haveBasicSpeed = false;
+
+			public void findDamage()
+			{
+				haveBasicDamage = true;
+			}
+
+			public boolean hideAttribute(RegistryEntry<EntityAttribute> attribute, EntityAttributeModifier modifier)
+			{
+				return ((haveBasicDamage && attributeEntryEqual(attribute, EntityAttributes.GENERIC_ATTACK_DAMAGE)) ||
+						(haveBasicSpeed && attributeEntryEqual(attribute, EntityAttributes.GENERIC_ATTACK_SPEED))) &&
+					   modifierAddByEnchantment(modifier);
+
+			}
+
+			public static boolean attributeEntryEqual(RegistryEntry<EntityAttribute> a1,
+													  RegistryEntry<EntityAttribute> a2)
+			{
+				return a1.matches(a2);
+			}
+
+			public static boolean modifierAddByEnchantment(EntityAttributeModifier modifier)
+			{
+				String path = modifier.id().getNamespace();
+				return path.equals("iwg") || path.equals("iwb");
+			}
+
+			public void findSpeed()
+			{
+				haveBasicSpeed = true;
+			}
+
+			public void clear()
+			{
+				haveBasicDamage = false;
+				haveBasicSpeed = false;
+			}
+		}
+
 		public static double setbaseAttackDamageModifier(ItemStack stack, double damage2inModifier,
 														 double defaultvalue)
 		{
@@ -525,248 +569,6 @@ public class IWUtil
 			return stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f);
 		}
 	}
-
-	public static class RuneAbility
-	{
-		private static CustomModelDataComponent getModelComponent(int id)
-		{
-			return new CustomModelDataComponent(id);
-		}
-
-		public static void setAbility(ItemStack stack, IWAbstractRuneAbility ability)
-		{
-			IWAbstractRuneAbility origin = getAbility(stack);
-			if (origin.index != ability.index)
-			{
-				Item item = stack.getItem();
-				stack.set(IWComponents.ABILITY_INDEX, ability.index);
-				stack.set(IWComponents.ABILITY_COLOR_RGB, ability.getColor());
-				if (item instanceof EnergyToolItem)
-				{
-					stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
-					origin.onRemoveAbility(stack);
-					ability.onSetAbility(stack);
-				}
-				else stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.runeIndex));
-			}
-		}
-
-		public static void setAbility(ItemStack stack, short index)
-		{
-			IWAbstractRuneAbility origin = getAbility(stack);
-			IWAbstractRuneAbility ability = getAbility(index);
-			if (origin.index != index)
-			{
-				Item item = stack.getItem();
-				stack.set(IWComponents.ABILITY_INDEX, index);
-				stack.set(IWComponents.ABILITY_COLOR_RGB, ability.getColor());
-				if (item instanceof EnergyToolItem)
-				{
-					stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
-					origin.onRemoveAbility(stack);
-					ability.onSetAbility(stack);
-				}
-				else stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.runeIndex));
-			}
-		}
-
-		public static IWAbstractRuneAbility getAbility(ItemStack stack)
-		{
-			return IWRuneAbilitys.getAbilityofIndex(stack.getOrDefault(IWComponents.ABILITY_INDEX, (short) 0));
-		}
-
-		public static int getColor(ItemStack stack)
-		{
-			return stack.getOrDefault(IWComponents.ABILITY_COLOR_RGB, TextStyle.WHITE_RGB);
-		}
-
-		public static int getColor(short index)
-		{
-			return getAbility(index).getColor();
-		}
-
-
-		public static IWAbstractRuneAbility getAbility(short index)
-		{
-			return IWRuneAbilitys.getAbilityofIndex(index);
-		}
-
-		public static void removeToolAbility(ItemStack stack)
-		{
-			IWAbstractRuneAbility ability = getAbility(stack);
-			stack.remove(IWComponents.ABILITY_INDEX);
-			stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
-			stack.set(IWComponents.ABILITY_COLOR_RGB, IWRuneAbilitys.DEFAULT_ABILITY.getColor());
-			ability.onRemoveAbility(stack);
-		}
-
-		public static ItemStack getEmptyAbilityRune()
-		{
-			return IWItems.EMPTY_RUNE.getDefaultStack();
-		}
-
-		private static void removeToolAbility(ItemStack stack, IWAbstractRuneAbility ability)
-		{
-			stack.remove(IWComponents.ABILITY_INDEX);
-			stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
-			stack.set(IWComponents.ABILITY_COLOR_RGB, IWRuneAbilitys.DEFAULT_ABILITY.getColor());
-			ability.onRemoveAbility(stack);
-		}
-	}
-
-	public static class RuneEnchantment
-	{
-		public static final int HAVE_DEFAULT_ENCHANTMENT_BYTE = 1;
-		public static final int HAVE_REAL_ENCHANTMENT_BYTE = 2;
-
-		public static boolean onlyHaveDefaultEnchantment(ItemStack stack)
-		{
-			return haveDefaultEnchantment(stack) && !haveRealEnchantment(stack);
-		}
-
-		public static boolean haveDefaultEnchantment(ItemStack stack)
-		{
-			int data = stack.getOrDefault(IWComponents.DATA_FLAGS, 0);
-			return (data & HAVE_DEFAULT_ENCHANTMENT_BYTE) != 0;
-		}
-
-		public static boolean haveRealEnchantment(ItemStack stack)
-		{
-			int data = stack.getOrDefault(IWComponents.DATA_FLAGS, 0);
-			return (data & HAVE_REAL_ENCHANTMENT_BYTE) != 0;
-		}
-
-		public static void setFlagOfRealEnchant(ItemStack stack)
-		{
-			int data = stack.getOrDefault(IWComponents.DATA_FLAGS, 0);
-			stack.set(IWComponents.DATA_FLAGS, (data & ~HAVE_DEFAULT_ENCHANTMENT_BYTE) | HAVE_REAL_ENCHANTMENT_BYTE);
-		}
-
-
-		public static int getEnchantmentLevel(World world, ItemStack stack, RegistryKey<Enchantment> key)
-		{
-			return stack.getEnchantments().getLevel(Registry.getEnchantmentEntry(world, key));
-		}
-
-		public static boolean isConflict(Collection<RegistryEntry<Enchantment>> enchantmentCollection,
-										 RegistryEntry<Enchantment> target)
-		{
-			var tv = target.value();
-			for (var i : enchantmentCollection)
-			{
-				var v = i.value();
-				if (v == tv) continue;
-				if (v.exclusiveSet().contains(target)) return true;
-			}
-			return false;
-		}
-
-		public static int canEnchantTo(ItemEnchantmentsComponent enchantmentsComponent, ItemStack stack, World world)
-		{
-			//寻找 stack 对应的物品类
-			for (var tag : IWTags.EnergyToolTypeTags.getAll())
-			{
-				if (stack.isIn(tag))
-				{
-					//该类是否有附魔
-					if (!ToolEnchantmentType.containsKey(tag)) return -1;
-					//该类附魔
-					Set<RegistryKey<Enchantment>> enchantmentSet = ToolEnchantmentType.get(tag);
-					int cost = 0;
-					Set<RegistryEntry<Enchantment>> applyedEnchantmentSet = new LinkedHashSet<>(
-							stack.getOrDefault(IWComponents.DEFAULT_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT)
-									.getEnchantments());
-					var wrapper = IWUtil.Registry.getEnchantmentWrapper(world);
-					for (var enchantmentKey : enchantmentSet)
-					{
-						//附魔是否被加载
-						if (!EnchantmentData.containsKey(enchantmentKey))
-						{
-							enchantmentSet.remove(enchantmentKey);
-							continue;
-						}
-						var optionalEnchantmentEntry = wrapper.getOptional(enchantmentKey);
-						//附魔是否存在
-						if (optionalEnchantmentEntry.isEmpty())
-						{
-							enchantmentSet.remove(enchantmentKey);
-						}
-						else
-						{
-							var enchantmentEntry = optionalEnchantmentEntry.get();
-							//附魔在符文上
-							int applyLevel = enchantmentsComponent.getLevel(enchantmentEntry);
-							if (applyLevel == 0) continue;
-							var data = EnchantmentData.get(enchantmentKey);
-							//默认附魔未达到最大等级
-							int deflevel = stack.getEnchantments().getLevel(enchantmentEntry);
-							if (deflevel > data.getMaxAllowLevel()) continue;
-							int addLevel = Math.min(data.getMaxAllowLevel() - deflevel, applyLevel);
-							if (!isConflict(applyedEnchantmentSet, enchantmentEntry))
-								cost += data.getLevelCost(addLevel);
-							else if (data.allowConflict())
-								cost += data.getLevelCost(addLevel) + data.getConflictCostPunishment();
-						}
-					}
-					if (cost != 0) return cost;
-				}
-			}
-			return -1;
-		}
-
-		public static void applyEnchant(ItemEnchantmentsComponent enchantmentsComponent, ItemStack toolStack,
-										World world)
-		{
-			//寻找 stack 对应的物品类
-			for (var tag : IWTags.EnergyToolTypeTags.getAll())
-			{
-				if (toolStack.isIn(tag))
-				{
-					//该类是否有附魔
-					if (!ToolEnchantmentType.containsKey(tag)) return;
-					//该类附魔
-					Set<RegistryKey<Enchantment>> enchantmentSet = ToolEnchantmentType.get(tag);
-					ItemEnchantmentsComponent before = toolStack.getOrDefault(IWComponents.DEFAULT_ENCHANTMENTS,
-							ItemEnchantmentsComponent.DEFAULT);
-					ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(before);
-					var wrapper = IWUtil.Registry.getEnchantmentWrapper(world);
-					for (var enchantmentKey : enchantmentSet)
-					{
-						//附魔是否被加载
-						if (!EnchantmentData.containsKey(enchantmentKey))
-						{
-							enchantmentSet.remove(enchantmentKey);
-							continue;
-						}
-						var optionalEnchantmentEntry = wrapper.getOptional(enchantmentKey);
-						//附魔是否存在
-						if (optionalEnchantmentEntry.isEmpty())
-						{
-							enchantmentSet.remove(enchantmentKey);
-						}
-						else
-						{
-							var enchantmentEntry = optionalEnchantmentEntry.get();
-							//附魔在符文上
-							int applyLevel = enchantmentsComponent.getLevel(enchantmentEntry);
-							if (applyLevel == 0) continue;
-							var data = EnchantmentData.get(enchantmentKey);
-							//默认附魔未达到最大等级
-							int deflevel = toolStack.getEnchantments().getLevel(enchantmentEntry);
-							if (deflevel > data.getMaxAllowLevel()) continue;
-							int targetLevel = Math.min(data.getMaxAllowLevel(), applyLevel + deflevel);
-							if (isConflict(builder.getEnchantments(), enchantmentEntry) && !data.allowConflict())
-								continue;
-							builder.set(enchantmentEntry, targetLevel);
-						}
-					}
-					toolStack.set(DataComponentTypes.ENCHANTMENTS, builder.build());
-					setFlagOfRealEnchant(toolStack);
-				}
-			}
-		}
-	}
-
 	public static class TextStyle
 	{
 		public static String numberToString(float f)
@@ -798,12 +600,7 @@ public class IWUtil
 		}
 	}
 
-	public static class Base
-	{
-		public static final String MOD_ID = "interestingworld";
-		public static final Logger iwlogger = LogManager.getLogger();
 
-	}
 
 	public static class Server
 	{
@@ -822,6 +619,7 @@ public class IWUtil
 			persistentData = IWPersistentData.getServerState(currentServer);
 			addItemToItemGroupWhenEnterWorld();
 			addBlockItemToItemGroupWhenEnterWorld();
+			addRunesToItemGroup();
 		}
 
 		private static void onServerStopped(MinecraftServer server)

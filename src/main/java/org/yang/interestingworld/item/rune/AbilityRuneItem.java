@@ -8,8 +8,9 @@ import org.yang.interestingworld.IWUtil;
 
 import java.util.List;
 
-import static org.yang.interestingworld.IWUtil.RuneAbility.getAbility;
-import static org.yang.interestingworld.IWUtil.RuneAbility.getColor;
+import static org.yang.interestingworld.util.RuneAbility.getAbility;
+import static org.yang.interestingworld.util.RuneAbility.getColor;
+
 
 public class AbilityRuneItem extends RuneItem
 {

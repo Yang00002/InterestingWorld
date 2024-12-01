@@ -4,6 +4,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import org.yang.interestingworld.util.Base;
 
 public class IWSounds
 {
@@ -13,8 +14,8 @@ public class IWSounds
 
 	private static SoundEvent register(String id)
 	{
-		SoundEvent ret = SoundEvent.of(Identifier.of(IWUtil.Base.MOD_ID, id));
-		Registry.register(Registries.SOUND_EVENT, Identifier.of(IWUtil.Base.MOD_ID, id), ret);
+		SoundEvent ret = SoundEvent.of(Identifier.of(Base.MOD_ID, id));
+		Registry.register(Registries.SOUND_EVENT, Identifier.of(Base.MOD_ID, id), ret);
 		return ret;
 	}
 

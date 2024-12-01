@@ -9,8 +9,9 @@ import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.World;
 import org.yang.interestingworld.IWUtil;
+import org.yang.interestingworld.util.Base;
 
-import static org.yang.interestingworld.IWUtil.Base.iwlogger;
+import static org.yang.interestingworld.util.Base.iwlogger;
 
 
 public class IWPersistentData extends PersistentState
@@ -48,6 +49,6 @@ public class IWPersistentData extends PersistentState
 			return null;
 		}
 		PersistentStateManager persistentStateManager = w.getPersistentStateManager();
-		return persistentStateManager.getOrCreate(type, IWUtil.Base.MOD_ID);
+		return persistentStateManager.getOrCreate(type, Base.MOD_ID);
 	}
 }

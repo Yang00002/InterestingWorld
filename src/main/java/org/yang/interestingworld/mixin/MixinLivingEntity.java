@@ -25,6 +25,8 @@ import org.yang.interestingworld.IWUtil;
 
 import java.util.Map;
 
+import static org.yang.interestingworld.util.RuneEnchantment.getEnchantmentLevel;
+
 
 @Debug(export = true)
 @Mixin(LivingEntity.class)
@@ -109,7 +111,7 @@ public abstract class MixinLivingEntity extends Entity implements Attackable
 			hurtGate = (int) cooldownGate;
 			return cooldownGate;
 		}
-		int level = IWUtil.RuneEnchantment.getEnchantmentLevel(this.getWorld(), weapon, IWEnchantments.FAST_HIT);
+		int level = getEnchantmentLevel(this.getWorld(), weapon, IWEnchantments.FAST_HIT);
 		hurtGate = Math.min(10 + level, 19);
 		return hurtGate;
 	}

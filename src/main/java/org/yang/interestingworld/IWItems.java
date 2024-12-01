@@ -16,6 +16,7 @@ import org.yang.interestingworld.item.rune.EnchantmentRuneItem;
 import org.yang.interestingworld.item.rune.RuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.item.tool.sword.EnergySword;
+import org.yang.interestingworld.util.Base;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -78,7 +79,7 @@ public class IWItems
 	public static Item createCommonItem(String id, Function<Item.Settings, Item> itemGetter)
 	{
 		Item item = itemGetter.apply(new Item.Settings());
-		Identifier itemID = Identifier.of(IWUtil.Base.MOD_ID, id);
+		Identifier itemID = Identifier.of(Base.MOD_ID, id);
 		Registry.register(Registries.ITEM, itemID, item);
 		return item;
 	}
@@ -93,7 +94,7 @@ public class IWItems
 		private double entityInteractionRangeAdding = 0;
 		public boolean fireresistence = false;
 
-		private final Identifier BASE_ENTITY_INTERACTION_RANGE = Identifier.of(IWUtil.Base.MOD_ID,
+		private final Identifier BASE_ENTITY_INTERACTION_RANGE = Identifier.of(Base.MOD_ID,
 				"base_entity_interaction_range");
 
 		public EnergyToolItemBuilder setEnergy(float max)
@@ -164,7 +165,7 @@ public class IWItems
 								EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND);
 			settings = settings.attributeModifiers(builder.build());
 			T ret = function.apply(material, settings);
-			Identifier itemID = Identifier.of(IWUtil.Base.MOD_ID, id);
+			Identifier itemID = Identifier.of(Base.MOD_ID, id);
 			Registry.register(Registries.ITEM, itemID, ret);
 			return ret;
 		}
