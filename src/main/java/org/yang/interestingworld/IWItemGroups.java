@@ -17,7 +17,7 @@ import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
 import org.yang.interestingworld.util.RuneAbility;
-import org.yang.interestingworld.util.RuneEnchantment;
+import org.yang.interestingworld.util.enchantment.RuneEnchantment;
 
 import java.util.HashMap;
 import java.util.LinkedList;

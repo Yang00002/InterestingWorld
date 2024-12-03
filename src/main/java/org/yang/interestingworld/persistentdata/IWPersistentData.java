@@ -21,14 +21,12 @@ public class IWPersistentData extends PersistentState
 	@Override
 	public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup)
 	{
-		iwlogger.info("write");
 		nbt.putInt("worldenergylevel", worldEnergyLevel);
 		return nbt;
 	}
 
 	public static IWPersistentData createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup)
 	{
-		iwlogger.info("create");
 		IWPersistentData state = new IWPersistentData();
 		state.worldEnergyLevel = tag.getInt("worldenergylevel");
 		return state;

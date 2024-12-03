@@ -2,6 +2,7 @@ package org.yang.interestingworld;
 
 import net.fabricmc.api.ModInitializer;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
+import org.yang.interestingworld.util.Server;
 
 
 public class Interestingworld implements ModInitializer
@@ -10,7 +11,7 @@ public class Interestingworld implements ModInitializer
 	@Override
 	public void onInitialize()
 	{
-		IWUtil.Server.initialize();
+		Server.initialize();
 		IWDamageTypes.initialize();
 		IWEffects.initialize();
 		IWComponents.initialize();

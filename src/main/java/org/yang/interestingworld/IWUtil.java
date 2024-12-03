@@ -5,7 +5,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
-import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.DamageUtil;
@@ -22,7 +21,6 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleEffect;
@@ -42,26 +40,17 @@ import net.minecraft.text.Style;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.network.IWNetwork;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
 import org.yang.interestingworld.playerdatamanager.ServerPlayerDataAccessor;
 import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
-import org.yang.interestingworld.rune.IWAbstractRuneAbility;
-import org.yang.interestingworld.rune.IWRuneAbilitys;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
 import static org.yang.interestingworld.IWBlocks.addBlockItemToItemGroupWhenEnterWorld;
 import static org.yang.interestingworld.IWItems.addItemToItemGroupWhenEnterWorld;
-import static org.yang.interestingworld.IWResources.EnchantmentData.EnchantmentData;
-import static org.yang.interestingworld.IWResources.ToolEnchantmentType.ToolEnchantmentType;
+import static org.yang.interestingworld.resource.enchant.SequencedEnchantResourceReloadListener.*;
 import static org.yang.interestingworld.rune.IWRuneAbilitys.addRunesToItemGroup;
 import static org.yang.interestingworld.util.Base.iwlogger;
 
@@ -569,6 +558,7 @@ public class IWUtil
 			return stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f);
 		}
 	}
+
 	public static class TextStyle
 	{
 		public static String numberToString(float f)
@@ -597,57 +587,6 @@ public class IWUtil
 		{
 			if (colorRGB > 0) return Style.EMPTY.withColor(colorRGB).withBold(true);
 			return Style.EMPTY.withBold(true);
-		}
-	}
-
-
-
-	public static class Server
-	{
-		private static MinecraftServer currentServer = null;
-
-		private static IWPersistentData persistentData = null;
-
-		private static void onServerStarting(MinecraftServer server)
-		{
-			currentServer = server;
-		}
-
-		private static void onServerStarted(MinecraftServer server)
-		{
-			iwlogger.info("server Start");
-			persistentData = IWPersistentData.getServerState(currentServer);
-			addItemToItemGroupWhenEnterWorld();
-			addBlockItemToItemGroupWhenEnterWorld();
-			addRunesToItemGroup();
-		}
-
-		private static void onServerStopped(MinecraftServer server)
-		{
-			iwlogger.info("server Stop");
-			if (currentServer == server)
-			{
-				currentServer = null;
-				persistentData = null;
-			}
-		}
-
-		public static MinecraftServer getCurrentServer()
-		{
-			return currentServer;
-		}
-
-		public static IWPersistentData getPersistentData()
-		{
-			return persistentData;
-		}
-
-		public static void initialize()
-		{
-			ServerLifecycleEvents.SERVER_STARTING.register(Server::onServerStarting);
-			ServerLifecycleEvents.SERVER_STOPPED.register(Server::onServerStopped);
-			ServerLifecycleEvents.SERVER_STARTED.register(Server::onServerStarted);
-
 		}
 	}
 

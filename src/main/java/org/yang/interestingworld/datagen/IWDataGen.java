@@ -14,7 +14,6 @@ public class IWDataGen implements DataGeneratorEntrypoint
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
         pack.addProvider(LanguageGenerator::new);
         pack.addProvider(DamageTypeTagGenerator::new);
-        pack.addProvider(ItemTagGenerator::new);
         pack.addProvider(IWModelGenerator::new);
     }
 }

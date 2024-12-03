@@ -1,0 +1,10 @@
+{
+  "enchantments": [
+    "interestingworld:fast_attack",
+    "interestingworld:sharpness"
+  ],
+  "allowConflict": true,
+  "weightPunish": 1,
+  "costAddPunish": 0,
+  "costMultiplierPunish": 1.1
+}

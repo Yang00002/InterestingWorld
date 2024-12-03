@@ -7,7 +7,6 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.DamageTypeTags;
 import org.yang.interestingworld.IWDamageTypes;
-import org.yang.interestingworld.IWTags;
 
 import java.util.concurrent.CompletableFuture;
 

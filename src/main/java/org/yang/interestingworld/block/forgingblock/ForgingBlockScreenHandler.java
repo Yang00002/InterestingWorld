@@ -6,7 +6,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
@@ -17,9 +19,13 @@ import org.yang.interestingworld.item.rune.EnchantmentRuneItem;
 import org.yang.interestingworld.item.rune.RuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+import org.yang.interestingworld.util.Server;
+import org.yang.interestingworld.util.enchantment.FromItemEnchantGenerator;
+import org.yang.interestingworld.util.enchantment.RuneEnchantment;
 
+import static org.yang.interestingworld.util.Base.iwlogger;
 import static org.yang.interestingworld.util.RuneAbility.*;
-import static org.yang.interestingworld.util.RuneEnchantment.*;
+import static org.yang.interestingworld.util.enchantment.RuneEnchantment.*;
 
 public class ForgingBlockScreenHandler extends ScreenHandler
 {
@@ -31,6 +37,67 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	private static final int PLAYER_HOTBAR_END_SLOT_INDEX = 48;
 	private final Property canTakeOutput;
 	private final Property experienceCost;
+
+	private static class EnchantmentGeneratorContainer
+	{
+		private ItemEnchantmentsComponent preComponent = null;
+		private ItemEnchantmentsComponent preDefaultComponent = null;
+		private FromItemEnchantGenerator enchantmentGenerator = null;
+
+		public void setEnchantmentGenerator(boolean haveDiamond, int lapisCount, int crystalCount,
+											ItemEnchantmentsComponent component,
+											ItemEnchantmentsComponent defaultComponent)
+		{
+			if (enchantmentGenerator == null || preDefaultComponent != defaultComponent || preComponent != component)
+			{
+				preComponent = component;
+				preDefaultComponent = defaultComponent;
+				enchantmentGenerator = new FromItemEnchantGenerator(component, defaultComponent);
+			}
+			enchantmentGenerator.setExtraData(haveDiamond, lapisCount, crystalCount);
+		}
+
+		public int getMaxCost()
+		{
+			return enchantmentGenerator != null ? enchantmentGenerator.getMaxCost() : 0;
+		}
+
+		public ItemEnchantmentsComponent generateEnchantments()
+		{
+			if (enchantmentGenerator != null)
+			{
+				return enchantmentGenerator.generateOutput();
+			}
+			return null;
+		}
+
+		public boolean needDiamond()
+		{
+			return enchantmentGenerator != null && enchantmentGenerator.needDiamond();
+		}
+
+		public int lapisCount()
+		{
+			return enchantmentGenerator != null ? enchantmentGenerator.getLapisNeedCount() : 0;
+		}
+
+		public int crystalCount()
+		{
+			return enchantmentGenerator != null ? enchantmentGenerator.getCrystalNeed() : 0;
+		}
+
+		public void release()
+		{
+			enchantmentGenerator = null;
+		}
+
+		public int getRuneLevel()
+		{
+			return enchantmentGenerator != null ? enchantmentGenerator.getRuneLevelByCost() : 0;
+		}
+	}
+
+	EnchantmentGeneratorContainer enchantmentGeneratorContainer = new EnchantmentGeneratorContainer();
 
 	private static boolean isInIngredientSlot(int slot)
 	{
@@ -99,6 +166,27 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			}
 		}
 		return -1.0f * need / originNeed;
+	}
+
+	private boolean inventoryHave(Item it)
+	{
+		for (int i = 3; i < 12; i++)
+		{
+			ItemStack s = inventory.getStack(i);
+			if (s.getItem() == it && s.getCount() > 0) return true;
+		}
+		return false;
+	}
+
+	private int inventoryCount(Item it)
+	{
+		int c = 0;
+		for (int i = 3; i < 12; i++)
+		{
+			ItemStack s = inventory.getStack(i);
+			if (s.getItem() == it) c += s.getCount();
+		}
+		return c;
 	}
 
 	private Inventory createInventory()
@@ -209,7 +297,14 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		{
 			if (haveRealEnchantment(stackTool))
 			{
-				canTakeOutput.set(1);
+				boolean haveDiamond = inventoryHave(Items.DIAMOND);
+				int lapisCount = inventoryCount(Items.LAPIS_LAZULI) + inventoryCount(Items.LAPIS_BLOCK) * 9;
+				int crystalCount = inventoryCount(Items.AMETHYST_SHARD);
+				enchantmentGeneratorContainer.setEnchantmentGenerator(haveDiamond, lapisCount, crystalCount,
+						stackTool.getEnchantments(),
+						stackTool.getOrDefault(IWComponents.DEFAULT_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT));
+				canTakeOutput.set(2);
+				experienceCost.set(enchantmentGeneratorContainer.getMaxCost());
 				return;
 			}
 			IWAbstractRuneAbility ability = getAbility(stackTool);
@@ -222,7 +317,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		if (stackRune.getItem() == IWItems.ENCHANTMENT_RUNE)
 		{
 			EnchantmentRuneItem it = (EnchantmentRuneItem) stackRune.getItem();
-			if (it.getLevel(stackRune) > IWUtil.Server.getPersistentData().worldEnergyLevel)
+			if (it.getLevel(stackRune) > Server.getPersistentData().worldEnergyLevel)
 			{
 				canTakeOutput.set(0);
 				return;
@@ -276,6 +371,67 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		experienceCost.set(0);
 	}
 
+	private void clearItemForGetEnchantmentFromTool()
+	{
+		boolean clearDiamond = enchantmentGeneratorContainer.needDiamond();
+		int lapiscount = enchantmentGeneratorContainer.lapisCount();
+		int crystalcount = enchantmentGeneratorContainer.crystalCount();
+		iwlogger.info("clearDiamond " + clearDiamond);
+		iwlogger.info("lapiscount " + lapiscount);
+		iwlogger.info("crystalcount " + crystalcount);
+		for (int i = 3; i < 12; i++)
+		{
+			ItemStack it = inventory.getStack(i);
+			if (it.isEmpty()) continue;
+			Item item = it.getItem();
+			if (clearDiamond && item == Items.DIAMOND)
+			{
+				it.decrement(1);
+				inventory.setStack(i, it);
+				clearDiamond = false;
+			}
+			else if (crystalcount > 0 && item == Items.AMETHYST_SHARD)
+			{
+				int c = it.getCount();
+				int m = Math.min(c, crystalcount);
+				crystalcount -= m;
+				it.decrement(m);
+				inventory.setStack(i, it);
+			}
+			else if (lapiscount > 0)
+			{
+				if (lapiscount > 9 && item == Items.LAPIS_BLOCK)
+				{
+					int c = it.getCount();
+					int m = Math.min(c, lapiscount / 9);
+					lapiscount -= m * 9;
+					it.decrement(m);
+					inventory.setStack(i, it);
+				}
+				else if (item == Items.LAPIS_LAZULI)
+				{
+					int c = it.getCount();
+					int m = Math.min(c, lapiscount);
+					lapiscount -= m;
+					it.decrement(m);
+					inventory.setStack(i, it);
+				}
+			}
+		}
+		if (lapiscount > 0) for (int i = 3; i < 12; i++)
+		{
+			ItemStack it = inventory.getStack(i);
+			if (it.isEmpty()) continue;
+			Item item = it.getItem();
+			if (item == Items.LAPIS_BLOCK)
+			{
+				it.decrement(1);
+				inventory.setStack(i, it);
+				return;
+			}
+		}
+	}
+
 	@Override
 	public boolean onButtonClick(PlayerEntity player, int id)
 	{
@@ -316,7 +472,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		if (stackRune.getItem() instanceof EnchantmentRuneItem enchantmentRuneItem)
 		{
 			if (player.totalExperience < experienceCost.get()) return;
-			if (enchantmentRuneItem.getLevel(stackRune) > IWUtil.Server.getPersistentData().worldEnergyLevel) return;
+			if (enchantmentRuneItem.getLevel(stackRune) > Server.getPersistentData().worldEnergyLevel) return;
 			if (stackRune.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT)
 					.isEmpty()) return;
 			applyEnchant(
@@ -331,7 +487,35 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		}
 		if (stackRune.getItem() == IWItems.EMPTY_RUNE)
 		{
-			if (haveRealEnchantment(stackTool)) return;
+			if (haveRealEnchantment(stackTool))
+			{
+				ItemEnchantmentsComponent component = enchantmentGeneratorContainer.generateEnchantments();
+				if (component == null)
+				{
+					stackTool.set(DataComponentTypes.ENCHANTMENTS,
+							stackTool.getOrDefault(IWComponents.DEFAULT_ENCHANTMENTS,
+									ItemEnchantmentsComponent.DEFAULT));
+					RuneEnchantment.clearFlagOfRealEnchant(stackTool);
+					inventory.setStack(0, stackTool);
+					inventory.removeStack(1);
+					inventory.setStack(2, stackRune);
+					enchantmentGeneratorContainer.release();
+					return;
+				}
+				ItemStack newRune = getEnchantRuneItemStack(component, enchantmentGeneratorContainer.getRuneLevel());
+				stackTool.set(DataComponentTypes.ENCHANTMENTS,
+						stackTool.getOrDefault(IWComponents.DEFAULT_ENCHANTMENTS,
+								ItemEnchantmentsComponent.DEFAULT));
+				RuneEnchantment.clearFlagOfRealEnchant(stackTool);
+				clearFlagOfRealEnchant(stackTool);
+				inventory.setStack(0, stackTool);
+				inventory.setStack(2, newRune);
+				inventory.removeStack(1);
+				clearItemForGetEnchantmentFromTool();
+				enchantmentGeneratorContainer.release();
+				player.addExperience(-experienceCost.get());
+				return;
+			}
 			IWAbstractRuneAbility ability = getAbility(stackTool);
 			if (ability.index == 0) return;
 			ItemStack newRune = IWItems.COMMON_ABILITY_RUNE.getDefaultStack();

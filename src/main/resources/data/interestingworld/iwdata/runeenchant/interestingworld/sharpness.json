@@ -5,6 +5,5 @@
   "levelCostParameterA": 100,
   "levelCostParameterB": 0,
   "levelCostParameterC": 0,
-  "conflictCostPunishment": -1,
   "weight": 10
 }

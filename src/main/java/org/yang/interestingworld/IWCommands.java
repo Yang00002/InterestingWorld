@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
+import org.yang.interestingworld.util.Server;
 
 import static net.minecraft.server.command.CommandManager.argument;
 
@@ -17,7 +18,7 @@ public class IWCommands
 							final int level = IntegerArgumentType.getInteger(context, "level");
 							if (level >= 0)
 							{
-								var pd = IWUtil.Server.getPersistentData();
+								var pd = Server.getPersistentData();
 								if(pd.worldEnergyLevel != level)
 								{
 									pd.worldEnergyLevel = level;

@@ -21,11 +21,10 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.yang.interestingworld.IWEffects;
 import org.yang.interestingworld.IWEnchantments;
-import org.yang.interestingworld.IWUtil;
 
 import java.util.Map;
 
-import static org.yang.interestingworld.util.RuneEnchantment.getEnchantmentLevel;
+import static org.yang.interestingworld.util.enchantment.RuneEnchantment.getEnchantmentLevel;
 
 
 @Debug(export = true)

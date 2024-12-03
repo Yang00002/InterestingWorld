@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
-import org.yang.interestingworld.util.RuneEnchantment;
+import org.yang.interestingworld.util.enchantment.RuneEnchantment;
 
 import java.util.List;
 

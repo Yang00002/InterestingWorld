@@ -7,6 +7,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
+import org.yang.interestingworld.util.Server;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class RuneItem extends Item
 	public void commonAppendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type)
 	{
 		int level = getLevel(stack);
-		IWPersistentData data = IWUtil.Server.getPersistentData();
+		IWPersistentData data = Server.getPersistentData();
 		if (data != null && level <= data.worldEnergyLevel)
 			tooltip.add(Text.translatable("tooltip.rune.needlevel").append(": " + level).formatted(Formatting.GREEN));
 		else tooltip.add(Text.translatable("tooltip.rune.needlevel").append(": " + level).formatted(Formatting.RED));

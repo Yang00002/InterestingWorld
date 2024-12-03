@@ -7,6 +7,7 @@ import org.yang.interestingworld.IWSounds;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
 import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
+import org.yang.interestingworld.util.Server;
 
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class IWRuneAbility extends IWAbstractRuneAbility
 	@Override
 	public boolean canWork()
 	{
-		IWPersistentData data = IWUtil.Server.getPersistentData();
+		IWPersistentData data = Server.getPersistentData();
 		return data != null && level() <= data.worldEnergyLevel;
 	}
 
