@@ -1,0 +1,23 @@
+{
+  "items": [
+    "interestingworld:stone_sword",
+    "interestingworld:iron_sword",
+    "interestingworld:golden_sword",
+    "interestingworld:diamond_sword",
+    "interestingworld:netherite_sword"
+  ],
+  "allows": [
+    "interestingworld:sharpness",
+    "interestingworld:fast_hit",
+    "interestingworld:fast_attack",
+    "minecraft:fire_aspect",
+    "minecraft:unbreaking",
+    "minecraft:looting"
+  ],
+  "groups": [
+    {
+      "weight": 1,
+      "group": "forsword"
+    }
+  ]
+}

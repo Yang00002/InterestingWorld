@@ -16,8 +16,8 @@ import net.minecraft.util.Identifier;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
+import org.yang.interestingworld.util.EnergyTool;
 import org.yang.interestingworld.util.RuneAbility;
-import org.yang.interestingworld.util.enchantment.RuneEnchantment;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -108,7 +108,7 @@ public class IWItemGroups
 					});
 					stack.set(IWComponents.DEFAULT_ENCHANTMENTS, builder.build());
 					stack.set(DataComponentTypes.ENCHANTMENTS, builder.build());
-					stack.set(IWComponents.DATA_FLAGS, RuneEnchantment.HAVE_DEFAULT_ENCHANTMENT_BYTE);
+					stack.set(IWComponents.DATA_FLAGS, EnergyTool.DEFAULT_ENCHANT_FLAG);
 				}
 				if (ability != null) RuneAbility.setAbility(stack, ability);
 				entries.add(stack);
@@ -138,7 +138,12 @@ public class IWItemGroups
 			if (item != null)
 			{
 				ItemStack stack = item.getDefaultStack();
-				entries.add(stack);
+				try
+				{
+					entries.add(stack);
+				} catch (Exception ignored)
+				{
+				}
 			}
 		}
 	}

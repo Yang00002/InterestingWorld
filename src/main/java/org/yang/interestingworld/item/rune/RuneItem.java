@@ -5,7 +5,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
 import org.yang.interestingworld.util.Server;
 
@@ -34,14 +33,20 @@ public class RuneItem extends Item
 		else tooltip.add(Text.translatable("tooltip.rune.needlevel").append(": " + level).formatted(Formatting.RED));
 	}
 
-	@Override
-	public boolean hasGlint(ItemStack stack)
-	{
-		return false;
-	}
-
 	public RuneItem(Settings settings)
 	{
 		super(settings);
+	}
+
+	@Override
+	public boolean isEnchantable(ItemStack stack)
+	{
+		return true;
+	}
+
+	@Override
+	public int getEnchantability()
+	{
+		return 15;
 	}
 }

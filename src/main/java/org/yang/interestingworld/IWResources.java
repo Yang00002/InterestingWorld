@@ -9,7 +9,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import org.yang.interestingworld.resource.enchant.SequencedEnchantResourceReloadListener;
+import org.yang.interestingworld.resource.SequencedEnchantResourceReloadListener;
 
 import java.io.InputStream;
 import java.util.LinkedHashMap;
@@ -72,6 +72,28 @@ public class IWResources
 			{
 				return Identifier.of(MOD_ID, "runeitemvalue");
 			}
+		}
+
+		public static void checkResource()
+		{
+			StringBuilder builder = new StringBuilder();
+			if (RuneItemValue == null)
+			{
+				builder.append('\n');
+				builder.append("价值数据未加载, 数据指针为 null");
+				iwlogger.info(builder.toString());
+				return;
+			}
+			builder.append('\n');
+			builder.append("价值数据有如下 %s 项:".formatted(RuneItemValue.size())).append('\n');
+			for (var i : RuneItemValue.entrySet())
+			{
+				var it = i.getKey();
+				var value = i.getValue();
+				builder.append(Registries.ITEM.getId(it));
+				builder.append(" 价值 ").append(value).append('\n');
+			}
+			iwlogger.info(builder.toString());
 		}
 	}
 

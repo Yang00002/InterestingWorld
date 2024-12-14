@@ -1,0 +1,12 @@
+{
+  "max_level": 9,
+  "max_random_level": 7,
+  "max_table_level": 3,
+  "weight": 1,
+  "cost_type": "fraction",
+  "cost": {
+    "k": -10000,
+    "a": -10,
+    "b": -1000
+  }
+}

@@ -7,52 +7,24 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.screen.ScreenTexts;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import net.minecraft.world.World;
 import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWItems;
 import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.resource.enchant.RuneEnchantData;
+import org.yang.interestingworld.enchant.EnchantData;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.yang.interestingworld.resource.enchant.EnchantGroupData.getEnchantGroupOfItemStack;
+import static org.yang.interestingworld.enchant.ToolGroup.getAllowEnchantOfItemStack;
+import static org.yang.interestingworld.util.EnergyTool.setFlagOfRealEnchant;
+
 
 public class RuneEnchantment
 {
-	public static final int HAVE_DEFAULT_ENCHANTMENT_BYTE = 1;
-	public static final int HAVE_REAL_ENCHANTMENT_BYTE = 2;
-
-	public static boolean onlyHaveDefaultEnchantment(ItemStack stack)
-	{
-		return haveDefaultEnchantment(stack) && !haveRealEnchantment(stack);
-	}
-
-	public static boolean haveDefaultEnchantment(ItemStack stack)
-	{
-		int data = stack.getOrDefault(IWComponents.DATA_FLAGS, 0);
-		return (data & HAVE_DEFAULT_ENCHANTMENT_BYTE) != 0;
-	}
-
-	public static boolean haveRealEnchantment(ItemStack stack)
-	{
-		int data = stack.getOrDefault(IWComponents.DATA_FLAGS, 0);
-		return (data & HAVE_REAL_ENCHANTMENT_BYTE) != 0;
-	}
-
-	public static void setFlagOfRealEnchant(ItemStack stack)
-	{
-		int data = stack.getOrDefault(IWComponents.DATA_FLAGS, 0);
-		stack.set(IWComponents.DATA_FLAGS, (data & ~HAVE_DEFAULT_ENCHANTMENT_BYTE) | HAVE_REAL_ENCHANTMENT_BYTE);
-	}
-
-	public static void clearFlagOfRealEnchant(ItemStack stack)
-	{
-		int data = stack.getOrDefault(IWComponents.DATA_FLAGS, 0);
-		if (stack.contains(IWComponents.DEFAULT_ENCHANTMENTS))
-			stack.set(IWComponents.DATA_FLAGS, (data & ~HAVE_REAL_ENCHANTMENT_BYTE) | HAVE_DEFAULT_ENCHANTMENT_BYTE);
-		else stack.set(IWComponents.DATA_FLAGS, data & ~HAVE_REAL_ENCHANTMENT_BYTE & ~HAVE_DEFAULT_ENCHANTMENT_BYTE);
-	}
 
 	public static ItemStack getEnchantRuneItemStack(ItemEnchantmentsComponent component, int level)
 	{
@@ -67,153 +39,148 @@ public class RuneEnchantment
 		return stack.getEnchantments().getLevel(IWUtil.Registry.getEnchantmentEntry(world, key));
 	}
 
-	public static int calculateAddEnchantCost(int defaultLevel, int nowLevel, int applyLevel, RuneEnchantData data)
+	public static int calculatNextEnchantLevel(int currentLevel, int applyLevel, int maxLevel)
 	{
-		int cap = data.getMaxAllowLevel() - defaultLevel;
-		int now = nowLevel - defaultLevel;
-		if (now > applyLevel) return 0;
-		if (now >= cap) return 0;
-		if (now == applyLevel) return data.getLevelCost(now + 1) - data.getLevelCost(now);
-		return data.getLevelCost(Math.min(applyLevel, cap)) - data.getLevelCost(now);
+		if (currentLevel >= maxLevel) return maxLevel;
+		if (currentLevel > applyLevel) return currentLevel;
+		else if (currentLevel < applyLevel) return Math.min(applyLevel, maxLevel);
+		else return currentLevel + 1;
 	}
 
-	public static int calculateAddEnchantLevel(int defaultLevel, int nowLevel, int applyLevel, RuneEnchantData data)
+	public static int canEnchantTo(ItemEnchantmentsComponent enchantmentsComponent, ItemStack stack)
 	{
-		int cap = data.getMaxAllowLevel() - defaultLevel;
-		int now = nowLevel - defaultLevel;
-		if (now > applyLevel) return 0;
-		if (now >= cap) return 0;
-		if (now == applyLevel) return 1;
-		return Math.min(applyLevel, cap) - now;
-	}
-
-	public static int canEnchantTo(ItemEnchantmentsComponent enchantmentsComponent, ItemStack stack, World world)
-	{
-		Set<RuneEnchantData> enchantmentSet = getEnchantGroupOfItemStack(stack);
-		if (enchantmentSet == null)
-		{
-			return -1;
-		}
 		//该类是否有附魔
+		Set<EnchantData> enchantmentSet = getAllowEnchantOfItemStack(stack);
+		if (enchantmentSet == null) return -1;
 		int cost = 0;
-		Set<RegistryEntry<Enchantment>> applyedEnchantmentSet = new HashSet<>(
-				stack.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT)
-						.getEnchantments());
+		Set<RegistryEntry<Enchantment>> applyedEnchantmentSet = new HashSet<>();
 		ItemEnchantmentsComponent haveEnchantments = stack.getEnchantments();
 		ItemEnchantmentsComponent defaultEnchantments = stack.getOrDefault(IWComponents.DEFAULT_ENCHANTMENTS,
 				ItemEnchantmentsComponent.DEFAULT);
-		var wrapper = IWUtil.Registry.getEnchantmentWrapper(world);
-		continueLabel:
-		for (var enchantmentData : enchantmentSet)
+		for (var i : haveEnchantments.getEnchantmentEntries())
 		{
-			//附魔是否被加载
-			var optionalEnchantmentEntry = wrapper.getOptional(enchantmentData.getRegistryKey());
-			//附魔是否存在
-			if (optionalEnchantmentEntry.isPresent())
-			{
-				var enchantmentEntry = optionalEnchantmentEntry.get();
-				//附魔在符文上
-				int applyLevel = enchantmentsComponent.getLevel(enchantmentEntry);
-				if (applyLevel == 0) continue;
-				//默认附魔未达到最大等级
-				int deflevel = defaultEnchantments.getLevel(enchantmentEntry);
-				int nowlevel = haveEnchantments.getLevel(enchantmentEntry);
-				int costEc = calculateAddEnchantCost(deflevel, nowlevel, applyLevel, enchantmentData);
-				if (costEc < 1) continue;
-				int cA = 0;
-				float cM = 1.0f;
-				// A B 冲突, 则带有 A 的工具附魔 A B 和附魔 B A 效果不应该不同
-				if (!applyedEnchantmentSet.contains(enchantmentEntry))
-				{
-					for (var cs : enchantmentData.getConflictGroups())
-					{
-						if (cs.getAllowConflict())
-						{
-							for (var ec : cs.getEnchantSet())
-							{
-								if (ec != enchantmentData && applyedEnchantmentSet.contains(ec.getRegistryEntry()))
-								{
-									cA += cs.getCostAddPunish();
-									cM += cs.getCostMultiplierPunish();
-								}
-							}
-						}
-						else
-						{
-							for (var ec : cs.getEnchantSet())
-							{
-								if (ec != enchantmentData && applyedEnchantmentSet.contains(ec.getRegistryEntry()))
-								{
-									continue continueLabel;
-								}
-							}
-						}
-					}
-					applyedEnchantmentSet.add(enchantmentData.getRegistryEntry());
-				}
-				cost += (int) (costEc * cM) + cA;
-			}
+			var k = i.getKey();
+			if (i.getIntValue() > defaultEnchantments.getLevel(k)) applyedEnchantmentSet.add(k);
+		}
+		for (var targetEnchantmentEntryAndLevel : enchantmentsComponent.getEnchantmentEntries())
+		{
+			var targetEnchantmentEntry = targetEnchantmentEntryAndLevel.getKey();
+			var targetEnchantmentData = EnchantData.getEnchantmentDataFromRegistryEntry(targetEnchantmentEntry);
+			if (targetEnchantmentData == null) continue;
+			if (!enchantmentSet.contains(targetEnchantmentData)) continue;
+			int defaultLevel = defaultEnchantments.getLevel(targetEnchantmentEntry);
+			int maxLevel = targetEnchantmentData.getMaxLevel() - defaultLevel;
+			int currentLevel = haveEnchantments.getLevel(targetEnchantmentEntry) - defaultLevel;
+			int applyLevel = calculatNextEnchantLevel(currentLevel, targetEnchantmentEntryAndLevel.getIntValue(),
+					maxLevel);
+			if (applyLevel <= currentLevel) continue;
+			if (targetEnchantmentData.tableConflictWith(applyedEnchantmentSet)) continue;
+			cost += targetEnchantmentData.getAddLevelCost(currentLevel, applyLevel);
 		}
 		if (cost != 0) return cost;
 		return -1;
 	}
 
-	public static void applyEnchant(ItemEnchantmentsComponent enchantmentsComponent, ItemStack toolStack, World world)
+	public static int applyEnchant(ItemEnchantmentsComponent enchantmentsComponent, ItemStack toolStack)
 	{
-		Set<RuneEnchantData> enchantmentSet = getEnchantGroupOfItemStack(toolStack);
-		if (enchantmentSet == null) return;
-		Set<RegistryEntry<Enchantment>> applyedEnchantmentSet = new HashSet<>(
-				toolStack.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT)
-						.getEnchantments());
+		int cost = 0;
+		//该类是否有附魔
+		Set<EnchantData> enchantmentSet = getAllowEnchantOfItemStack(toolStack);
+		if (enchantmentSet == null) return -1;
+		Set<RegistryEntry<Enchantment>> applyedEnchantmentSet = new HashSet<>();
 		ItemEnchantmentsComponent haveEnchantments = toolStack.getEnchantments();
 		ItemEnchantmentsComponent defaultEnchantments = toolStack.getOrDefault(IWComponents.DEFAULT_ENCHANTMENTS,
 				ItemEnchantmentsComponent.DEFAULT);
 		ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(haveEnchantments);
-		var wrapper = IWUtil.Registry.getEnchantmentWrapper(world);
-		continueLabel:
-		for (var enchantmentData : enchantmentSet)
+		for (var i : haveEnchantments.getEnchantmentEntries())
 		{
-			//附魔是否被加载
-			var optionalEnchantmentEntry = wrapper.getOptional(enchantmentData.getRegistryKey());
-			//附魔是否存在
-			if (optionalEnchantmentEntry.isPresent())
-			{
-				var enchantmentEntry = optionalEnchantmentEntry.get();
-				//附魔在符文上
-				int applyLevel = enchantmentsComponent.getLevel(enchantmentEntry);
-				if (applyLevel == 0) continue;
-				//默认附魔未达到最大等级
-				int deflevel = defaultEnchantments.getLevel(enchantmentEntry);
-				int nowlevel = haveEnchantments.getLevel(enchantmentEntry);
-				int al = calculateAddEnchantLevel(deflevel, nowlevel, applyLevel, enchantmentData);
-				if (al < 1) continue;
-				// A B 冲突, 则带有 A 的工具附魔 A B 和附魔 B A 效果不应该不同
-				if (!applyedEnchantmentSet.contains(enchantmentEntry))
-				{
-					for (var cs : enchantmentData.getConflictGroups())
-					{
-						if (!cs.getAllowConflict())
-						{
-							for (var ec : cs.getEnchantSet())
-							{
-								if (ec != enchantmentData && applyedEnchantmentSet.contains(ec.getRegistryEntry()))
-								{
-									continue continueLabel;
-								}
-							}
-						}
-					}
-					applyedEnchantmentSet.add(enchantmentData.getRegistryEntry());
-				}
-				builder.set(enchantmentEntry, al);
-			}
+			var k = i.getKey();
+			if (i.getIntValue() > defaultEnchantments.getLevel(k)) applyedEnchantmentSet.add(k);
+		}
+
+		for (var targetEnchantmentEntryAndLevel : enchantmentsComponent.getEnchantmentEntries())
+		{
+			var targetEnchantmentEntry = targetEnchantmentEntryAndLevel.getKey();
+			var targetEnchantmentData = EnchantData.getEnchantmentDataFromRegistryEntry(targetEnchantmentEntry);
+			if (targetEnchantmentData == null) continue;
+			if (!enchantmentSet.contains(targetEnchantmentData)) continue;
+			int defaultLevel = defaultEnchantments.getLevel(targetEnchantmentEntry);
+			int maxLevel = targetEnchantmentData.getMaxLevel() - defaultLevel;
+			int currentLevel = haveEnchantments.getLevel(targetEnchantmentEntry) - defaultLevel;
+			int applyLevel = calculatNextEnchantLevel(currentLevel, targetEnchantmentEntryAndLevel.getIntValue(),
+					maxLevel);
+			if (applyLevel <= currentLevel) continue;
+			if (targetEnchantmentData.tableConflictWith(applyedEnchantmentSet)) continue;
+			builder.set(targetEnchantmentEntry, applyLevel + defaultLevel);
+			cost += targetEnchantmentData.getAddLevelCost(currentLevel, applyLevel);
 		}
 		toolStack.set(DataComponentTypes.ENCHANTMENTS, builder.build());
-		setFlagOfRealEnchant(toolStack);
+		setFlagOfRealEnchant(toolStack, toolStack.getOrDefault(IWComponents.ENCHANT_VALUE, 0) + cost);
+		if (cost > 0) return cost;
+		return -1;
 	}
 
-	public static int getRuneLevelOfCost(int cost)
+	public static int getWorldLevelOfXpCost(int cost)
 	{
-		return cost / 1000;
+		if (cost >= 2045)
+		{
+			if (cost >= 4020)
+			{
+				if (cost >= 10820) return 10;
+				if (cost >= 5345) return 9;
+				return 8;
+			}
+			if (cost >= 2920) return 7;
+			return 6;
+		}
+		if (cost >= 550)
+		{
+			if (cost >= 1395) return 5;
+			if (cost >= 910) return 4;
+			return 3;
+		}
+		if (cost >= 315) return 2;
+		if (cost >= 160) return 1;
+		return 0;
 	}
+
+	private static final int[] xp_costs = {159, 314, 549, 909, 1394, 2044, 2919, 4019, 5344, 18019};
+
+	public static int getXpCostOfWorldLevel(int level)
+	{
+		return xp_costs[Math.min(level, 9)];
+	}
+
+	public static int getExperienceFromLevel(int level, float frac)
+	{
+		int base;
+		if (level < 17)
+		{
+			base = (level + 6) * level;
+			if (level < 16) return base + (int) ((2 * level + 7) * frac);
+			else return base + (int) ((5 * level - 38) * frac);
+		}
+		else if (level < 32)
+		{
+			base = (int) ((2.5f * level - 40.5f) * level) + 360;
+			if (level < 31) return base + (int) ((5 * level - 38) * frac);
+			else return base + (int) ((9 * level - 158) * frac);
+		}
+		else
+		{
+			base = (int) ((4.5f * level - 162.5f) * level) + 2220;
+			return base + (int) ((9 * level - 158) * frac);
+		}
+	}
+
+	public static Text getRawName(RegistryEntry<Enchantment> enchantment, int level)
+	{
+		MutableText mutableText = enchantment.value().description().copy();
+		if (level != 1 || enchantment.value().getMaxLevel() != 1)
+		{
+			mutableText.append(ScreenTexts.SPACE).append(Text.translatable("enchantment.level." + level));
+		}
+		return mutableText;
+	}
+
 }

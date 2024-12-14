@@ -19,8 +19,8 @@ public class IWRuneAbility extends IWAbstractRuneAbility
 	public void appendToolTip(List<Text> tooltip)
 	{
 		tooltip.add(Text.empty());
-		tooltip.add(Text.literal("【").append(getTitleText()).append("】")
-				.setStyle(IWUtil.TextStyle.getBoldTextStyle(getColor())));
+		tooltip.add(Text.literal("【").append(getTitleText()).append("】").setStyle(IWUtil.TextStyle.BOLD_STYLE)
+				.withColor(getColor()));
 	}
 
 	@Override
@@ -33,8 +33,8 @@ public class IWRuneAbility extends IWAbstractRuneAbility
 	public void appendBanedToolTip(List<Text> tooltip)
 	{
 		tooltip.add(Text.empty());
-		tooltip.add(Text.literal("【").append(getTitleText()).append("】")
-				.setStyle(IWUtil.TextStyle.getBoldTextStyle(GRAY_RGB)));
+		tooltip.add(Text.literal("【").append(getTitleText()).append("】").setStyle(IWUtil.TextStyle.BOLD_STYLE)
+				.withColor(GRAY_RGB));
 		tooltip.add(Text.translatable("banedabilitydetail").withColor(GRAY_RGB));
 	}
 

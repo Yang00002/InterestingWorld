@@ -1,0 +1,11 @@
+{
+  "max_level": 6,
+  "max_random_level": 5,
+  "max_table_level": 3,
+  "world_level": 2,
+  "weight": 3,
+  "cost_type": "linear",
+  "cost": {
+    "k": 500
+  }
+}

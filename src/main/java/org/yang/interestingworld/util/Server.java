@@ -3,13 +3,13 @@ package org.yang.interestingworld.util;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
+import org.yang.interestingworld.IWEnchantments;
+import org.yang.interestingworld.enchant.EnchantData;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
-import org.yang.interestingworld.resource.enchant.RuneEnchantData;
-import org.yang.interestingworld.resource.enchant.SequencedEnchantResourceReloadListener;
+import org.yang.interestingworld.resource.SequencedEnchantResourceReloadListener;
 
 import static org.yang.interestingworld.IWBlocks.addBlockItemToItemGroupWhenEnterWorld;
 import static org.yang.interestingworld.IWItems.addItemToItemGroupWhenEnterWorld;
-import static org.yang.interestingworld.resource.enchant.SequencedEnchantResourceReloadListener.handleRuneEnchantData;
 import static org.yang.interestingworld.rune.IWRuneAbilitys.addRunesToItemGroup;
 import static org.yang.interestingworld.util.Base.iwlogger;
 
@@ -24,7 +24,10 @@ public class Server
 		iwlogger.info("Server: handle event onServerStarting");
 		currentServer = server;
 		var ow = server.getRegistryManager().getOptionalWrapper(RegistryKeys.ENCHANTMENT);
-		ow.ifPresent(enchantmentImpl -> handleRuneEnchantData(server.getResourceManager(), enchantmentImpl));
+		ow.ifPresent(enchantmentImpl -> {
+			EnchantData.initialize(server.getResourceManager(), enchantmentImpl);
+			IWEnchantments.load_entry(enchantmentImpl);
+		});
 		SequencedEnchantResourceReloadListener.handleReload(server.getResourceManager());
 	}
 
@@ -44,7 +47,8 @@ public class Server
 		{
 			currentServer = null;
 			persistentData = null;
-			RuneEnchantData.clearData();
+			EnchantData.clearData();
+			IWEnchantments.pop_entry();
 		}
 	}
 

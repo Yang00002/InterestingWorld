@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
-import org.yang.interestingworld.util.enchantment.RuneEnchantment;
+import org.yang.interestingworld.rune.IWRuneAbilitys;
 
 import java.util.List;
 
@@ -29,12 +29,18 @@ import static org.yang.interestingworld.IWUtil.Components.currentEnergy;
 import static org.yang.interestingworld.IWUtil.Components.maxEnergy;
 import static org.yang.interestingworld.IWUtil.Return.*;
 import static org.yang.interestingworld.IWUtil.TextStyle.PURE_GREEN_RGB;
+import static org.yang.interestingworld.util.EnergyTool.*;
 import static org.yang.interestingworld.util.RuneAbility.getAbility;
 import static org.yang.interestingworld.util.RuneAbility.getColor;
 
 
 public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
 {
+	@Override
+	public boolean isEnchantable(ItemStack stack)
+	{
+		return false;
+	}
 
 	@Override
 	public boolean allowComponentsUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack,
@@ -46,7 +52,7 @@ public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
 	@Override
 	public boolean hasGlint(ItemStack stack)
 	{
-		return stack.contains(IWComponents.ABILITY_INDEX) || RuneEnchantment.haveRealEnchantment(stack);
+		return stack.contains(IWComponents.ABILITY_INDEX) || haveRealEnchantment(stack);
 	}
 
 	/**
@@ -182,13 +188,13 @@ public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
 			if (stack.hasEnchantments())
 			{
 				tooltip.add(Text.empty());
-				if (RuneEnchantment.onlyHaveDefaultEnchantment(stack))
+				if (onlyHaveDefaultEnchantment(stack))
 					tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(IWUtil.TextStyle.GRAY_RGB));
 			}
 		}
 		else
 		{
-			if (RuneEnchantment.onlyHaveDefaultEnchantment(stack))
+			if (onlyHaveDefaultEnchantment(stack))
 				tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(IWUtil.TextStyle.GRAY_RGB));
 		}
 	}
@@ -196,8 +202,13 @@ public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
 	@Override
 	public Text getName(ItemStack stack)
 	{
-		return Text.translatable(this.getTranslationKey(stack))
-				.setStyle(IWUtil.TextStyle.getBoldTextStyle(getColor(stack)));
+		var ab = getAbility(stack);
+		if (ab == IWRuneAbilitys.DEFAULT_ABILITY)
+			return Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+					.withColor(getLevelColor(stack));
+		else return Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+				.withColor(getLevelColor(stack)).append(" ")
+				.append(ab.getTitleText().setStyle(IWUtil.TextStyle.BOLD_STYLE).withColor(getColor(stack)));
 	}
 
 

@@ -3,96 +3,37 @@ package org.yang.interestingworld.client.block.forging_block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.yang.interestingworld.IWUtil;
+import net.minecraft.util.math.MathHelper;
+import org.yang.interestingworld.IWItems;
 import org.yang.interestingworld.block.forgingblock.ForgingBlockScreenHandler;
 import org.yang.interestingworld.util.Base;
+import org.yang.interestingworld.util.enchantment.RuneEnchantment;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+import static org.yang.interestingworld.util.enchantment.RuneEnchantment.getWorldLevelOfXpCost;
 
 public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler> implements ScreenHandlerListener
 {
 	// x,y 绘画左上端点坐标, u,v 缩放过的材质内开始坐标, width height 绘画窗口大小, texture width texture height 材质大小, 代表缩放
-	private class ForgingBlockButton extends ClickableWidget
-	{
-		private static final Identifier ARROW_TEXTURE = Identifier.of(Base.MOD_ID,
-				"textures/gui/container/forging_block/arrow.png");
-
-		private static final Identifier HOVER_TEXTURE = Identifier.of(Base.MOD_ID,
-				"textures/gui/container/forging_block/hover.png");
-
-		public ForgingBlockButton(int x, int y, int width, int height, Text message)
-		{
-			super(x, y, width, height, message);
-		}
-
-		@Override
-		protected boolean clicked(double mouseX, double mouseY)
-		{
-			if (this.active && this.visible && handler.canTakeOutput())
-			{
-				if (mouseX < x + 108)
-				{
-					return mouseX >= x + 94 && mouseY >= y + 36 && mouseY <= y + 40;
-				}
-				else
-				{
-					return mouseY >= mouseX + y - x - 79 && mouseY <= y + x + 155 - mouseX;
-				}
-			}
-			return false;
-		}
-
-		@Override
-		protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta)
-		{
-			if (handler.canTakeOutput())
-			{
-				if (clicked(mouseX, mouseY))
-				{
-					context.drawTexture(HOVER_TEXTURE, x + 94, y + 30, 0, 0, 24, 17, 24, 17);
-				}
-				else context.drawTexture(ARROW_TEXTURE, x + 94, y + 30, 0, 0, 24, 17, 24, 17);
-			}
-		}
-
-		@Override
-		protected void appendClickableNarrations(NarrationMessageBuilder builder)
-		{
-
-		}
-
-		@Override
-		public void onClick(double mouseX, double mouseY)
-		{
-			if (client != null)
-			{
-				if (client.interactionManager != null)
-				{
-					client.interactionManager.clickButton(handler.syncId, 0);
-				}
-			}
-		}
-	}
 
 	private static final Identifier TEXTURE = Identifier.of(Base.MOD_ID,
 			"textures/gui/container/forging_block/main.png");
 	private static final Identifier EXPERIENCE = Identifier.of(Base.MOD_ID,
 			"textures/gui/container/forging_block/experience.png");
 
-	private final PlayerEntity player;
-
 	public ForgingBlockScreen(ForgingBlockScreenHandler handler, PlayerInventory inventory, Text title)
 	{
 		super(handler, inventory, title);
-		this.player = inventory.player;
 		this.titleX = 60;
+		this.titleY--;
 		this.backgroundHeight = 202;
 		this.playerInventoryTitleY = this.backgroundHeight - 94;
 	}
@@ -102,22 +43,209 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 		this.init(client, width, height);
 	}
 
+	private void drawTitle(DrawContext context, Text title)
+	{
+		context.drawText(this.textRenderer, title, this.backgroundWidth - 8 - this.textRenderer.getWidth(title),
+				this.titleY, 4210752, false);
+	}
+
+	private class TipDrawer
+	{
+		private final DrawContext context;
+		private final Queue<Text> texts;
+		private final Queue<Integer> spacing;
+		private final int lSpace;
+		private int maxLength;
+
+		TipDrawer(DrawContext drawContext, int lspace, int rspace)
+		{
+			context = drawContext;
+			texts = new LinkedList<>();
+			spacing = new LinkedList<>();
+			lSpace = lspace;
+			maxLength = lSpace + rspace;
+		}
+
+		void addXpTexture(int scale, int spaceLeft)
+		{
+			if (!texts.isEmpty()) maxLength += 10 + spaceLeft;
+			else maxLength += 10;
+			texts.add(null);
+			scale = Math.clamp(scale, 0, 10);
+			spacing.add((spaceLeft << 4) | scale);
+		}
+
+		void addText(Text text, int spaceLeft, boolean isok)
+		{
+			if (text != null)
+			{
+				int len = textRenderer.getWidth(text);
+				if (!texts.isEmpty()) maxLength += len + spaceLeft;
+				else maxLength += len;
+				texts.add(text);
+				spacing.add((spaceLeft << 1) | (isok ? 1 : 0));
+			}
+		}
+
+		void draw()
+		{
+			context.fill(backgroundWidth - 8 - maxLength, 67, backgroundWidth - 8, 79, 1325400064);
+			int begin = backgroundWidth - 8 - maxLength + lSpace;
+			int originBegin = begin;
+			while (!texts.isEmpty())
+			{
+				Text text = texts.poll();
+				int spaceTag = spacing.isEmpty() ? 0 : spacing.poll();
+				if (text == null)
+				{
+					int space = (begin > originBegin) ? spaceTag >> 4 : 0;
+					int size = spaceTag & 0b01111;
+					begin += space;
+					int idx = size % 4 * 10;
+					int idy = size / 4 * 10;
+					context.drawTexture(EXPERIENCE, begin, 68, idx, idy, 10, 10, 40, 40);
+					begin += 10;
+				}
+				else
+				{
+					int space = (begin > originBegin) ? spaceTag >> 1 : 0;
+					int color = ((spaceTag & 1) > 0) ? 8453920 : 16736352;
+					begin += space;
+					context.drawTextWithShadow(textRenderer, text, begin, 69, color);
+					begin += textRenderer.getWidth(text);
+				}
+			}
+		}
+	}
+
 	protected void drawForeground(DrawContext context, int mouseX, int mouseY)
 	{
-		super.drawForeground(context, mouseX, mouseY);
-		int i = this.handler.getExperienceCost();
-		if (i > 0 && this.client != null && this.client.player != null)
+		context.drawText(this.textRenderer, this.playerInventoryTitle, this.playerInventoryTitleX,
+				this.playerInventoryTitleY, 4210752, false);
+		int state = this.handler.getGlobalState();
+		switch (state)
 		{
-			int t = this.client.player.totalExperience;
-			int j = this.client.player.totalExperience >= i ? 8453920 : 16736352;
-			Text text = Text.translatable("forgingblock.repair.cost", i, t);
-			int k = this.backgroundWidth - 8 - this.textRenderer.getWidth(text) - 20;
-			context.fill(k - 2, 67, this.backgroundWidth - 8, 79, 1325400064);
-			context.drawTextWithShadow(this.textRenderer, text, k, 69, j);
-			int size = Math.min(i / 1500, 10);
-			int idx = size % 4 * 12;
-			int idy = size / 4 * 12;
-			context.drawTexture(EXPERIENCE, this.backgroundWidth - 24, 67, idx, idy, 12, 12, 48, 48);
+			case 0 -> drawTitle(context, Text.translatable("forgingblock.title.all"));
+			case 1 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.rune_enchant"));
+				Text t = handler.getFirstEnchantOut();
+				if (t != null)
+				{
+					TipDrawer drawer = new TipDrawer(context, 2, 2);
+					drawer.addText(t, 4, true);
+					drawer.draw();
+				}
+			}
+			case 2 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.rune_enchant"));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable("forgingblock.text.rune_enchant.2"), 4, false);
+				drawer.draw();
+			}
+			case 3 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.enchant"));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				if (!handler.isWorldLevelEnough())
+				{
+					drawer.addText(Text.translatable("forgingblock.text.level"), 4, false);
+				}
+				else
+				{
+					int xpCost = this.handler.getExperienceCost();
+					if (this.client != null && this.client.player != null)
+					{
+						var player = this.client.player;
+						int xpHave = RuneEnchantment.getExperienceFromLevel(player.experienceLevel,
+								player.experienceProgress);
+						drawer.addText(Text.translatable("forgingblock.text.enchant.3xpl"), 4, xpHave >= xpCost);
+						drawer.addXpTexture(getWorldLevelOfXpCost(xpCost), 0);
+						drawer.addText(Text.translatable("forgingblock.text.enchant.3xpr", xpCost, xpHave), 4,
+								xpHave >= xpCost);
+					}
+				}
+				drawer.draw();
+			}
+			case 4, 5 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.enchant"));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable("forgingblock.text.enchant." + state), 4, false);
+				drawer.draw();
+			}
+			case 6 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.repair"));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable("forgingblock.text.repair.6"), 4, false);
+				drawer.draw();
+			}
+			case 7 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.repair"));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				int xpCost = this.handler.getExperienceCost();
+				if (this.client != null && this.client.player != null)
+				{
+					var player = this.client.player;
+					int xpHave = RuneEnchantment.getExperienceFromLevel(player.experienceLevel,
+							player.experienceProgress);
+					drawer.addText(Text.translatable("forgingblock.text.repair.7l"), 4, xpHave >= xpCost);
+					drawer.addXpTexture(RuneEnchantment.getWorldLevelOfXpCost(xpCost), 0);
+					drawer.addText(
+							Text.translatable("forgingblock.text.repair.7r", xpCost, xpHave, handler.getRepairCount()),
+							4, xpHave >= xpCost);
+				}
+				drawer.draw();
+			}
+			case 8 -> drawTitle(context, Text.translatable("forgingblock.title.abilityadd"));
+			case 9, 10, 11 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.abilityadd"));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable("forgingblock.text.abilityadd." + state), 4, false);
+				drawer.draw();
+			}
+			case 12 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.abilityremove"));
+				int preBeginX = this.backgroundWidth - 10;
+				int count = handler.getRepairCount();
+				Text text = Text.translatable("forgingblock.text.abilityremove.12", count);
+				int len = this.textRenderer.getWidth(text);
+				context.fill(preBeginX - len - 2, 67, this.backgroundWidth - 8, 79, 1325400064);
+				context.drawTextWithShadow(this.textRenderer, text, preBeginX - len, 69,
+						MathHelper.hsvToRgb((100 - count) / 300.0f, 1.0F, 1.0F) | 0x0FF000000);
+			}
+			case 13, 14 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.abilityremove"));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable("forgingblock.text.abilityremove." + state), 4, false);
+				drawer.draw();
+			}
+			case 15 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.rune_enchant"));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable("forgingblock.text.enchant.4"), 4, false);
+				drawer.draw();
+			}
+		}
+	}
+
+	@Override
+	protected void drawMouseoverTooltip(DrawContext context, int x, int y)
+	{
+		if (this.handler.getCursorStack().isEmpty() && this.focusedSlot != null && this.focusedSlot.hasStack())
+		{
+			ItemStack itemStack = this.focusedSlot.getStack();
+			if (this.getScreenHandler().isOutputInventory(this.focusedSlot.inventory) &&
+				itemStack.getItem() == IWItems.ENCHANTMENT_RUNE) return;
+			context.drawTooltip(this.textRenderer, this.getTooltipFromItem(itemStack), itemStack.getTooltipData(), x,
+					y);
 		}
 	}
 
@@ -133,7 +261,7 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 	{
 		super.init();
 		this.handler.addListener(this);
-		this.addDrawableChild(new ForgingBlockButton(this.x + 94, this.y + 30, 24, 17, Text.literal("button")));
+		//this.addDrawableChild(new ForgingBlockButton(this.x + 94, this.y + 30, 24, 17, Text.literal("button")));
 	}
 
 	@Override

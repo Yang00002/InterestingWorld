@@ -1,6 +1,5 @@
 package org.yang.interestingworld;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
@@ -31,7 +30,6 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -41,17 +39,12 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.yang.interestingworld.network.IWNetwork;
-import org.yang.interestingworld.persistentdata.IWPersistentData;
 import org.yang.interestingworld.playerdatamanager.ServerPlayerDataAccessor;
 import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
 
 import java.util.List;
 
 import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
-import static org.yang.interestingworld.IWBlocks.addBlockItemToItemGroupWhenEnterWorld;
-import static org.yang.interestingworld.IWItems.addItemToItemGroupWhenEnterWorld;
-import static org.yang.interestingworld.resource.enchant.SequencedEnchantResourceReloadListener.*;
-import static org.yang.interestingworld.rune.IWRuneAbilitys.addRunesToItemGroup;
 import static org.yang.interestingworld.util.Base.iwlogger;
 
 public class IWUtil
@@ -561,6 +554,11 @@ public class IWUtil
 
 	public static class TextStyle
 	{
+		public static int getColorByLevel(int lvl)
+		{
+			return COLOR_MAP[lvl >> 1];
+		}
+
 		public static String numberToString(float f)
 		{
 			String s = String.format("%.1f", f);
@@ -575,19 +573,19 @@ public class IWUtil
 			return s;
 		}
 
+		public static final int BLUE_RGB = 5592575;
+		public static final int GREEN_RGB = 5635925;
 		public static final int GRAY_RGB = 0XAAAAAA;
 		public static final int WHITE_RGB = 0XFFFFFF;
 		public static final int PURE_GREEN_RGB = 0X00FF00;
+		public static final int DARK_PURPLE_RGB = 11141290;
+		public static final int GOLD_RGB = 16755200;
 		public static final int RED_RGB = 0xFF5555;
 		public static final int PINK_RGB = 0Xff738b;
 		public static final int YELLOW_RGB = 0XFFFF55;
 		public static final int CYAN_RGB = 0X55FFFF;
-
-		public static Style getBoldTextStyle(int colorRGB)
-		{
-			if (colorRGB > 0) return Style.EMPTY.withColor(colorRGB).withBold(true);
-			return Style.EMPTY.withBold(true);
-		}
+		public static final Style BOLD_STYLE = Style.EMPTY.withBold(true);
+		private static final int[] COLOR_MAP = {WHITE_RGB, GREEN_RGB, BLUE_RGB, DARK_PURPLE_RGB, GOLD_RGB, CYAN_RGB};
 	}
 
 	public static class Return

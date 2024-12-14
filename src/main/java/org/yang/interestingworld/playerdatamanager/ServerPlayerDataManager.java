@@ -26,17 +26,20 @@ public class ServerPlayerDataManager
 	public int chargeRate = -1;
 	public boolean isCharging = false;
 	public boolean shouldSync = false;
+	public int forging_seed = 0;
 
 	public void readNbt(NbtCompound nbt)
 	{
 		current_energy = nbt.getFloat("current_energy");
 		energyRegenTimer = nbt.getInt("energyregentimer");
+		forging_seed = nbt.getInt("forging_seed");
 	}
 
 	public void writeNbt(NbtCompound nbt)
 	{
 		nbt.putFloat("current_energy", current_energy);
 		nbt.putInt("energyregentimer", energyRegenTimer);
+		nbt.putInt("forging_seed", forging_seed);
 	}
 
 	public void updateEnergy(ServerPlayerEntity player, ItemStack stack)
@@ -88,7 +91,7 @@ public class ServerPlayerDataManager
 			var ability = getAbility(stack);
 			if (!ability.canWork())
 			{
-				if(WeaponAbility.index != 0)
+				if (WeaponAbility.index != 0)
 				{
 					WeaponAbility.onLeave(player, this);
 					WeaponAbility = IWRuneAbilitys.DEFAULT_ABILITY;

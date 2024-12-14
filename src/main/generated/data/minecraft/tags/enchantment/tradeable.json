@@ -1,0 +1,24 @@
+{
+  "values": [
+    {
+      "id": "interestingworld:balance",
+      "required": false
+    },
+    {
+      "id": "interestingworld:plentiful",
+      "required": false
+    },
+    {
+      "id": "interestingworld:rune_boost",
+      "required": false
+    },
+    {
+      "id": "interestingworld:energy_efficiency",
+      "required": false
+    },
+    {
+      "id": "interestingworld:lucky",
+      "required": false
+    }
+  ]
+}

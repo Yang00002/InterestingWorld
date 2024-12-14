@@ -17,4 +17,6 @@ public class IWClientUtil
 		int b2 = (int) (g * strength);
 		return 0xFF000000 | (r2 << 16) | (g2 << 8) | b2;
 	}
+
+
 }

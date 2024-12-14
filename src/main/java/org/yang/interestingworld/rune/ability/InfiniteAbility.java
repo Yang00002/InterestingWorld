@@ -11,7 +11,7 @@ public class InfiniteAbility extends IWRuneAbility
     @Override
     public int level()
     {
-        return 5;
+        return 10;
     }
 
     @Override

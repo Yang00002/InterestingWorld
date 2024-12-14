@@ -24,8 +24,8 @@ public class AbilityRuneItem extends RuneItem
 	public Text getName(ItemStack stack)
 	{
 		var ab = getAbility(stack);
-		return ab.getTitleText().append(Text.translatable("abilityrune.suffix"))
-				.setStyle(IWUtil.TextStyle.getBoldTextStyle(getColor(stack)));
+		return ab.getTitleText().append(Text.translatable("abilityrune.suffix")).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+				.withColor(getColor(stack));
 	}
 
 	@Override
@@ -46,5 +46,17 @@ public class AbilityRuneItem extends RuneItem
 	public AbilityRuneItem(Item.Settings settings)
 	{
 		super(settings.maxCount(1));
+	}
+
+	@Override
+	public boolean isEnchantable(ItemStack stack)
+	{
+		return false;
+	}
+
+	@Override
+	public int getEnchantability()
+	{
+		return 0;
 	}
 }

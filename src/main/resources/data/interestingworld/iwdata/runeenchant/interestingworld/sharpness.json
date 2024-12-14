@@ -1,9 +1,0 @@
-{
-  "maxAchieveLevel": 5,
-  "maxRandomLevel": 10,
-  "maxAllowLevel": 12,
-  "levelCostParameterA": 100,
-  "levelCostParameterB": 0,
-  "levelCostParameterC": 0,
-  "weight": 10
-}

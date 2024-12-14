@@ -1,0 +1,19 @@
+{
+  "items": [
+    "interestingworld:energy_stick",
+    "interestingworld:energy_blazerod"
+  ],
+  "allows": [
+    "interestingworld:fast_hit",
+    "interestingworld:fast_attack",
+    "minecraft:unbreaking",
+    "minecraft:fire_aspect",
+    "minecraft:looting"
+  ],
+  "groups": [
+    {
+      "weight": 1,
+      "group": "forrod"
+    }
+  ]
+}

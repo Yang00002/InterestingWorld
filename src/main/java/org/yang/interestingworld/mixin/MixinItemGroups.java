@@ -6,6 +6,7 @@ import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.tag.EnchantmentTags;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -35,7 +36,8 @@ public abstract class MixinItemGroups
 										  ItemGroup.StackVisibility stackVisibility, CallbackInfo ci)
 	{
 		registryWrapper.streamEntries().flatMap(enchantmentEntry -> {
-			if (enchantmentEntry.getIdAsString().contains("interestingworld:")) return null;
+			if (enchantmentEntry.getIdAsString().contains("interestingworld:") &&
+				!enchantmentEntry.isIn(EnchantmentTags.IN_ENCHANTING_TABLE)) return null;
 			else return IntStream.rangeClosed(enchantmentEntry.value().getMinLevel(),
 					enchantmentEntry.value().getMaxLevel()).mapToObj(
 					level -> EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(enchantmentEntry, level)));

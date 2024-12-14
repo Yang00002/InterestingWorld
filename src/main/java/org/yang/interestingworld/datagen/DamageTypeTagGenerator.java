@@ -16,18 +16,17 @@ public class DamageTypeTagGenerator extends FabricTagProvider<DamageType>
 	{
 		super(output, RegistryKeys.DAMAGE_TYPE, registriesFuture);
 	}
+
 	@Override
 	protected void configure(RegistryWrapper.WrapperLookup wrapperLookup)
 	{
-		// 斩击伤害
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN).addOptional(IWDamageTypes.ENERGEE_MELEE);
-		getOrCreateTagBuilder(DamageTypeTags.AVOIDS_GUARDIAN_THORNS).addOptional(IWDamageTypes.ENERGEE_MELEE);
-		getOrCreateTagBuilder(DamageTypeTags.PANIC_CAUSES).addOptional(IWDamageTypes.ENERGEE_MELEE);
-		// 流血效果
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN).addOptional(IWDamageTypes.BLOOD_EFFECT);
-		getOrCreateTagBuilder(DamageTypeTags.AVOIDS_GUARDIAN_THORNS).addOptional(IWDamageTypes.BLOOD_EFFECT);
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN).addOptional(IWDamageTypes.ENERGEE_MELEE)
+				.addOptional(IWDamageTypes.BLOOD_EFFECT);
+		getOrCreateTagBuilder(DamageTypeTags.AVOIDS_GUARDIAN_THORNS).addOptional(IWDamageTypes.ENERGEE_MELEE)
+				.addOptional(IWDamageTypes.BLOOD_EFFECT);
+		getOrCreateTagBuilder(DamageTypeTags.PANIC_CAUSES).addOptional(IWDamageTypes.ENERGEE_MELEE)
+				.addOptional(IWDamageTypes.BLOOD_EFFECT);
 		getOrCreateTagBuilder(DamageTypeTags.NO_KNOCKBACK).addOptional(IWDamageTypes.BLOOD_EFFECT);
-		getOrCreateTagBuilder(DamageTypeTags.PANIC_CAUSES).addOptional(IWDamageTypes.BLOOD_EFFECT);
 		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ARMOR).addOptional(IWDamageTypes.BLOOD_EFFECT);
 		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_WOLF_ARMOR).addOptional(IWDamageTypes.BLOOD_EFFECT);
 	}

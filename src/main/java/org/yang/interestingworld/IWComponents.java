@@ -27,7 +27,10 @@ public class IWComponents
 			Registries.DATA_COMPONENT_TYPE, Identifier.of(MOD_ID, "de"),
 			ComponentType.<ItemEnchantmentsComponent>builder().codec(ItemEnchantmentsComponent.CODEC).build());
 	public static ComponentType<Integer> DATA_FLAGS = Registry.register(Registries.DATA_COMPONENT_TYPE,
-			Identifier.of(MOD_ID, "of"), ComponentType.<Integer>builder().codec(Codec.INT).build());
+			Identifier.of(MOD_ID, "df"), ComponentType.<Integer>builder().codec(Codec.INT).build());
+
+	public static ComponentType<Integer> ENCHANT_VALUE = Registry.register(Registries.DATA_COMPONENT_TYPE,
+			Identifier.of(MOD_ID, "ev"), ComponentType.<Integer>builder().codec(Codec.INT).build());
 
 	public static void initialize()
 	{
