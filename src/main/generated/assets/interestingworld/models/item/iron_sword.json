@@ -4,19 +4,19 @@
     {
       "model": "interestingworld:item/iron_sword_slashing",
       "predicate": {
-        "custom_model_data": 2
+        "custom_model_data": 1
       }
     },
     {
       "model": "interestingworld:item/iron_sword_sweetcurse",
       "predicate": {
-        "custom_model_data": 3
+        "custom_model_data": 2
       }
     },
     {
       "model": "interestingworld:item/iron_sword_infinitecurse",
       "predicate": {
-        "custom_model_data": 4
+        "custom_model_data": 3
       }
     }
   ],

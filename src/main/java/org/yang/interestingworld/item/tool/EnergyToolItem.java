@@ -1,6 +1,5 @@
 package org.yang.interestingworld.item.tool;
 
-import net.fabricmc.fabric.api.item.v1.FabricItem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -22,6 +21,7 @@ import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
+import org.yang.interestingworld.util.EnergyToolDataFlag;
 
 import java.util.List;
 
@@ -29,12 +29,11 @@ import static org.yang.interestingworld.IWUtil.Components.currentEnergy;
 import static org.yang.interestingworld.IWUtil.Components.maxEnergy;
 import static org.yang.interestingworld.IWUtil.Return.*;
 import static org.yang.interestingworld.IWUtil.TextStyle.PURE_GREEN_RGB;
-import static org.yang.interestingworld.util.EnergyTool.*;
 import static org.yang.interestingworld.util.RuneAbility.getAbility;
 import static org.yang.interestingworld.util.RuneAbility.getColor;
 
 
-public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
+public class EnergyToolItem extends ToolItem
 {
 	@Override
 	public boolean isEnchantable(ItemStack stack)
@@ -52,7 +51,8 @@ public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
 	@Override
 	public boolean hasGlint(ItemStack stack)
 	{
-		return stack.contains(IWComponents.ABILITY_INDEX) || haveRealEnchantment(stack);
+		return stack.contains(IWComponents.ABILITY_INDEX) ||
+			   EnergyToolDataFlag.getFromItemStack(stack).haveRealEnchantment();
 	}
 
 	/**
@@ -188,13 +188,13 @@ public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
 			if (stack.hasEnchantments())
 			{
 				tooltip.add(Text.empty());
-				if (onlyHaveDefaultEnchantment(stack))
+				if (EnergyToolDataFlag.getFromItemStack(stack).onlyHaveDefaultEnchantment())
 					tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(IWUtil.TextStyle.GRAY_RGB));
 			}
 		}
 		else
 		{
-			if (onlyHaveDefaultEnchantment(stack))
+			if (EnergyToolDataFlag.getFromItemStack(stack).onlyHaveDefaultEnchantment())
 				tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(IWUtil.TextStyle.GRAY_RGB));
 		}
 	}
@@ -202,20 +202,27 @@ public class EnergyToolItem extends ToolItem implements canSweeping, FabricItem
 	@Override
 	public Text getName(ItemStack stack)
 	{
+		var ut = stack.getOrDefault(IWComponents.UPGRADE_TEXT, null);
 		var ab = getAbility(stack);
-		if (ab == IWRuneAbilitys.DEFAULT_ABILITY)
-			return Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
-					.withColor(getLevelColor(stack));
-		else return Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
-				.withColor(getLevelColor(stack)).append(" ")
-				.append(ab.getTitleText().setStyle(IWUtil.TextStyle.BOLD_STYLE).withColor(getColor(stack)));
-	}
-
-
-	@Override
-	public boolean canSweep(ItemStack stack)
-	{
-		return false;
+		if (ut == null)
+		{
+			if (ab == IWRuneAbilitys.DEFAULT_ABILITY)
+				return Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+						.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor());
+			else return Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+					.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor()).append(" ")
+					.append(ab.getTitleText().setStyle(IWUtil.TextStyle.BOLD_STYLE).withColor(getColor(stack)));
+		}
+		else
+		{
+			if (ab == IWRuneAbilitys.DEFAULT_ABILITY) return ut.copy().append(" ")
+					.append(Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+							.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor()));
+			else return ut.copy().append(" ")
+					.append(Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+							.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor())).append(" ")
+					.append(ab.getTitleText().setStyle(IWUtil.TextStyle.BOLD_STYLE).withColor(getColor(stack)));
+		}
 	}
 
 	@Override

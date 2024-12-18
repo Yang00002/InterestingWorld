@@ -11,7 +11,9 @@ import net.minecraft.item.ToolMaterial;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
+import org.yang.interestingworld.util.EnergyToolDataFlag;
 
 import java.util.List;
 
@@ -36,8 +38,10 @@ public class EnergySword extends EnergyToolItem
 	}
 
 	@Override
-	public boolean canSweep(ItemStack stack)
+	public ItemStack getDefaultStack()
 	{
-		return true;
+		var ret = super.getDefaultStack();
+		ret.set(IWComponents.DATA_FLAGS, EnergyToolDataFlag.copyFromItemStack(ret).setCanSweep());
+		return ret;
 	}
 }

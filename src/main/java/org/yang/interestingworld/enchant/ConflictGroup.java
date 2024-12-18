@@ -20,8 +20,8 @@ import static org.yang.interestingworld.util.Base.iwlogger;
 public class ConflictGroup
 {
 	static ConflictGroup fatalGroup = new ConflictGroup();
-	int addPunish = 0;
-	float mulPunish = 0.0f;
+	public int addPunish = 0;
+	public float mulPunish = 0.0f;
 
 	private static void accept(InputStream stream) throws IllegalArgumentException
 	{

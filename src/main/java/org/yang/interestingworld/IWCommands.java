@@ -5,13 +5,14 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
+import org.joml.Random;
 import org.yang.interestingworld.enchant.EnchantData;
+import org.yang.interestingworld.enchant.RandomEnchantGenerator;
 import org.yang.interestingworld.util.Server;
 
 import java.util.Objects;
 
 import static net.minecraft.server.command.CommandManager.argument;
-import static org.yang.interestingworld.util.Base.iwlogger;
 
 public class IWCommands
 {
@@ -59,18 +60,13 @@ public class IWCommands
 							return 0;
 						}))));
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
-				CommandManager.literal("iwxp").executes(context -> {
-					if (context.getSource().isExecutedByPlayer())
-					{
-						var p = context.getSource().getPlayer();
-						if (p != null)
-						{
-							iwlogger.info("Player has total xp " + p.totalExperience + " level " + p.experienceLevel +
-										  " progress " + p.experienceProgress);
-						}
-					}
-					return 1;
-				})));
+				CommandManager.literal("iwenchant").requires(source -> source.hasPermissionLevel(2))
+						.then(argument("level", IntegerArgumentType.integer()).executes(context -> {
+							final int level = Math.clamp(IntegerArgumentType.getInteger(context, "level"), 0, 10);
+							var p = context.getSource().getPlayer();
+							if (p != null)
+								p.giveItemStack(RandomEnchantGenerator.generate((int) Random.newSeed(), level));
+							return 1;
+						}))));
 	}
-
 }

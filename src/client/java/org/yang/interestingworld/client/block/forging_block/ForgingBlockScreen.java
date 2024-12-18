@@ -1,24 +1,30 @@
 package org.yang.interestingworld.client.block.forging_block;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.yang.interestingworld.IWItems;
+import org.yang.interestingworld.IWResources;
 import org.yang.interestingworld.block.forgingblock.ForgingBlockScreenHandler;
 import org.yang.interestingworld.util.Base;
-import org.yang.interestingworld.util.enchantment.RuneEnchantment;
+import org.yang.interestingworld.util.RuneEnchantment;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.function.Predicate;
 
-import static org.yang.interestingworld.util.enchantment.RuneEnchantment.getWorldLevelOfXpCost;
+import static org.yang.interestingworld.util.RuneEnchantment.getWorldLevelOfXpCost;
 
 public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler> implements ScreenHandlerListener
 {
@@ -233,6 +239,23 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 				drawer.addText(Text.translatable("forgingblock.text.enchant.4"), 4, false);
 				drawer.draw();
 			}
+			case 16 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.upgrade"));
+				if (!handler.isWorldLevelEnough())
+				{
+					TipDrawer drawer = new TipDrawer(context, 2, 2);
+					drawer.addText(Text.translatable("forgingblock.text.level"), 4, false);
+					drawer.draw();
+				}
+			}
+			case 17, 18, 19, 20 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.upgrade"));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable("forgingblock.text.upgrade." + state), 4, false);
+				drawer.draw();
+			}
 		}
 	}
 
@@ -253,7 +276,53 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 	public void render(DrawContext context, int mouseX, int mouseY, float delta)
 	{
 		super.render(context, mouseX, mouseY, delta);
+		switch (handler.getGlobalState())
+		{
+			case 1, 15 -> this.drawIngredientOverlay(context, stack -> {
+				var it = stack.getItem();
+				return it == Items.LAPIS_LAZULI || it == Items.AMETHYST_SHARD;
+			});
+			case 7 ->
+			{
+				var ig = handler.getRepairIngredient();
+				if (ig != null) this.drawIngredientOverlay(context, ig);
+			}
+			case 12 -> this.drawIngredientOverlay(context,
+					stack -> IWResources.RuneItemValue.RuneItemValue.containsKey(stack.getItem()));
+			case 16, 17, 18, 19, 20 ->
+			{
+				var need = handler.getUpgradeNeed();
+				if (need != null) this.drawIngredientOverlay(context, stack -> {
+					var it = stack.getItem();
+					return need.containsKey(it);
+				});
+			}
+		}
 		this.drawMouseoverTooltip(context, mouseX, mouseY);
+	}
+
+	public static void drawSlotOverlay(DrawContext context, int x, int y)
+	{
+		context.fill(RenderLayer.getGuiOverlay(), x, y, x + 16, y + 16, 1073807104);
+	}
+
+	public void drawIngredientOverlay(DrawContext context, Predicate<ItemStack> overLayCond)
+	{
+		int i = this.x;
+		int j = this.y;
+		RenderSystem.disableDepthTest();
+		context.getMatrices().push();
+		context.getMatrices().translate((float) i, (float) j, 0.0F);
+		for (int k = 3; k < 12; k++)
+		{
+			Slot slot = this.handler.slots.get(k);
+			if (overLayCond.test(slot.getStack()))
+			{
+				drawSlotOverlay(context, slot.x, slot.y);
+			}
+		}
+		context.getMatrices().pop();
+		RenderSystem.enableDepthTest();
 	}
 
 	@Override

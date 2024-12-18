@@ -9,7 +9,6 @@ public class IWRuneAbilitys
 {
 	private static IWAbstractRuneAbility[] ABILITY_LIST = null;
 	public static IWAbstractRuneAbility DEFAULT_ABILITY = new IWAbstractRuneAbility();
-	public static IWAbstractRuneAbility SWEEP_ABILITY = new SweepingAbility();
 	public static IWAbstractRuneAbility SLASHING_ABILITY = new SlashingAbility();
 	public static IWAbstractRuneAbility INFINITESLASHING_ABILITY = new InfiniteSlashingAbility();
 	public static IWAbstractRuneAbility SWEETCURSE_ABILITY = new SweetCurseAbility();
@@ -112,7 +111,6 @@ public class IWRuneAbilitys
 	{
 		AbilityRegister register = new AbilityRegister();
 		register.register(DEFAULT_ABILITY);
-		register.register(SWEEP_ABILITY);
 		register.register(SLASHING_ABILITY);
 		register.register(INFINITESLASHING_ABILITY);
 		register.register(SWEETCURSE_ABILITY);

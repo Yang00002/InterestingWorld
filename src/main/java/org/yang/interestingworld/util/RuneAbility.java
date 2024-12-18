@@ -10,13 +10,11 @@ import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
-import org.yang.interestingworld.util.enchantment.RuneEnchantment;
 
-import static org.yang.interestingworld.util.EnergyTool.updateLevel;
 
 public class RuneAbility
 {
-	private static CustomModelDataComponent getModelComponent(int id)
+	static CustomModelDataComponent getModelComponent(int id)
 	{
 		return new CustomModelDataComponent(id);
 	}
@@ -32,7 +30,8 @@ public class RuneAbility
 			if (item instanceof EnergyToolItem)
 			{
 				stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
-				updateLevel(stack);
+				stack.set(IWComponents.DATA_FLAGS,
+						EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 				origin.onRemoveAbility(stack);
 				ability.onSetAbility(stack);
 			}
@@ -52,7 +51,8 @@ public class RuneAbility
 			if (item instanceof EnergyToolItem)
 			{
 				stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
-				updateLevel(stack);
+				stack.set(IWComponents.DATA_FLAGS,
+						EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 				origin.onRemoveAbility(stack);
 				ability.onSetAbility(stack);
 			}
@@ -87,7 +87,8 @@ public class RuneAbility
 		stack.remove(IWComponents.ABILITY_INDEX);
 		stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 		stack.set(IWComponents.ABILITY_COLOR_RGB, IWRuneAbilitys.DEFAULT_ABILITY.getColor());
-		updateLevel(stack);
+		stack.set(IWComponents.DATA_FLAGS,
+				EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 		ability.onRemoveAbility(stack);
 	}
 
@@ -101,7 +102,8 @@ public class RuneAbility
 		stack.remove(IWComponents.ABILITY_INDEX);
 		stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 		stack.set(IWComponents.ABILITY_COLOR_RGB, IWRuneAbilitys.DEFAULT_ABILITY.getColor());
-		updateLevel(stack);
+		stack.set(IWComponents.DATA_FLAGS,
+				EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 		ability.onRemoveAbility(stack);
 	}
 }

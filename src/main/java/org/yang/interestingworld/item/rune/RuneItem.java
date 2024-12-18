@@ -19,10 +19,6 @@ public class RuneItem extends Item
 		return 0;
 	}
 
-	public int getRuneType()
-	{
-		return 0;
-	}
 
 	public void commonAppendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type)
 	{

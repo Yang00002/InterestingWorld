@@ -1,4 +1,4 @@
-package org.yang.interestingworld.util.enchantment;
+package org.yang.interestingworld.enchant;
 
 
 import net.minecraft.component.type.ItemEnchantmentsComponent;
@@ -6,7 +6,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.yang.interestingworld.IWEnchantments;
-import org.yang.interestingworld.enchant.TableEnchantGroup;
 import org.yang.interestingworld.util.Rand;
 import org.yang.interestingworld.util.Server;
 
@@ -14,7 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.yang.interestingworld.enchant.ToolGroup.getRandomTableEnchantGroupOfItemStack;
-import static org.yang.interestingworld.util.enchantment.RuneEnchantment.getXpCostOfWorldLevel;
+import static org.yang.interestingworld.util.RuneEnchantment.getXpCostOfWorldLevel;
 
 /***
  * 一个 Generator 仅能生成一次附魔
@@ -74,9 +73,13 @@ public class TableEnchantGenerator
 		int maxTryAmount = crystalCount.getValue() + 1 + runeComponent.getLevel(IWEnchantments.ENTRY_PLENTIFUL);
 		int efficiency = runeComponent.getLevel(IWEnchantments.ENTRY_ENERGY_EFFICIENCY);
 		//获得最大消耗
-		int maxCost = Math.min(getXpCostOfWorldLevel(Server.getPersistentData().worldEnergyLevel),
-				(200 * (1 + lapisCount.getValue()) * (efficiency + 1)));
 		int worldGate = Server.getPersistentData().worldEnergyLevel;
+		int maxCost = (200 * (1 + lapisCount.getValue()) * (efficiency + 1));
+		if (worldGate < 10)
+		{
+			int cap = getXpCostOfWorldLevel(worldGate);
+			if (maxCost > cap) maxCost = cap;
+		}
 		int maxWeight = 0;
 		for (var i : enchantGroup.getEnchants())
 		{

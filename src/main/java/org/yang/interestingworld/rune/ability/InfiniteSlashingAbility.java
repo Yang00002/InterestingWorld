@@ -3,7 +3,6 @@ package org.yang.interestingworld.rune.ability;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
@@ -17,11 +16,11 @@ import org.yang.interestingworld.IWDamageTypes;
 import org.yang.interestingworld.IWEffects;
 import org.yang.interestingworld.IWSounds;
 import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
 import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
+import org.yang.interestingworld.util.EnergyToolDataFlag;
 
 import java.util.List;
 
@@ -42,12 +41,7 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
-		Item it = stack.getItem();
-		if (it instanceof EnergyToolItem)
-		{
-			return ((EnergyToolItem) it).canSweep(stack);
-		}
-		return false;
+		return EnergyToolDataFlag.getFromItemStack(stack).canSweep();
 	}
 
 	@Override

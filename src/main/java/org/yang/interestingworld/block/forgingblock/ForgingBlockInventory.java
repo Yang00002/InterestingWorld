@@ -8,7 +8,7 @@ public class ForgingBlockInventory extends SimpleInventory
 	private boolean isChanged = false;
 	private boolean shouldTraceChange = true;
 
-	public void setWaitting()
+	public void setWaiting()
 	{
 		actWhenDirty = false;
 		shouldTraceChange = true;

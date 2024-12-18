@@ -2,9 +2,7 @@ package org.yang.interestingworld.rune.ability;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
@@ -21,16 +19,17 @@ import org.yang.interestingworld.IWDamageTypes;
 import org.yang.interestingworld.IWEffects;
 import org.yang.interestingworld.IWSounds;
 import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
 import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
 import org.yang.interestingworld.rune.IWRuneAbility;
+import org.yang.interestingworld.util.EnergyToolDataFlag;
 
 import java.util.List;
 
 import static org.yang.interestingworld.IWUtil.EnergyTool.getPlayerData;
 import static org.yang.interestingworld.IWUtil.Registry.createDamageSource;
-import static org.yang.interestingworld.IWUtil.Return.*;
+import static org.yang.interestingworld.IWUtil.Return.FAIL;
+import static org.yang.interestingworld.IWUtil.Return.PASS;
 import static org.yang.interestingworld.IWUtil.TextStyle.GRAY_RGB;
 import static org.yang.interestingworld.IWUtil.TextStyle.RED_RGB;
 
@@ -59,12 +58,7 @@ public class SlashingAbility extends IWRuneAbility
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
-		Item it = stack.getItem();
-		if (it instanceof EnergyToolItem)
-		{
-			return ((EnergyToolItem) it).canSweep(stack);
-		}
-		return false;
+		return EnergyToolDataFlag.getFromItemStack(stack).canSweep();
 	}
 
 	@Override
@@ -189,7 +183,7 @@ public class SlashingAbility extends IWRuneAbility
 		}
 		data.charge_rate16 = c;
 		boolean ch = buf.readBoolean();
-		if(ch && !data.charged)
+		if (ch && !data.charged)
 		{
 			entity.playSound(SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE);
 		}

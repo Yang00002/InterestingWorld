@@ -80,6 +80,11 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add("forgingblock.text.abilityremove.12", "工具损坏概率：%s%%");
 		translationBuilder.add("forgingblock.text.abilityremove.13", "没有可提取的能力");
 		translationBuilder.add("forgingblock.text.abilityremove.14", "放入工具以提取能力");
+		translationBuilder.add("forgingblock.title.upgrade", "升级");
+		translationBuilder.add("forgingblock.text.upgrade.17", "缺少原料");
+		translationBuilder.add("forgingblock.text.upgrade.18", "升级和工具不兼容");
+		translationBuilder.add("forgingblock.text.upgrade.19", "不能重复升级");
+		translationBuilder.add("forgingblock.text.upgrade.20", "放入工具以进行升级");
 		translationBuilder.add("enchantment.interestingworld.fast_hit", "迅捷打击");
 		translationBuilder.add("enchantment.interestingworld.balance", "均衡");
 		translationBuilder.add("enchantment.interestingworld.plentiful", "充盈");
@@ -88,8 +93,8 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add("enchantment.interestingworld.lucky", "幸运");
 		translationBuilder.add("enchantment.interestingworld.fast_attack", "快速挥舞");
 		translationBuilder.add("tooltip.energy.count", "储存能量");
-		translationBuilder.add("sweeping_ability_title", "横扫");
-		translationBuilder.add("sweeping_ability_detail", "使武器可以横扫，每次横扫消耗1点能量。");
+		translationBuilder.add("sweeping_upgrade_title", "横扫");
+		translationBuilder.add("sweeping_upgrade_detail", "使武器可以横扫。");
 		translationBuilder.add("slashing_ability_title", "斩击");
 		translationBuilder.add("slashing_ability_detail", "右键消耗" + numberToString(SlashingAbility.EnergyCosume) +
 														  "点能量充能，充能后的第一次横扫攻击额外对前方一定范围内所有敌人造成" +
@@ -118,7 +123,9 @@ public class LanguageGenerator extends FabricLanguageProvider
 				"你的武器不再消耗能量。右键对周围大范围敌人施加永久诅咒, 受到诅咒的敌人将更容易受伤, 且其收到的伤害将增加" +
 				numberToString(InfiniteCurseAbility.HurtingAmplifier + 1) + "0%。本技能冷却时间为" +
 				numberToString((float) InfiniteCurseAbility.AbilityDuration / 20) + "s。");
+		translationBuilder.add("upgrade.need.txet", "需求：");
 		translationBuilder.add("banedabilitydetail", "你还不能使用此能力。");
+		translationBuilder.add("banedupgradedetail", "你还不能使用此升级。");
 		translationBuilder.add("tooltip.rune.needlevel", "需求等级");
 		translationBuilder.add(IWBlocks.FORGING_BLOCK, "符文锻造台");
 		translationBuilder.add("tooltip.defaultenchantment", "自带：");

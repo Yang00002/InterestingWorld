@@ -6,7 +6,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -21,11 +20,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.item.tool.canSweeping;
 import org.yang.interestingworld.playerdatamanager.ServerPlayerDataAccessor;
 import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+import org.yang.interestingworld.util.EnergyToolDataFlag;
 
 import java.util.Objects;
 
@@ -63,27 +63,13 @@ public abstract class MixinPlayerEntity extends LivingEntity implements ServerPl
 	private ItemStack injected(PlayerEntity instance, Hand hand)
 	{
 		ItemStack before = instance.getWeaponStack();
-		Item it = before.getItem();
-		if (instance instanceof ServerPlayerEntity player && canSweeping.class.isAssignableFrom(it.getClass()))
+		if (instance instanceof ServerPlayerEntity player && before.contains(IWComponents.DATA_FLAGS))
 		{
 			ServerPlayerDataManager manager = IWUtil.EnergyTool.getPlayerData(player);
 			IWAbstractRuneAbility ab = getAbility(before);
-			if (ab.canWork())
+			if (EnergyToolDataFlag.getFromItemStack(before).canSweep())
 			{
-				if (((canSweeping) it).canSweep(before))
-				{
-					ab.atSweeping(before, instance);
-					manager.sweeping = true;
-					return fakestack;
-				}
-				boolean res = ab.canSweeping(before, instance, manager);
-				if (!res) return before;
-				ab.atSweeping(before, instance);
-				manager.sweeping = true;
-				return fakestack;
-			}
-			if (((canSweeping) it).canSweep(before))
-			{
+				if (ab.canWork()) ab.atSweeping(before, instance);
 				manager.sweeping = true;
 				return fakestack;
 			}

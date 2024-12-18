@@ -1,6 +1,4 @@
-package org.yang.interestingworld.util.enchantment;
-
-import org.yang.interestingworld.enchant.EnchantData;
+package org.yang.interestingworld.enchant;
 
 public class TableEnchantEntry
 {
@@ -28,17 +26,17 @@ public class TableEnchantEntry
 
 	public boolean isBoosted()
 	{
-		return enchantData.getMaxLevel() <= maxLevel;
+		return enchantData.getMaxRandomLevel() <= maxLevel;
 	}
 
 	public void boost()
 	{
-		maxLevel = enchantData.getMaxLevel();
+		maxLevel = enchantData.getMaxRandomLevel();
 	}
 
 	public boolean canAddLevelIfBoosted(int cost)
 	{
-		if (enchantData.getMaxLevel() <= currentLevel) return false;
+		if (enchantData.getMaxRandomLevel() <= currentLevel) return false;
 		return enchantData.getAddLevelCost(currentLevel, currentLevel + 1) <= cost;
 	}
 

@@ -18,22 +18,27 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.jetbrains.annotations.Nullable;
 import org.yang.interestingworld.*;
+import org.yang.interestingworld.enchant.TableEnchantGenerator;
 import org.yang.interestingworld.item.rune.EnchantmentRuneItem;
 import org.yang.interestingworld.item.rune.RuneItem;
+import org.yang.interestingworld.item.rune.UpgradeRuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
+import org.yang.interestingworld.util.EnergyToolDataFlag;
 import org.yang.interestingworld.util.Rand;
+import org.yang.interestingworld.util.RuneEnchantment;
 import org.yang.interestingworld.util.Server;
-import org.yang.interestingworld.util.enchantment.RuneEnchantment;
-import org.yang.interestingworld.util.enchantment.TableEnchantGenerator;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Predicate;
 
-import static org.yang.interestingworld.util.EnergyTool.getLevel;
 import static org.yang.interestingworld.util.RuneAbility.*;
-import static org.yang.interestingworld.util.enchantment.RuneEnchantment.*;
+import static org.yang.interestingworld.util.RuneEnchantment.*;
+import static org.yang.interestingworld.util.RuneUpgrade.getUpgrade;
 
 public class ForgingBlockScreenHandler extends ScreenHandler
 {
@@ -65,7 +70,6 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		this(syncId, inventory, ScreenHandlerContext.EMPTY);
 	}
 
-	//TODO 使用符文附魔后, 取出放在原料槽中的符文, 会导致又可以附魔
 	public ForgingBlockScreenHandler(int syncId, PlayerInventory playerInventory, ScreenHandlerContext context)
 	{
 		super(IWScreenHandlers.FORGINGBLOCK_SCREEN_HANDLER, syncId);
@@ -102,10 +106,15 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		{
 			ItemStack moveItem = fromSlot.getStack();
 			itemStack = moveItem.copy();
-			if (slot < 12)
+			if (slot < 3)
 			{
 				if (!this.insertItem(moveItem, 12, 21, true) && !this.insertItem(moveItem, 21, 48, false))
 					return ItemStack.EMPTY;
+			}
+			else if (slot < 12)
+			{
+				if (!this.insertItem(moveItem, 0, 2, false) && !this.insertItem(moveItem, 12, 21, true) &&
+					!this.insertItem(moveItem, 21, 48, false)) return ItemStack.EMPTY;
 			}
 			else
 			{
@@ -242,7 +251,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			@Override
 			public void onTakeItem(PlayerEntity playerEntity, ItemStack stack)
 			{
-				ForgingBlockScreenHandler.this.onExtractOutput(playerEntity);
+				if (!ForgingBlockScreenHandler.this.clientSide)
+					ForgingBlockScreenHandler.this.onExtractOutput(playerEntity);
 			}
 		});
 		return ret;
@@ -261,6 +271,29 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 
 
 	//<editor-fold desc="开放查询">
+
+	public Map<Item, Integer> getUpgradeNeed()
+	{
+		ItemStack stack = inventoryDown.getStack(0);
+		if (stack.getItem() instanceof UpgradeRuneItem up)
+		{
+			var upgrade = getUpgrade(stack);
+			return upgrade.getIngredients();
+		}
+		return null;
+	}
+
+	@Nullable
+	public Ingredient getRepairIngredient()
+	{
+		ItemStack stack = inventoryUp.getStack(0);
+		if (stack.getItem() instanceof EnergyToolItem eti)
+		{
+			return eti.getMaterial().getRepairIngredient();
+		}
+		return null;
+	}
+
 	public boolean isOutputInventory(Inventory inventory)
 	{
 		return inventory == inventoryOut;
@@ -274,8 +307,12 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	public boolean isWorldLevelEnough()
 	{
 		ItemStack stackDown = inventoryDown.getStack(0);
-		if (!(stackDown.getItem() instanceof EnchantmentRuneItem it)) return false;
-		return Server.getPersistentData().worldEnergyLevel >= it.getLevel(stackDown);
+		Item item = stackDown.getItem();
+		if (item instanceof EnchantmentRuneItem it)
+			return Server.getPersistentData().worldEnergyLevel >= it.getLevel(stackDown);
+		if (item instanceof UpgradeRuneItem it)
+			return Server.getPersistentData().worldEnergyLevel >= it.getLevel(stackDown);
+		return false;
 	}
 
 	public int getRepairCount()
@@ -364,6 +401,11 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			if (itemDown == IWItems.ENCHANTMENT_RUNE)
 			{
 				updateGlobalState(5);
+				return;
+			}
+			if (itemDown == IWItems.COMMON_UPGRADE_RUNE)
+			{
+				updateGlobalState(20);
 				return;
 			}
 			updateGlobalState(0);
@@ -464,6 +506,39 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			}
 			return;
 		}
+		if (itemDown == IWItems.COMMON_UPGRADE_RUNE && durabilityEnough)
+		{
+			var flagUp = EnergyToolDataFlag.getFromItemStack(stackUp);
+			if (flagUp.haveUpgrade())
+			{
+				updateGlobalState(19);
+				removeOutput();
+			}
+			else
+			{
+				var upgrade = getUpgrade(stackDown);
+				if (upgrade.canApplyTo(stackUp))
+				{
+					var ig = upgrade.getIngredients();
+
+					if (ig == null || inventoryHave(upgrade.getIngredients())) updateGlobalState(16);
+					else
+					{
+						updateGlobalState(17);
+						removeOutput();
+					}
+					ItemStack stackOut = stackUp.copy();
+					upgrade.applyUpgrade(stackOut);
+					setOutput(stackOut);
+				}
+				else
+				{
+					updateGlobalState(18);
+					removeOutput();
+				}
+			}
+			return;
+		}
 		boolean durabilityFull = stackUp.getDamage() == 0;
 		if ((!durabilityEnough) || (!durabilityFull && stackDown.isEmpty()))
 		{
@@ -489,7 +564,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				ItemStack stackOut = stackUp.copy();
 				stackOut.setDamage(currentDamage);
 				setOutput(stackOut);
-				experienceCost.set(getLevel(stackUp) * rp * 25);
+				experienceCost.set(EnergyToolDataFlag.getFromItemStack(stackUp).level() * rp * 25);
 			}
 			else
 			{
@@ -530,7 +605,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					ItemStack stackOut = stackUp.copy();
 					stackOut.setDamage(currentDamage);
 					setOutput(stackOut);
-					experienceCost.set(getLevel(stackUp) * rp * 25);
+					experienceCost.set(EnergyToolDataFlag.getFromItemStack(stackUp).level() * rp * 25);
 				}
 			}
 			case 7 ->
@@ -557,7 +632,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					ItemStack stackOut = stackUp.copy();
 					stackOut.setDamage(currentDamage);
 					setOutput(stackOut);
-					experienceCost.set(getLevel(stackUp) * rp * 25);
+					experienceCost.set(EnergyToolDataFlag.getFromItemStack(stackUp).level() * rp * 25);
 				}
 				else
 				{
@@ -593,6 +668,14 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				ItemStack stackOut = RuneEnchantment.getEnchantRuneItemStack(component,
 						getWorldLevelOfXpCost(cost_achieve.getValue()));
 				setOutput(stackOut);
+			}
+			case 16, 17 ->
+			{
+				ItemStack stackDown = inventoryDown.getStack(0);
+				var upgrade = getUpgrade(stackDown);
+				var ig = upgrade.getIngredients();
+				if (ig == null || inventoryHave(upgrade.getIngredients())) updateGlobalState(16);
+				else updateGlobalState(17);
 			}
 		}
 	}
@@ -642,13 +725,13 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			}
 			else if (count == needCount)
 			{
-				inventoryIngredient.removeStack(index);
+				inventoryIngredient.setStack(index, ItemStack.EMPTY);
 				return;
 			}
 			else
 			{
 				need -= count * value;
-				inventoryIngredient.removeStack(index);
+				inventoryIngredient.setStack(index, ItemStack.EMPTY);
 			}
 		}
 	}
@@ -673,12 +756,27 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		return Math.clamp((int) ((float) (need * 100) / originNeed + pro), 0, 100);
 	}
 
-	private boolean inventoryHave(Item it)
+	private boolean inventoryHave(Map<Item, Integer> need)
 	{
+		Map<Item, Integer> current = new HashMap<>(need);
+		int size = current.size();
 		for (int i = 0; i < 9; i++)
 		{
 			ItemStack s = inventoryIngredient.getStack(i);
-			if (s.getItem() == it && s.getCount() > 0) return true;
+			int n = s.getCount();
+			if (n <= 0) continue;
+			Item it = s.getItem();
+			int c = current.getOrDefault(it, 0);
+			if (c > 0)
+			{
+				if (n < c) current.put(it, c - n);
+				else
+				{
+					current.remove(it);
+					size--;
+					if (size < 1) return true;
+				}
+			}
 		}
 		return false;
 	}
@@ -711,12 +809,44 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				else if (c < count)
 				{
 					count -= c;
-					inventoryIngredient.removeStack(i);
+					inventoryIngredient.setStack(i, ItemStack.EMPTY);
 				}
 				else
 				{
-					inventoryIngredient.removeStack(i);
+					inventoryIngredient.setStack(i, ItemStack.EMPTY);
 					return;
+				}
+			}
+		}
+	}
+
+	private void extractIngredient(Map<Item, Integer> need)
+	{
+		Map<Item, Integer> current = new HashMap<>(need);
+		for (int i = 0; i < 9; i++)
+		{
+			ItemStack s = inventoryIngredient.getStack(i);
+			int n = s.getCount();
+			if (n <= 0) continue;
+			Item it = s.getItem();
+			int c = current.getOrDefault(it, 0);
+			if (c > 0)
+			{
+				if (n < c)
+				{
+					current.put(it, c - n);
+					inventoryIngredient.removeStack(i);
+				}
+				else if (n > c)
+				{
+					current.remove(it);
+					s.decrement(c);
+					inventoryIngredient.setStack(i, s);
+				}
+				else
+				{
+					current.remove(it);
+					inventoryIngredient.removeStack(i);
 				}
 			}
 		}
@@ -739,11 +869,11 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				else if (c < count)
 				{
 					count -= c;
-					inventoryIngredient.removeStack(i);
+					inventoryIngredient.setStack(i, ItemStack.EMPTY);
 				}
 				else
 				{
-					inventoryIngredient.removeStack(i);
+					inventoryIngredient.setStack(i, ItemStack.EMPTY);
 					return;
 				}
 			}
@@ -757,8 +887,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			case 1 ->//符文附魔
 			{
 				inventoryIngredient.setSleeping();
-				inventoryDown.setWaitting();
-				inventoryDown.removeStack(0);
+				inventoryDown.setWaiting();
+				inventoryDown.setStack(0, ItemStack.EMPTY);
 				int cr = experienceCost.get() & 0b01111111111;
 				int lp = repairCount.get();
 				if (lp > 0) extractIngredient(Items.LAPIS_LAZULI, lp);
@@ -770,37 +900,37 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			case 3 -> // 附魔
 			{
 				player.addExperience(-experienceCost.get());
-				inventoryUp.setWaitting();
+				inventoryUp.setWaiting();
 				inventoryDown.setSleeping();
-				inventoryUp.removeStack(0);
+				inventoryUp.setStack(0, ItemStack.EMPTY);
 				inventoryDown.setStack(0, IWItems.EMPTY_RUNE.getDefaultStack());
-				inventoryUp.setActive();
 				inventoryDown.setActive();
+				inventoryUp.setActive();
 			}
 			case 7 -> // 修补
 			{
 				player.addExperience(-experienceCost.get());
-				inventoryUp.setWaitting();
+				inventoryUp.setWaiting();
 				inventoryIngredient.setSleeping();
-				inventoryUp.removeStack(0);
 				extractIngredient(repairIngredient, repairCount.get());
-				inventoryUp.setActive();
+				inventoryUp.setStack(0, ItemStack.EMPTY);
 				inventoryIngredient.setActive();
+				inventoryUp.setActive();
 			}
 			case 8 -> //能力附加
 			{
-				inventoryUp.setWaitting();
+				inventoryUp.setWaiting();
 				inventoryDown.setSleeping();
-				inventoryUp.removeStack(0);
+				inventoryUp.setStack(0, ItemStack.EMPTY);
 				inventoryDown.setStack(0, IWItems.EMPTY_RUNE.getDefaultStack());
-				inventoryUp.setActive();
 				inventoryDown.setActive();
+				inventoryUp.setActive();
 			}
 			case 12 -> //能力提取
 			{
 				ItemStack stackUp = inventoryUp.getStack(0);
 				if (stackUp.isEmpty()) return;
-				inventoryUp.setWaitting();
+				inventoryUp.setWaiting();
 				inventoryDown.setSleeping();
 				inventoryIngredient.setSleeping();
 				boolean isOk = rand.nextEvenInt(1, 100) > repairCount.get();
@@ -810,11 +940,23 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					removeToolAbility(stackUp);
 					inventoryUp.setStack(0, stackUp);
 				}
-				else inventoryUp.removeStack(0);
-				inventoryDown.removeStack(0);
-				inventoryUp.setActive();
+				else inventoryUp.setStack(0, ItemStack.EMPTY);
+				inventoryDown.setStack(0, ItemStack.EMPTY);
 				inventoryDown.setActive();
 				inventoryIngredient.setActive();
+				inventoryUp.setActive();
+			}
+			case 16 -> // 升级
+			{
+				inventoryUp.setWaiting();
+				inventoryIngredient.setSleeping();
+				ItemStack stackDown = inventoryDown.getStack(0);
+				var upgrade = getUpgrade(stackDown);
+				var ig = upgrade.getIngredients();
+				if (ig != null) extractIngredient(ig);
+				inventoryUp.removeStack(0);
+				inventoryIngredient.setActive();
+				inventoryUp.setActive();
 			}
 		}
 	}
@@ -845,6 +987,12 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			case 1, 8, 12 ->
 			{
 				return true;
+			}
+			case 16 ->
+			{
+				ItemStack stackDown = inventoryDown.getStack(0);
+				if (!(stackDown.getItem() instanceof UpgradeRuneItem it)) return false;
+				return Server.getPersistentData().worldEnergyLevel >= it.getLevel(stackDown);
 			}
 		}
 		return false;

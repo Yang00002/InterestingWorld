@@ -7,10 +7,11 @@ import org.yang.interestingworld.IWEnchantments;
 import org.yang.interestingworld.enchant.EnchantData;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
 import org.yang.interestingworld.resource.SequencedEnchantResourceReloadListener;
+import org.yang.interestingworld.rune.IWRuneAbilitys;
+import org.yang.interestingworld.rune.IWRuneUpgrades;
 
 import static org.yang.interestingworld.IWBlocks.addBlockItemToItemGroupWhenEnterWorld;
 import static org.yang.interestingworld.IWItems.addItemToItemGroupWhenEnterWorld;
-import static org.yang.interestingworld.rune.IWRuneAbilitys.addRunesToItemGroup;
 import static org.yang.interestingworld.util.Base.iwlogger;
 
 public class Server
@@ -37,7 +38,8 @@ public class Server
 		persistentData = IWPersistentData.getServerState(currentServer);
 		addItemToItemGroupWhenEnterWorld();
 		addBlockItemToItemGroupWhenEnterWorld();
-		addRunesToItemGroup();
+		IWRuneAbilitys.addRunesToItemGroup();
+		IWRuneUpgrades.addRunesToItemGroup();
 	}
 
 	private static void onServerStopped(MinecraftServer server)

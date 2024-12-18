@@ -2,6 +2,7 @@ package org.yang.interestingworld;
 
 import net.fabricmc.api.ModInitializer;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
+import org.yang.interestingworld.rune.IWRuneUpgrades;
 import org.yang.interestingworld.util.Server;
 
 
@@ -18,6 +19,7 @@ public class Interestingworld implements ModInitializer
 		IWRuneAbilitys.initialize();
 		IWEnchantments.initialize();
 		IWItems.initialize();
+		IWRuneUpgrades.initialize();
 		IWBlocks.initialize();
 		IWItemGroups.initialize();
 		IWScreenHandlers.initialize();
@@ -25,6 +27,7 @@ public class Interestingworld implements ModInitializer
 		IWSounds.initialize();
 		IWCommands.initialize();
 		IWEntities.initialize();
+		IWLoots.initialize();
 	}
 
 

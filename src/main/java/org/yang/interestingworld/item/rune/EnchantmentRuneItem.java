@@ -11,11 +11,6 @@ import java.util.List;
 
 public class EnchantmentRuneItem extends RuneItem
 {
-	@Override
-	public int getRuneType()
-	{
-		return 2;
-	}
 
 	public EnchantmentRuneItem(Settings settings)
 	{

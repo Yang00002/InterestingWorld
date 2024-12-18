@@ -24,7 +24,7 @@ import org.yang.interestingworld.IWEnchantments;
 
 import java.util.Map;
 
-import static org.yang.interestingworld.util.enchantment.RuneEnchantment.getEnchantmentLevel;
+import static org.yang.interestingworld.util.RuneEnchantment.getEnchantmentLevel;
 
 
 @Debug(export = true)

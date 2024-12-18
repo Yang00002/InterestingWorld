@@ -14,6 +14,7 @@ import net.minecraft.util.Identifier;
 import org.yang.interestingworld.item.rune.AbilityRuneItem;
 import org.yang.interestingworld.item.rune.EnchantmentRuneItem;
 import org.yang.interestingworld.item.rune.RuneItem;
+import org.yang.interestingworld.item.rune.UpgradeRuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.item.tool.sword.EnergySword;
 import org.yang.interestingworld.util.Base;
@@ -36,6 +37,7 @@ public class IWItems
 	public static Item NETHERITE_SWORD = null;
 	public static Item EMPTY_RUNE = null;
 	public static Item COMMON_ABILITY_RUNE = null;
+	public static Item COMMON_UPGRADE_RUNE = null;
 	public static Item ENCHANTMENT_RUNE = null;
 
 	public static void initialize()
@@ -58,6 +60,7 @@ public class IWItems
 				.build("netherite_sword", ToolMaterials.NETHERITE, EnergySword::new);
 		EMPTY_RUNE = createCommonItem("rune", RuneItem::new);
 		COMMON_ABILITY_RUNE = createCommonItem("ability_rune", AbilityRuneItem::new);
+		COMMON_UPGRADE_RUNE = createCommonItem("upgrade_rune", UpgradeRuneItem::new);
 		ENCHANTMENT_RUNE = createCommonItem("enchantment_rune", EnchantmentRuneItem::new);
 	}
 

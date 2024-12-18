@@ -18,10 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.yang.interestingworld.util.Base.iwlogger;
 
@@ -322,5 +319,10 @@ public class EnchantData
 			}
 		}
 		return left;
+	}
+
+	public Map<RegistryEntry<Enchantment>, ConflictGroup> getConflicts()
+	{
+		return Collections.unmodifiableMap(conflicts);
 	}
 }

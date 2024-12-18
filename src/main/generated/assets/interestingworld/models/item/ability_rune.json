@@ -2,33 +2,27 @@
   "parent": "minecraft:item/generated",
   "overrides": [
     {
-      "model": "interestingworld:item/sweeping_ability_rune",
+      "model": "interestingworld:item/slashing_ability_rune",
       "predicate": {
         "custom_model_data": 1
       }
     },
     {
-      "model": "interestingworld:item/slashing_ability_rune",
+      "model": "interestingworld:item/infiniteslashing_ability_rune",
       "predicate": {
         "custom_model_data": 2
       }
     },
     {
-      "model": "interestingworld:item/infiniteslashing_ability_rune",
+      "model": "interestingworld:item/sweetcurse_ability_rune",
       "predicate": {
         "custom_model_data": 3
       }
     },
     {
-      "model": "interestingworld:item/sweetcurse_ability_rune",
-      "predicate": {
-        "custom_model_data": 4
-      }
-    },
-    {
       "model": "interestingworld:item/infinitecurse_ability_rune",
       "predicate": {
-        "custom_model_data": 5
+        "custom_model_data": 4
       }
     }
   ],

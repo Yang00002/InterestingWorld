@@ -14,11 +14,6 @@ import static org.yang.interestingworld.util.RuneAbility.getColor;
 
 public class AbilityRuneItem extends RuneItem
 {
-	@Override
-	public int getRuneType()
-	{
-		return 1;
-	}
 
 	@Override
 	public Text getName(ItemStack stack)

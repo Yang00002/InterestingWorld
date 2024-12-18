@@ -111,14 +111,6 @@ public class IWAbstractRuneAbility
 		return false;
 	}
 
-	/**
-	 * TwoSide
-	 */
-	public boolean canSweeping(ItemStack stack, PlayerEntity entity, ServerPlayerDataManager data)
-	{
-		return false;
-	}
-
 	public int getColor()
 	{
 		return WHITE_RGB;

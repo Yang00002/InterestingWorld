@@ -1,7 +1,6 @@
 package org.yang.interestingworld;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.Item;
@@ -15,8 +14,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+import org.yang.interestingworld.rune.IWAbstractRuneUpgrade;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
-import org.yang.interestingworld.util.EnergyTool;
 import org.yang.interestingworld.util.RuneAbility;
 
 import java.util.HashMap;
@@ -25,6 +24,8 @@ import java.util.Map;
 
 import static org.yang.interestingworld.util.Base.MOD_ID;
 import static org.yang.interestingworld.util.Base.iwlogger;
+import static org.yang.interestingworld.util.RuneEnchantment.setDefaultEnchant;
+import static org.yang.interestingworld.util.RuneUpgrade.setUpgradeOfRune;
 
 public class IWItemGroups
 {
@@ -106,9 +107,7 @@ public class IWItemGroups
 					default_enchantments.forEach((enchantment, level) -> {
 						if (level > 0) builder.add(wrapper.getOrThrow(enchantment), level);
 					});
-					stack.set(IWComponents.DEFAULT_ENCHANTMENTS, builder.build());
-					stack.set(DataComponentTypes.ENCHANTMENTS, builder.build());
-					stack.set(IWComponents.DATA_FLAGS, EnergyTool.DEFAULT_ENCHANT_FLAG);
+					setDefaultEnchant(stack, builder.build());
 				}
 				if (ability != null) RuneAbility.setAbility(stack, ability);
 				entries.add(stack);
@@ -138,12 +137,7 @@ public class IWItemGroups
 			if (item != null)
 			{
 				ItemStack stack = item.getDefaultStack();
-				try
-				{
-					entries.add(stack);
-				} catch (Exception ignored)
-				{
-				}
+				entries.add(stack);
 			}
 		}
 	}
@@ -169,6 +163,31 @@ public class IWItemGroups
 		{
 			ItemStack stack = IWItems.COMMON_ABILITY_RUNE.getDefaultStack();
 			RuneAbility.setAbility(stack, ability);
+			entries.add(stack);
+		}
+	}
+
+	public static class UpgradeRuneItemInitializer implements ItemInGroupInitializer
+	{
+		IWAbstractRuneUpgrade upgrade;
+
+		private UpgradeRuneItemInitializer()
+		{
+
+		}
+
+		public static UpgradeRuneItemInitializer getInstance(IWAbstractRuneUpgrade ab)
+		{
+			UpgradeRuneItemInitializer i = new UpgradeRuneItemInitializer();
+			i.upgrade = ab;
+			return i;
+		}
+
+		@Override
+		public void construct(ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries)
+		{
+			ItemStack stack = IWItems.COMMON_UPGRADE_RUNE.getDefaultStack();
+			setUpgradeOfRune(stack, upgrade);
 			entries.add(stack);
 		}
 	}
@@ -200,7 +219,7 @@ public class IWItemGroups
 	private static ItemStack getRuneDisplay()
 	{
 		ItemStack it = IWItems.COMMON_ABILITY_RUNE.getDefaultStack();
-		RuneAbility.setAbility(it, IWRuneAbilitys.SWEEP_ABILITY);
+		RuneAbility.setAbility(it, IWRuneAbilitys.SLASHING_ABILITY);
 		return it;
 	}
 
@@ -210,11 +229,16 @@ public class IWItemGroups
 		iwlogger.info("adding itemGroup " + groupRegistryKey.getValue().toUnderscoreSeparatedString());
 		if (data != null)
 		{
-			if (data.containsKey(groupRegistryKey))
+			try
 			{
-				var list = data.get(groupRegistryKey);
-				for (var i : list)
-					i.construct(displayContext, entries);
+				if (data.containsKey(groupRegistryKey))
+				{
+					var list = data.get(groupRegistryKey);
+					for (var i : list)
+						i.construct(displayContext, entries);
+				}
+			} catch (Exception ignored)
+			{
 			}
 			data.remove(groupRegistryKey);
 			if (data.isEmpty()) data = null;
