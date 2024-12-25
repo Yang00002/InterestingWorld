@@ -39,7 +39,7 @@ public class SlashingAbility extends IWRuneAbility
 	public static final float AbilityDamage = 3;
 	public static final int EffectDuration = 120;
 	public static final double AttackMaxAngleCosine = 0.5;
-	public static final double AttackMaxLength = 4;
+	public static final double AttackMaxLength = 3.5;
 	public static final float EnergyCosume = 10;
 	public static final double KnockbackDistance = 0.4;
 
@@ -74,7 +74,8 @@ public class SlashingAbility extends IWRuneAbility
 		{
 			var data = getPlayerData(player);
 			if (data.charged || data.chargeRate < AbilityDuration ||
-				!data.extractAutomicEnergy(stack, player, EnergyCosume)) return FAIL;
+				!data.extractAutomicEnergy(stack, EnergyCosume)) return FAIL;
+			IWUtil.Network.spawnItemParticle(user, ParticleTypes.CRIT);
 			data.charged = true;
 			data.shouldSync = true;
 			return FAIL;

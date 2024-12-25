@@ -6,6 +6,24 @@
       "predicate": {
         "custom_model_data": 1
       }
+    },
+    {
+      "model": "interestingworld:item/sweeping3_upgrade_rune",
+      "predicate": {
+        "custom_model_data": 2
+      }
+    },
+    {
+      "model": "interestingworld:item/sweeping4_upgrade_rune",
+      "predicate": {
+        "custom_model_data": 3
+      }
+    },
+    {
+      "model": "interestingworld:item/heavy_upgrade_rune",
+      "predicate": {
+        "custom_model_data": 4
+      }
     }
   ],
   "textures": {

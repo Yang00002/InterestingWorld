@@ -54,7 +54,8 @@ public class IWRuneUpgrade extends IWAbstractRuneUpgrade
 	@Override
 	public void applyUpgrade(ItemStack toolStack)
 	{
-		toolStack.set(IWComponents.UPGRADE_TEXT, getTitleText());
+		toolStack.set(IWComponents.UPGRADE_TEXT,
+				getTitleText().setStyle(IWUtil.TextStyle.BOLD_STYLE).withColor(getColor()));
 		toolStack.set(IWComponents.DATA_FLAGS, EnergyToolDataFlag.copyFromItemStack(toolStack).setUpgradeLevel(level())
 				.updateLevelFromItemStack(toolStack));
 	}

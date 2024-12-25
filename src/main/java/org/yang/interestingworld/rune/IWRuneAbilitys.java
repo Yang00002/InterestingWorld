@@ -13,7 +13,10 @@ public class IWRuneAbilitys
 	public static IWAbstractRuneAbility INFINITESLASHING_ABILITY = new InfiniteSlashingAbility();
 	public static IWAbstractRuneAbility SWEETCURSE_ABILITY = new SweetCurseAbility();
 	public static IWAbstractRuneAbility INFINITECURSE_ABILITY = new InfiniteCurseAbility();
-
+	public static IWAbstractRuneAbility REPEATSLASHING_ABILITY = new RepeatSlashingAbility();
+	public static IWAbstractRuneAbility BOOSTREPEATSLASHING_ABILITY = new BoostRepeatSlashingAbility();
+	public static IWAbstractRuneAbility EVISCERATE_ABILITY = new EviscerateAbility();
+	public static IWAbstractRuneAbility INFINITEEVISCERATE_ABILITY = new InfiniteEviscerateAbility();
 	private static short ABILITY_COUNT = 0;
 
 	private static class AbilityRegister
@@ -115,6 +118,10 @@ public class IWRuneAbilitys
 		register.register(INFINITESLASHING_ABILITY);
 		register.register(SWEETCURSE_ABILITY);
 		register.register(INFINITECURSE_ABILITY);
+		register.register(REPEATSLASHING_ABILITY);
+		register.register(BOOSTREPEATSLASHING_ABILITY);
+		register.register(EVISCERATE_ABILITY);
+		register.register(INFINITEEVISCERATE_ABILITY);
 		register.build();
 	}
 

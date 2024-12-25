@@ -5,6 +5,7 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -12,20 +13,22 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.UseAction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import org.joml.Vector3f;
 import org.yang.interestingworld.IWEffects;
+import org.yang.interestingworld.IWParticleTypes;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
 import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
-import org.yang.interestingworld.rune.IWRuneAbility;
 
 import java.util.List;
 
 import static org.yang.interestingworld.IWUtil.EnergyTool.getPlayerData;
 import static org.yang.interestingworld.IWUtil.EnergyTool.influenceEntityAround;
-import static org.yang.interestingworld.IWUtil.Return.*;
+import static org.yang.interestingworld.IWUtil.Return.FAIL;
+import static org.yang.interestingworld.IWUtil.Return.PASS;
 import static org.yang.interestingworld.IWUtil.TextStyle.CYAN_RGB;
-import static org.yang.interestingworld.IWUtil.TextStyle.PINK_RGB;
 
 public class InfiniteCurseAbility extends InfiniteAbility
 {
@@ -33,6 +36,9 @@ public class InfiniteCurseAbility extends InfiniteAbility
 	public static final int CooldownAmplifier = 1;
 	public static final int HurtingAmplifier = 9;
 	public static final double AttackMaxLength = 4;
+	public static final double Knockback = 1;
+	public static final int ExplodeTick = 100;
+	public static final int ExplodeDamage = 10;
 
 	@Override
 	public void appendToolTip(List<Text> tooltip)
@@ -57,8 +63,30 @@ public class InfiniteCurseAbility extends InfiniteAbility
 			data.chargeRate = 0;
 			data.shouldSync = true;
 			IWUtil.Network.playSoundToPlayer(player, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS);
+			double x = user.getX();
+			double y = user.getY();
+			double z = user.getZ();
+			IWUtil.Network.spawnParticleAtPos(world, IWParticleTypes.INFINITECURSE_CYCLE, x, y + 0.001, z);
+			IWUtil.Network.spawnParticleAtPos(world, new DustParticleEffect(new Vector3f(0.2f, 0.2f, 0.2f), 1.0f), x,
+					y + 0.5, z, 32, 2.8, 2.3, 2.8, 0);
+			data.chargeRate = 0;
+			data.shouldSync = true;
+			var atx = user.getX();
+			var atz = user.getZ();
+			var knox = MathHelper.sin(user.getYaw() * 0.017453292F);
+			var knoz = -MathHelper.cos(user.getYaw() * 0.017453292F);
 			influenceEntityAround(user, AttackMaxLength, (attacker, entity, distance) -> {
+				var ex = entity.getX();
+				var ez = entity.getZ();
+				var tx = atx - ex;
+				var tz = atz - ez;
+				var len = Math.sqrt(tx * tx + tz * tz);
+				if (len < 0.01) entity.takeKnockback(Knockback, knox, knoz);
+				else entity.takeKnockback(Knockback, tx, tz);
 				entity.addStatusEffect(new StatusEffectInstance(IWEffects.HURTING, -1, HurtingAmplifier));
+				if (entity.getStatusEffect(IWEffects.INFINITECURSE) == null) entity.addStatusEffect(
+						new StatusEffectInstance(IWEffects.INFINITECURSE, ExplodeTick + 1, ExplodeDamage - 1, false,
+								false));
 				entity.addStatusEffect(
 						new StatusEffectInstance(IWEffects.COOLDOWN, -1, CooldownAmplifier, false, false));
 			});

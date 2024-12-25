@@ -9,7 +9,9 @@
     "MixinItemStack",
     "MixinLivingEntity",
     "MixinPlayerEntity",
-    "MixinServerPlayerEntity"
+    "MixinServerPlayerEntity",
+    "MixinStatusEffect",
+    "MixinStatusEffectInstance"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -23,6 +23,7 @@ public class ServerPlayerDataManager
 	private int energyRegenTimer = 0;
 	public boolean sweeping = false;
 	public boolean charged = false;
+	public int chargeStep = -1;
 	public int chargeRate = -1;
 	public boolean isCharging = false;
 	public boolean shouldSync = false;
@@ -126,7 +127,7 @@ public class ServerPlayerDataManager
 		}
 	}
 
-	public boolean extractAutomicEnergy(ItemStack stack, ServerPlayerEntity user, float amount)
+	public boolean extractAutomicEnergy(ItemStack stack, float amount)
 	{
 		var ab = RuneAbility.getAbility(stack);
 		if (ab.canWork())
@@ -160,7 +161,7 @@ public class ServerPlayerDataManager
 		return false;
 	}
 
-	public boolean tryExtractAutomicEnergy(ItemStack stack, ServerPlayerEntity user, float amount)
+	public boolean tryExtractAutomicEnergy(ItemStack stack, float amount)
 	{
 		var ab = RuneAbility.getAbility(stack);
 		if (ab.canWork())
@@ -174,6 +175,35 @@ public class ServerPlayerDataManager
 		}
 		float e = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f);
 		return current_energy + e >= amount;
+	}
+
+	public void returnEnergyToTool(ItemStack stack, float amount)
+	{
+		float max = stack.getOrDefault(IWComponents.MAX_ENERGY, 0f);
+		float cur = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0f);
+		stack.set(IWComponents.CURRENT_ENERGY, Math.min(cur + amount, max));
+	}
+
+	public void returnEnergyToPlayerAndTool(ItemStack stack, float amount)
+	{
+		if (current_energy + amount >= 20f)
+		{
+			amount += current_energy - 20f;
+			current_energy = 20f;
+			if (amount > 0f)
+			{
+				float max = stack.getOrDefault(IWComponents.MAX_ENERGY, 0f);
+				float cur = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0f);
+				stack.set(IWComponents.CURRENT_ENERGY, Math.min(cur + amount, max));
+			}
+		}
+		else current_energy += amount;
+	}
+
+	public void returnEnergyToPlayer(float amount)
+	{
+		if (current_energy + amount >= 20f) current_energy = 20f;
+		else current_energy += amount;
 	}
 
 	public float getCurrentEnergy()

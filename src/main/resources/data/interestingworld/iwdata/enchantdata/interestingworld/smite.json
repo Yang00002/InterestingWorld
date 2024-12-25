@@ -1,0 +1,19 @@
+{
+  "max_level": 10,
+  "max_random_level": 8,
+  "max_table_level": 5,
+  "weight": 7,
+  "cost_type": "pile",
+  "cost": [
+    96,
+    120,
+    120,
+    120,
+    168,
+    192,
+    192,
+    192,
+    240,
+    240
+  ]
+}

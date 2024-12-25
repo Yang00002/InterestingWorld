@@ -72,7 +72,7 @@ public class AbilityItemModelDataStructure
 	{
 		if (pathCache == null) pathCache = new HashMap<>();
 		String newPath = "interestingworld:item/" + path;
-		String s = "{\"parent\":\"minecraft:item/generated\",\"textures\": {\"layer0\":\"" + newPath + "\"}}";
+		String s = "{\"parent\":\"minecraft:item/handheld\",\"textures\": {\"layer0\":\"" + newPath + "\"}}";
 		itemModelGenerator.writer.accept(Identifier.of(newPath), () -> JsonParser.parseString(s));
 		pathCache.put(ability.toolIndex, newPath);
 	}
@@ -81,9 +81,7 @@ public class AbilityItemModelDataStructure
 	{
 		if (pathCache != null)
 		{
-			pathCache.forEach((n, p) -> {
-				overrides.add(new Predicator(n, p));
-			});
+			pathCache.forEach((n, p) -> overrides.add(new Predicator(n, p)));
 			pathCache = null;
 		}
 	}

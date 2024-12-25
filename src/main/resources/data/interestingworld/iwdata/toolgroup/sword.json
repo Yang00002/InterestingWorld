@@ -12,7 +12,10 @@
     "interestingworld:fast_attack",
     "minecraft:fire_aspect",
     "minecraft:unbreaking",
-    "minecraft:looting"
+    "minecraft:looting",
+    "minecraft:mending",
+    "interestingworld:smite",
+    "interestingworld:bane_of_arthropods"
   ],
   "groups": [
     {

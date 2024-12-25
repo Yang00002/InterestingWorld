@@ -125,7 +125,7 @@ public class RuneEnchantment
 		{
 			if (cost >= 4020)
 			{
-				if (cost >= 10820) return 10;
+				if (cost >= 8670) return 10;
 				if (cost >= 5345) return 9;
 				return 8;
 			}
@@ -143,7 +143,8 @@ public class RuneEnchantment
 		return 0;
 	}
 
-	private static final int[] xp_costs = {159, 314, 549, 909, 1394, 2044, 2919, 4019, 5344, 18019, 30970};
+	//									   1    2    3    4    5     6     7     8     9     10
+	private static final int[] xp_costs = {160, 315, 550, 910, 1395, 2045, 2920, 4020, 5345, 8670, 12895};
 
 	public static int getXpCostOfWorldLevel(int level)
 	{

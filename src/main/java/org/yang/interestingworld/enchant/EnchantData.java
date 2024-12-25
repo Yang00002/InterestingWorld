@@ -78,6 +78,19 @@ public class EnchantData
 					if (cost[i] < cost[i - 1]) throw new IllegalArgumentException("expect cost[i] >= cost[i-1]");
 				}
 			}
+			case "pile" ->
+			{
+				JsonArray array = object.getAsJsonArray("cost");
+				if (array.size() < maxLevel) throw new IllegalArgumentException("expect cost array size >= max_level");
+				cost = new int[maxLevel + 1];
+				cost[0] = 0;
+				for (int i = 1; i <= maxLevel; i++)
+				{
+					int n = array.get(i - 1).getAsInt();
+					if (n < 0) throw new IllegalArgumentException("expect cost not decrease per level");
+					cost[i] = cost[i - 1] + n;
+				}
+			}
 			case "linear" ->
 			{
 				JsonObject obj2 = object.getAsJsonObject("cost");
@@ -119,7 +132,8 @@ public class EnchantData
 					if (cost[i] < cost[i - 1]) throw new IllegalArgumentException("expect cost[i] >= cost[i-1]");
 				}
 			}
-			default -> throw new IllegalArgumentException("should have cost_type of linear, list/array or fraction");
+			default -> throw new IllegalArgumentException(
+					"should have cost_type of linear, list/array, pile or " + "fraction");
 		}
 		registryKey = key;
 		registryEntry = entry;

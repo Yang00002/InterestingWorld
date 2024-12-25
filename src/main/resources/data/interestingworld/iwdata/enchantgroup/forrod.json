@@ -3,5 +3,7 @@
   "interestingworld:fast_attack",
   "minecraft:unbreaking",
   "minecraft:fire_aspect",
-  "minecraft:looting"
+  "minecraft:looting",
+  "interestingworld:smite",
+  "interestingworld:bane_of_arthropods"
 ]

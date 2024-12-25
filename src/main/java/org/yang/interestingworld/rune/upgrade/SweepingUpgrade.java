@@ -38,8 +38,6 @@ public class SweepingUpgrade extends IWRuneUpgrade
 	{
 		super.applyUpgrade(toolStack);
 		toolStack.set(IWComponents.DATA_FLAGS, EnergyToolDataFlag.copyFromItemStack(toolStack).setCanSweep());
-		toolStack.set(IWComponents.UPGRADE_TEXT,
-				getTitleText().setStyle(IWUtil.TextStyle.BOLD_STYLE).withColor(getColor()));
 	}
 
 	@Override

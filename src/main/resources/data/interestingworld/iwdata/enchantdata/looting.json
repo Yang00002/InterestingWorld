@@ -4,8 +4,13 @@
   "max_table_level": 3,
   "world_level": 2,
   "weight": 3,
-  "cost_type": "linear",
-  "cost": {
-    "k": 500
-  }
+  "cost_type": "pile",
+  "cost": [
+    400,
+    500,
+    600,
+    700,
+    700,
+    1000
+  ]
 }

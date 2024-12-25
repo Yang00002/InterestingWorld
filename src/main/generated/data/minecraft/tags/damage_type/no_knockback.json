@@ -3,6 +3,10 @@
     {
       "id": "interestingworld:blood_effect",
       "required": false
+    },
+    {
+      "id": "interestingworld:energe_explode",
+      "required": false
     }
   ]
 }

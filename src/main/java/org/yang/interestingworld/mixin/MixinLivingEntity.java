@@ -1,16 +1,16 @@
 package org.yang.interestingworld.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.entity.Attackable;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
+import net.minecraft.entity.attribute.AttributeContainer;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.RemoveEntityStatusEffectS2CPacket;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
@@ -19,8 +19,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.yang.interestingworld.IWEffects;
 import org.yang.interestingworld.IWEnchantments;
+import org.yang.interestingworld.mixin_interface.InterfaceLivingEntity;
 
 import java.util.Map;
 
@@ -29,22 +31,8 @@ import static org.yang.interestingworld.util.RuneEnchantment.getEnchantmentLevel
 
 @Debug(export = true)
 @Mixin(LivingEntity.class)
-public abstract class MixinLivingEntity extends Entity implements Attackable
+public abstract class MixinLivingEntity extends Entity implements Attackable, InterfaceLivingEntity
 {
-	//@Shadow
-	//protected float lastDamageTaken;
-	//@Shadow
-	//public int maxHurtTime;
-	//@Unique
-	//private int maxHurtTimeCache = 0;
-	//@Unique
-	//private int hurtTimeCache = 0;
-	//@Unique
-	//private int timeUntilRegenCache = 0;
-	//@Unique
-	//private float lastDamageTakenCache = 0;
-
-
 	@Shadow
 	protected float lastDamageTaken;
 
@@ -53,6 +41,21 @@ public abstract class MixinLivingEntity extends Entity implements Attackable
 
 	@Shadow
 	public abstract @Nullable StatusEffectInstance getStatusEffect(RegistryEntry<StatusEffect> effect);
+
+	@Shadow
+	public abstract void equipStack(EquipmentSlot slot, ItemStack stack);
+
+	@Shadow
+	public abstract @Nullable StatusEffectInstance removeStatusEffectInternal(RegistryEntry<StatusEffect> effect);
+
+	@Shadow
+	private boolean effectsChanged;
+
+	@Shadow
+	protected abstract void updateAttributes();
+
+	@Shadow
+	public abstract AttributeContainer getAttributes();
 
 	public MixinLivingEntity(EntityType<?> type, World world)
 	{
@@ -113,5 +116,50 @@ public abstract class MixinLivingEntity extends Entity implements Attackable
 		int level = getEnchantmentLevel(this.getWorld(), weapon, IWEnchantments.FAST_HIT);
 		hurtGate = Math.min(10 + level, 19);
 		return hurtGate;
+	}
+
+	@Inject(method = "onStatusEffectRemoved", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/effect" +
+																				  "/StatusEffectInstance;" +
+																				  "getEffectType" +
+																				  "()Lnet/minecraft/registry/entry" +
+																				  "/RegistryEntry;"))
+	private void onStatusEffectRemoveMixin(StatusEffectInstance effect, CallbackInfo ci)
+	{
+		effect.getEffectType().value().onRemoveEffect((LivingEntity) (Object) this, effect.getAmplifier());
+	}
+
+	@Unique
+	public boolean removeStatusEffectVanilla(RegistryEntry<StatusEffect> effect)
+	{
+		StatusEffectInstance statusEffectInstance = removeStatusEffectInternal(effect);
+		if (statusEffectInstance != null)
+		{
+			vanillaOnStatusEffectRemoved(statusEffectInstance);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	@Unique
+	public void vanillaOnStatusEffectRemoved(StatusEffectInstance effect)
+	{
+		effectsChanged = true;
+		if (!this.getWorld().isClient)
+		{
+			effect.getEffectType().value().onRemoved(getAttributes());
+			updateAttributes();
+
+			for (Entity entity : this.getPassengerList())
+			{
+				if (entity instanceof ServerPlayerEntity serverPlayerEntity)
+				{
+					serverPlayerEntity.networkHandler.sendPacket(
+							new RemoveEntityStatusEffectS2CPacket(this.getId(), effect.getEffectType()));
+				}
+			}
+		}
 	}
 }

@@ -1,0 +1,11 @@
+{
+  "max_level": 1,
+  "max_random_level": 1,
+  "max_table_level": 1,
+  "world_level": 6,
+  "weight": 1,
+  "cost_type": "array",
+  "cost": [
+    2500
+  ]
+}

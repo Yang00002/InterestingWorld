@@ -14,14 +14,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import static org.yang.interestingworld.util.Base.iwlogger;
 
 public class ConflictGroup
 {
-	static ConflictGroup fatalGroup = new ConflictGroup();
+	public static final ConflictGroup fatalGroup = new ConflictGroup();
 	public int addPunish = 0;
 	public float mulPunish = 0.0f;
+	public int weightPunish = 0;
 
 	private static void accept(InputStream stream) throws IllegalArgumentException
 	{
@@ -68,6 +70,11 @@ public class ConflictGroup
 				group.mulPunish = object.get("mul_punish").getAsFloat();
 				if (group.mulPunish < 0.0f) throw new IllegalArgumentException("expect mul_punish >= 0.0f");
 			}
+			if (object.has("weight_punish"))
+			{
+				group.weightPunish = object.get("weight_punish").getAsInt();
+				if (group.weightPunish < 0) throw new IllegalArgumentException("expect weight_punish >= 0");
+			}
 			Map<ConflictGroup, ConflictGroup> transform = new HashMap<>();
 			for (var data : conflictSet)
 			{
@@ -86,6 +93,7 @@ public class ConflictGroup
 								g1 = new ConflictGroup();
 								g1.addPunish = g0.addPunish + group.addPunish;
 								g1.mulPunish = g0.mulPunish + group.mulPunish;
+								g1.weightPunish = g0.weightPunish + group.weightPunish;
 								transform.put(g0, g1);
 								data.conflicts.put(data2.registryEntry, g1);
 							}

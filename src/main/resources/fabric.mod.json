@@ -27,6 +27,16 @@
       "environment": "client"
     }
   ],
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/entity/LivingEntity": [
+        "org/yang/interestingworld/mixin_interface/InterfaceLivingEntity"
+      ],
+      "net/minecraft/entity/effect/StatusEffect": [
+        "org/yang/interestingworld/mixin_interface/InterfaceStatusEffect"
+      ]
+    }
+  },
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",

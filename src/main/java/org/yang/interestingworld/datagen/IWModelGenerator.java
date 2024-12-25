@@ -2,7 +2,6 @@ package org.yang.interestingworld.datagen;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.minecraft.block.Blocks;
@@ -11,20 +10,12 @@ import net.minecraft.data.client.ItemModelGenerator;
 import net.minecraft.data.client.ModelIds;
 import net.minecraft.data.client.Models;
 import net.minecraft.item.Item;
-import net.minecraft.util.Identifier;
 import org.yang.interestingworld.IWBlocks;
 import org.yang.interestingworld.IWItems;
 import org.yang.interestingworld.datagen.datastructure.AbilityItemModelDataStructure;
 import org.yang.interestingworld.datagen.datastructure.RuneModelDataStructure;
-import org.yang.interestingworld.rune.IWAbstractRuneAbility;
-import org.yang.interestingworld.rune.IWAbstractRuneUpgrade;
 import org.yang.interestingworld.rune.IWRuneAbilitys;
 import org.yang.interestingworld.rune.IWRuneUpgrades;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 public class IWModelGenerator extends FabricModelProvider
 {
@@ -57,6 +48,9 @@ public class IWModelGenerator extends FabricModelProvider
 	{
 		RuneModelDataStructure ur = new RuneModelDataStructure();
 		ur.addTexture(itemModelGenerator, IWRuneUpgrades.SWEEPING_UPGRADE, "sweeping_upgrade_rune");
+		ur.addTexture(itemModelGenerator, IWRuneUpgrades.SWEEPING3_UPGRADE, "sweeping3_upgrade_rune");
+		ur.addTexture(itemModelGenerator, IWRuneUpgrades.SWEEPING4_UPGRADE, "sweeping4_upgrade_rune");
+		ur.addTexture(itemModelGenerator, IWRuneUpgrades.HEAVY_UPGRADE, "heavy_upgrade_rune");
 		ur.build();
 		JsonElement j = new Gson().toJsonTree(ur);
 		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.COMMON_UPGRADE_RUNE), () -> j);

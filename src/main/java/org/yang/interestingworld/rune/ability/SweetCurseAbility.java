@@ -6,6 +6,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -15,6 +16,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
 import org.yang.interestingworld.IWEffects;
+import org.yang.interestingworld.IWParticleTypes;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
 import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
@@ -26,17 +28,18 @@ import static org.yang.interestingworld.IWUtil.EnergyTool.getPlayerData;
 import static org.yang.interestingworld.IWUtil.EnergyTool.influenceEntityAround;
 import static org.yang.interestingworld.IWUtil.EntityAbout.addHiddenStatusEffect;
 import static org.yang.interestingworld.IWUtil.EntityAbout.addStatusEffect;
-import static org.yang.interestingworld.IWUtil.Return.*;
+import static org.yang.interestingworld.IWUtil.Return.FAIL;
+import static org.yang.interestingworld.IWUtil.Return.PASS;
 import static org.yang.interestingworld.IWUtil.TextStyle.PINK_RGB;
 
 public class SweetCurseAbility extends IWRuneAbility
 {
 	public static final short AbilityDuration = 60;
-	public static final int RengenAmplifier = 1;
+	public static final int RegenAmplifier = 1;
 	public static final int EffectDuration = 160;
 	public static final int HurtingAmplifier = 4;
 	public static final double AttackMaxLength = 3;
-	public static final float EnergyCosume = 10;
+	public static final float EnergyConsume = 10;
 
 	public int getColor()
 	{
@@ -62,8 +65,13 @@ public class SweetCurseAbility extends IWRuneAbility
 		if (user instanceof ServerPlayerEntity player)
 		{
 			var data = getPlayerData(player);
-			if (data.chargeRate < AbilityDuration || !data.extractAutomicEnergy(stack, player, EnergyCosume))
+			if (data.chargeRate < AbilityDuration || !data.extractAutomicEnergy(stack, EnergyConsume))
 				return FAIL;
+			double x = user.getX();
+			double y = user.getY();
+			double z = user.getZ();
+			IWUtil.Network.spawnParticleAtPos(world, IWParticleTypes.SWEETCURSE_CYCLE, x, y + 0.001, z);
+			IWUtil.Network.spawnParticleAtPos(world, ParticleTypes.HEART, x, y + 0.5, z, 16, 2, 1.5, 2, 0);
 			data.chargeRate = 0;
 			data.shouldSync = true;
 			StatusEffectInstance instance = new StatusEffectInstance(StatusEffects.REGENERATION, EffectDuration);
@@ -71,7 +79,7 @@ public class SweetCurseAbility extends IWRuneAbility
 			influenceEntityAround(user, AttackMaxLength, (attacker, entity, distance) -> {
 				if (entity.canHaveStatusEffect(instance))
 				{
-					addStatusEffect(entity, StatusEffects.REGENERATION, EffectDuration, RengenAmplifier);
+					addStatusEffect(entity, StatusEffects.REGENERATION, EffectDuration, RegenAmplifier);
 					addHiddenStatusEffect(entity, IWEffects.HURTING, EffectDuration, HurtingAmplifier);
 				}
 			});

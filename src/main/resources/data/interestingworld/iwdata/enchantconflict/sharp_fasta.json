@@ -1,9 +1,0 @@
-{
-  "values": [
-    "interestingworld:fast_attack",
-    "interestingworld:sharpness"
-  ],
-  "fatal": false,
-  "add_punish": 0,
-  "mul_punish": 0.5
-}

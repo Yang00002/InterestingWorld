@@ -88,7 +88,7 @@ public class IWUtil
 			}
 			int level = pre.getAmplifier() + 1;
 			int nextDuration = (level * duration + durationTick) / level;
-			entity.removeStatusEffectInternal(effect);
+			entity.removeStatusEffectVanilla(effect);
 			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, level - 1, false, false));
 		}
 
@@ -109,7 +109,7 @@ public class IWUtil
 			}
 			int level = pre.getAmplifier() + 1;
 			int nextDuration = (level * duration + durationTick) / level;
-			entity.removeStatusEffectInternal(effect);
+			entity.removeStatusEffectVanilla(effect);
 			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, level - 1));
 		}
 
@@ -143,7 +143,7 @@ public class IWUtil
 				return;
 			}
 			int prelevel = pre.getAmplifier() + 1;
-			entity.removeStatusEffectInternal(effect);
+			entity.removeStatusEffectVanilla(effect);
 			if (prelevel > 1)
 
 				entity.addStatusEffect(new StatusEffectInstance(effect,
@@ -172,7 +172,7 @@ public class IWUtil
 				return;
 			}
 			int prelevel = pre.getAmplifier() + 1;
-			entity.removeStatusEffectInternal(effect);
+			entity.removeStatusEffectVanilla(effect);
 			if (prelevel > amplifier + 1)
 			{
 				entity.addStatusEffect(new StatusEffectInstance(effect,
@@ -207,7 +207,7 @@ public class IWUtil
 			int maxlevel = Math.max(level, amplifier);
 
 			int nextDuration = (level * duration + durationTick * amplifier) / maxlevel;
-			entity.removeStatusEffectInternal(effect);
+			entity.removeStatusEffectVanilla(effect);
 			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, maxlevel - 1, false, false));
 		}
 
@@ -231,7 +231,7 @@ public class IWUtil
 			int maxlevel = Math.max(level, amplifier);
 
 			int nextDuration = (level * duration + durationTick * amplifier) / maxlevel;
-			entity.removeStatusEffectInternal(effect);
+			entity.removeStatusEffectVanilla(effect);
 			entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, maxlevel - 1));
 		}
 	}
@@ -468,6 +468,7 @@ public class IWUtil
 			}
 		}
 
+
 		public static double setbaseAttackDamageModifier(ItemStack stack, double damage2inModifier,
 														 double defaultvalue)
 		{
@@ -581,6 +582,7 @@ public class IWUtil
 		public static final int DARK_PURPLE_RGB = 11141290;
 		public static final int GOLD_RGB = 16755200;
 		public static final int RED_RGB = 0xFF5555;
+		public static final int DARK_RED_RGB = 0x7f2a2a;
 		public static final int PINK_RGB = 0Xff738b;
 		public static final int YELLOW_RGB = 0XFFFF55;
 		public static final int CYAN_RGB = 0X55FFFF;
@@ -672,6 +674,15 @@ public class IWUtil
 				ServerPlayNetworking.send((ServerPlayerEntity) entity,
 						new IWNetwork.ItemBreakParticlePayload(new ItemStackParticleEffect(ParticleTypes.ITEM,
 								stack)));
+			}
+			else iwlogger.warn("spawnItemParticle 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
+		}
+
+		public static void spawnItemParticle(Entity entity, ParticleEffect effect)
+		{
+			if (entity instanceof ServerPlayerEntity)
+			{
+				ServerPlayNetworking.send((ServerPlayerEntity) entity, new IWNetwork.ItemBreakParticlePayload(effect));
 			}
 			else iwlogger.warn("spawnItemParticle 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
 		}

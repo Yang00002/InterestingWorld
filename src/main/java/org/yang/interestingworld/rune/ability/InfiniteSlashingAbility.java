@@ -31,9 +31,9 @@ import static org.yang.interestingworld.IWUtil.TextStyle.CYAN_RGB;
 public class InfiniteSlashingAbility extends InfiniteAbility
 {
 	public static final short AbilityDuration = 20;
-	public static final float AbilityDamage = 12;
+	public static final float AbilityDamage = 28;
 	public static final int EffectDuration = 120;
-	public static final int EffectAmplipier = 3;
+	public static final int EffectAmplifier = 5;
 	public static final double AttackMaxAngleCosine = 0.3;
 	public static final double AttackMaxLength = 5;
 	public static final double KnockbackDistance = 0.8;
@@ -103,7 +103,7 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 								entity.damage(damageSource, AbilityDamage);
 								IWUtil.EntityAbout.addHiddenStatusEffectWithConsistence(entity, IWEffects.BLOOD,
 										(int) (IWUtil.EntityAbout.getArmoredDamage(entity, damageSource,
-												AbilityDamage) * EffectDuration / AbilityDamage), EffectAmplipier, 20);
+												AbilityDamage) * EffectDuration / AbilityDamage), EffectAmplifier, 20);
 								double x = entity.getX();
 								double y = entity.getBodyY(0.5);
 								double z = entity.getZ();

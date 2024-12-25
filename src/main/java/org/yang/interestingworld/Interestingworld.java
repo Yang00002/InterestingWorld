@@ -28,6 +28,7 @@ public class Interestingworld implements ModInitializer
 		IWCommands.initialize();
 		IWEntities.initialize();
 		IWLoots.initialize();
+		IWParticleTypes.initialize();
 	}
 
 

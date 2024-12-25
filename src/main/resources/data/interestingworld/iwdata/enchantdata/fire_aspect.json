@@ -3,8 +3,13 @@
   "max_random_level": 5,
   "max_table_level": 2,
   "weight": 5,
-  "cost_type": "linear",
-  "cost": {
-    "k": 200
-  }
+  "cost_type": "pile",
+  "cost": [
+    160,
+    200,
+    220,
+    220,
+    220,
+    400
+  ]
 }

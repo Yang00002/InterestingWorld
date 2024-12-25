@@ -14,10 +14,12 @@ public class IWEnchantments
 {
 	public static final RegistryKey<Enchantment> FAST_HIT = RegistryKey.of(RegistryKeys.ENCHANTMENT,
 			Identifier.of(Base.MOD_ID, "fast_hit"));
-	public static final RegistryKey<Enchantment> FAST_ATTACK = RegistryKey.of(RegistryKeys.ENCHANTMENT,
-			Identifier.of(Base.MOD_ID, "fast_attack"));
-	public static final RegistryKey<Enchantment> SHARPNESS = RegistryKey.of(RegistryKeys.ENCHANTMENT,
-			Identifier.of(Base.MOD_ID, "sharpness"));
+
+	//public static final RegistryKey<Enchantment> FAST_ATTACK = RegistryKey.of(RegistryKeys.ENCHANTMENT,
+	//		Identifier.of(Base.MOD_ID, "fast_attack"));
+	//public static final RegistryKey<Enchantment> SHARPNESS = RegistryKey.of(RegistryKeys.ENCHANTMENT,
+	//		Identifier.of(Base.MOD_ID, "sharpness"));
+
 	public static final RegistryKey<Enchantment> BALANCE = RegistryKey.of(RegistryKeys.ENCHANTMENT,
 			Identifier.of(Base.MOD_ID, "balance"));
 	public static final RegistryKey<Enchantment> PLENTIFUL = RegistryKey.of(RegistryKeys.ENCHANTMENT,

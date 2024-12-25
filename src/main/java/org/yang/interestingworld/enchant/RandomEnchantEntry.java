@@ -3,7 +3,7 @@ package org.yang.interestingworld.enchant;
 public class RandomEnchantEntry
 {
 	int weight;
-	boolean choosen;
+	boolean chosen;
 	boolean remove;
 	byte currentLevel;
 	int addPunish;
@@ -17,7 +17,7 @@ public class RandomEnchantEntry
 		if (data.worldLevelGate > worldGate) return null;
 		RandomEnchantEntry ret = new RandomEnchantEntry();
 		ret.enchantData = data;
-		ret.choosen = false;
+		ret.chosen = false;
 		ret.currentLevel = 0;
 		ret.addPunish = 0;
 		ret.mulPunishForOther = 1.0f;

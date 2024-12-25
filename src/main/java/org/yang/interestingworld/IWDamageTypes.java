@@ -11,7 +11,8 @@ public class IWDamageTypes
 {
     public static final RegistryKey<DamageType> ENERGEE_MELEE = RegistryKey.of(RegistryKeys.DAMAGE_TYPE,
             Identifier.of(MOD_ID, "energe_melee"));
-
+    public static final RegistryKey<DamageType> ENERGEE_EXPLODE = RegistryKey.of(RegistryKeys.DAMAGE_TYPE,
+            Identifier.of(MOD_ID, "energe_explode"));
     public static final RegistryKey<DamageType> BLOOD_EFFECT = RegistryKey.of(RegistryKeys.DAMAGE_TYPE,
             Identifier.of(MOD_ID, "blood_effect"));
     public static void initialize()
