@@ -9,7 +9,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import org.yang.interestingworld.resource.SequencedEnchantResourceReloadListener;
+import org.yang.interestingworld.enchant.EnchantResourceReloader;
 
 import java.io.InputStream;
 import java.util.LinkedHashMap;
@@ -101,6 +101,6 @@ public class IWResources
 	{
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new RuneItemValue.Listener());
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA)
-				.registerReloadListener(new SequencedEnchantResourceReloadListener());
+				.registerReloadListener(new EnchantResourceReloader());
 	}
 }

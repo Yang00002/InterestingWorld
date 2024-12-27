@@ -4,13 +4,13 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
-import org.yang.interestingworld.IWUtil;
+import org.yang.interestingworld.util.style.TextStyle;
 
 import java.util.List;
 
-import static org.yang.interestingworld.util.RuneAbility.getAbility;
-import static org.yang.interestingworld.util.RuneAbility.getColor;
-import static org.yang.interestingworld.util.RuneUpgrade.getUpgrade;
+import static org.yang.interestingworld.util.IWRuneAbilityUtil.getAbility;
+import static org.yang.interestingworld.util.IWRuneAbilityUtil.getColor;
+import static org.yang.interestingworld.util.IWRuneUpgradeUtil.getUpgrade;
 
 public class UpgradeRuneItem extends RuneItem
 {
@@ -19,7 +19,7 @@ public class UpgradeRuneItem extends RuneItem
 	public Text getName(ItemStack stack)
 	{
 		var ab = getUpgrade(stack);
-		return ab.getTitleText().append(Text.translatable("abilityrune.suffix")).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+		return ab.getTitleText().append(Text.translatable("abilityrune.suffix")).setStyle(TextStyle.BOLD_STYLE)
 				.withColor(getColor(stack));
 	}
 

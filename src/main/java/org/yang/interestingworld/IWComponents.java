@@ -8,7 +8,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
-import org.yang.interestingworld.util.EnergyToolDataFlag;
+import org.yang.interestingworld.util.toolflag.EnergyToolDataFlag;
 
 import static org.yang.interestingworld.util.Base.MOD_ID;
 

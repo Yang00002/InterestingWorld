@@ -10,12 +10,12 @@ import net.minecraft.data.client.ItemModelGenerator;
 import net.minecraft.data.client.ModelIds;
 import net.minecraft.data.client.Models;
 import net.minecraft.item.Item;
-import org.yang.interestingworld.IWBlocks;
-import org.yang.interestingworld.IWItems;
+import org.yang.interestingworld.block.IWBlocks;
+import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.datagen.datastructure.AbilityItemModelDataStructure;
 import org.yang.interestingworld.datagen.datastructure.RuneModelDataStructure;
-import org.yang.interestingworld.rune.IWRuneAbilitys;
-import org.yang.interestingworld.rune.IWRuneUpgrades;
+import org.yang.interestingworld.rune_ability.IWRuneAbilities;
+import org.yang.interestingworld.rune_upgrade.IWRuneUpgrades;
 
 public class IWModelGenerator extends FabricModelProvider
 {
@@ -33,14 +33,14 @@ public class IWModelGenerator extends FabricModelProvider
 	private static void buildAbilityRuneModel(ItemModelGenerator itemModelGenerator)
 	{
 		RuneModelDataStructure ar = new RuneModelDataStructure();
-		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SLASHING_ABILITY, "slashing_ability_rune");
-		ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITESLASHING_ABILITY, "infiniteslashing_ability_rune");
-		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEETCURSE_ABILITY, "sweetcurse_ability_rune");
-		ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITECURSE_ABILITY, "infinitecurse_ability_rune");
+		ar.addTexture(itemModelGenerator, IWRuneAbilities.SLASHING_ABILITY, "slashing_ability_rune");
+		ar.addTexture(itemModelGenerator, IWRuneAbilities.INFINITESLASHING_ABILITY, "infiniteslashing_ability_rune");
+		ar.addTexture(itemModelGenerator, IWRuneAbilities.SWEETCURSE_ABILITY, "sweetcurse_ability_rune");
+		ar.addTexture(itemModelGenerator, IWRuneAbilities.INFINITECURSE_ABILITY, "infinitecurse_ability_rune");
 
 		ar.build();
 		JsonElement j = new Gson().toJsonTree(ar);
-		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.COMMON_ABILITY_RUNE), () -> j);
+		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.ABILITY_RUNE), () -> j);
 
 	}
 
@@ -53,7 +53,7 @@ public class IWModelGenerator extends FabricModelProvider
 		ur.addTexture(itemModelGenerator, IWRuneUpgrades.HEAVY_UPGRADE, "heavy_upgrade_rune");
 		ur.build();
 		JsonElement j = new Gson().toJsonTree(ur);
-		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.COMMON_UPGRADE_RUNE), () -> j);
+		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.UPGRADE_RUNE), () -> j);
 	}
 
 	private static void buildSwordModel(ItemModelGenerator itemModelGenerator)
@@ -66,9 +66,9 @@ public class IWModelGenerator extends FabricModelProvider
 		{
 			AbilityItemModelDataStructure ar = new AbilityItemModelDataStructure(
 					"minecraft:" + Materials[i] + "_sword");
-			ar.addTexture(itemModelGenerator, IWRuneAbilitys.SLASHING_ABILITY, Materials[i] + "_sword_slashing");
-			ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEETCURSE_ABILITY, Materials[i] + "_sword_sweetcurse");
-			ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITECURSE_ABILITY,
+			ar.addTexture(itemModelGenerator, IWRuneAbilities.SLASHING_ABILITY, Materials[i] + "_sword_slashing");
+			ar.addTexture(itemModelGenerator, IWRuneAbilities.SWEETCURSE_ABILITY, Materials[i] + "_sword_sweetcurse");
+			ar.addTexture(itemModelGenerator, IWRuneAbilities.INFINITECURSE_ABILITY,
 					Materials[i] + "_sword_infinitecurse");
 			ar.build();
 			JsonElement j = new Gson().toJsonTree(ar);
@@ -79,9 +79,9 @@ public class IWModelGenerator extends FabricModelProvider
 	private static void buildStickModel(ItemModelGenerator itemModelGenerator)
 	{
 		AbilityItemModelDataStructure ar = new AbilityItemModelDataStructure("minecraft:stick");
-		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SLASHING_ABILITY, "stick_slashing");
-		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEETCURSE_ABILITY, "stick_sweetcurse");
-		ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITECURSE_ABILITY, "stick_infinitecurse");
+		ar.addTexture(itemModelGenerator, IWRuneAbilities.SLASHING_ABILITY, "stick_slashing");
+		ar.addTexture(itemModelGenerator, IWRuneAbilities.SWEETCURSE_ABILITY, "stick_sweetcurse");
+		ar.addTexture(itemModelGenerator, IWRuneAbilities.INFINITECURSE_ABILITY, "stick_infinitecurse");
 		ar.build();
 		JsonElement j = new Gson().toJsonTree(ar);
 		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.STICK), () -> j);
@@ -90,9 +90,9 @@ public class IWModelGenerator extends FabricModelProvider
 	private static void buildBlazeRodModel(ItemModelGenerator itemModelGenerator)
 	{
 		AbilityItemModelDataStructure ar = new AbilityItemModelDataStructure("minecraft:blaze_rod");
-		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SLASHING_ABILITY, "blazerod_slashing");
-		ar.addTexture(itemModelGenerator, IWRuneAbilitys.SWEETCURSE_ABILITY, "blazerod_sweetcurse");
-		ar.addTexture(itemModelGenerator, IWRuneAbilitys.INFINITECURSE_ABILITY, "blazerod_infinitecurse");
+		ar.addTexture(itemModelGenerator, IWRuneAbilities.SLASHING_ABILITY, "blazerod_slashing");
+		ar.addTexture(itemModelGenerator, IWRuneAbilities.SWEETCURSE_ABILITY, "blazerod_sweetcurse");
+		ar.addTexture(itemModelGenerator, IWRuneAbilities.INFINITECURSE_ABILITY, "blazerod_infinitecurse");
 		ar.build();
 		JsonElement j = new Gson().toJsonTree(ar);
 		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.BLAZEROD), () -> j);

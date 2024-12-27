@@ -5,13 +5,14 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import org.yang.interestingworld.IWDamageTypes;
-import org.yang.interestingworld.IWUtil;
+import org.yang.interestingworld.util.IWParticleUtil;
+import org.yang.interestingworld.util.style.Color;
 
 public class BloodEffect extends StatusEffect
 {
 	public BloodEffect()
 	{
-		super(StatusEffectCategory.HARMFUL, IWUtil.TextStyle.RED_RGB);
+		super(StatusEffectCategory.HARMFUL, Color.RED_RGB);
 	}
 
 	@Override
@@ -23,9 +24,8 @@ public class BloodEffect extends StatusEffect
 	@Override
 	public boolean applyUpdateEffect(LivingEntity entity, int amplifier)
 	{
-		entity.damage(IWUtil.Registry.createDamageSource(entity.getWorld(), IWDamageTypes.BLOOD_EFFECT),
-                amplifier + 1);
-		return super.applyUpdateEffect(entity, amplifier);
+		entity.damage(new DamageSource(IWDamageTypes.BLOOD_EFFECT_entry.get()), amplifier + 1);
+		return true;
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class BloodEffect extends StatusEffect
 	{
 		if (source.getTypeRegistryEntry().matchesKey(IWDamageTypes.BLOOD_EFFECT))
 		{
-			IWUtil.Network.spawnDamageIndicatorParticle(entity, amount);
+			IWParticleUtil.spawnDamageIndicatorParticle(entity, amount);
 		}
 	}
 }

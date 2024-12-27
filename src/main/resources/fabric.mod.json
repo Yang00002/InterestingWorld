@@ -30,10 +30,19 @@
   "custom": {
     "loom:injected_interfaces": {
       "net/minecraft/entity/LivingEntity": [
-        "org/yang/interestingworld/mixin_interface/InterfaceLivingEntity"
+        "org/yang/interestingworld/mixin/mixin_interface/InterfaceLivingEntity"
       ],
       "net/minecraft/entity/effect/StatusEffect": [
-        "org/yang/interestingworld/mixin_interface/InterfaceStatusEffect"
+        "org/yang/interestingworld/mixin/mixin_interface/InterfaceStatusEffect"
+      ],
+      "net/minecraft/entity/effect/StatusEffectInstance": [
+        "org/yang/interestingworld/mixin/mixin_interface/InterfaceStatusEffectInstance"
+      ],
+      "net/minecraft/server/network/ServerPlayerEntity": [
+        "org/yang/interestingworld/mixin/mixin_interface/InterfaceServerPlayerEntity"
+      ],
+      "net/minecraft/client/network/ClientPlayerEntity": [
+        "org/yang/interestingworld/mixin/mixin_interface/InterfaceClientPlayerEntity"
       ]
     }
   },

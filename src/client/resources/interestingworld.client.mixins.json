@@ -1,13 +1,13 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "org.yang.interestingworld.client.mixin",
+  "package": "org.yang.interestingworld.client.mixin.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "ClientMixinClientPlayerEntity",
-    "ClientMixinDrawContext",
-    "ClientMixinInGameHud",
-    "OrderedForTextToolTipAccessor"
+    "MixinClientPlayerEntity",
+    "MixinDrawContext",
+    "MixinInGameHud",
+    "accessor.AccessOrderedTextTooltipComponent"
   ],
   "injectors": {
     "defaultRequire": 1

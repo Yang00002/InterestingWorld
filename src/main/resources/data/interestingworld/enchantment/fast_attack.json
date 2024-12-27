@@ -26,7 +26,7 @@
           "per_level_above_first": 0.1
         },
         "attribute": "generic.attack_speed",
-        "id": "iwg:attack_speed1",
+        "id": "iwenchant:fast_attack",
         "operation": "add_multiplied_base"
       }
     ]

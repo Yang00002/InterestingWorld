@@ -1,212 +1,43 @@
 package org.yang.interestingworld;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.minecraft.component.type.ItemEnchantmentsComponent;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.yang.interestingworld.item.tool.EnergyToolItem;
-import org.yang.interestingworld.rune.IWAbstractRuneAbility;
-import org.yang.interestingworld.rune.IWAbstractRuneUpgrade;
-import org.yang.interestingworld.rune.IWRuneAbilitys;
-import org.yang.interestingworld.util.RuneAbility;
+import org.yang.interestingworld.block.IWBlocks;
+import org.yang.interestingworld.item.IWItems;
+import org.yang.interestingworld.rune_ability.IWRuneAbilities;
+import org.yang.interestingworld.util.IWRuneAbilityUtil;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
+import java.util.function.BiConsumer;
 
 import static org.yang.interestingworld.util.Base.MOD_ID;
 import static org.yang.interestingworld.util.Base.iwlogger;
-import static org.yang.interestingworld.util.RuneEnchantment.setDefaultEnchant;
-import static org.yang.interestingworld.util.RuneUpgrade.setUpgradeOfRune;
 
 public class IWItemGroups
 {
-	private interface ItemInGroupInitializer
-	{
-		void construct(ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries);
-	}
+	private static Map<RegistryKey<ItemGroup>, List<BiConsumer<ItemGroup.DisplayContext, ItemGroup.Entries>>> data =
+			new HashMap<>();
 
-	public static class EnergyToolInitializer implements ItemInGroupInitializer
-	{
-		Item item = null;
-		Map<RegistryKey<Enchantment>, Integer> enchantments = null;
 
-		Map<RegistryKey<Enchantment>, Integer> default_enchantments = null;
-		IWAbstractRuneAbility ability = null;
-
-		private EnergyToolInitializer()
-		{
-
-		}
-
-		public EnergyToolInitializer addEnchantment(RegistryKey<Enchantment> ec, int level)
-		{
-			if (level > 0)
-			{
-				if (enchantments == null)
-				{
-					enchantments = new HashMap<>();
-				}
-				enchantments.put(ec, level);
-			}
-			return this;
-		}
-
-		public EnergyToolInitializer addDefaultEnchantment(RegistryKey<Enchantment> ec, int level)
-		{
-			if (level > 0)
-			{
-				if (default_enchantments == null)
-				{
-					default_enchantments = new HashMap<>();
-				}
-				default_enchantments.put(ec, level);
-			}
-			return this;
-		}
-
-		public EnergyToolInitializer setAbility(IWAbstractRuneAbility ab)
-		{
-			ability = ab;
-			return this;
-		}
-
-		public static EnergyToolInitializer getInstance(Item item)
-		{
-			EnergyToolInitializer i = new EnergyToolInitializer();
-			i.item = item;
-			return i;
-		}
-
-		@Override
-		public void construct(ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries)
-		{
-			if (item != null && item instanceof EnergyToolItem)
-			{
-				ItemStack stack = item.getDefaultStack();
-				if (enchantments != null)
-				{
-					var wrapper = displayContext.lookup().getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
-					enchantments.forEach((enchantment, level) -> {
-						if (level > 0) stack.addEnchantment(wrapper.getOrThrow(enchantment), level);
-					});
-				}
-				if (default_enchantments != null)
-				{
-					var wrapper = displayContext.lookup().getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
-					var cp = stack.getOrDefault(IWComponents.DEFAULT_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
-					ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(cp);
-					default_enchantments.forEach((enchantment, level) -> {
-						if (level > 0) builder.add(wrapper.getOrThrow(enchantment), level);
-					});
-					setDefaultEnchant(stack, builder.build());
-				}
-				if (ability != null) RuneAbility.setAbility(stack, ability);
-				entries.add(stack);
-			}
-		}
-	}
-
-	public static class CommonItemInitializer implements ItemInGroupInitializer
-	{
-		Item item = null;
-
-		private CommonItemInitializer()
-		{
-
-		}
-
-		public static CommonItemInitializer getInstance(Item item)
-		{
-			CommonItemInitializer i = new CommonItemInitializer();
-			i.item = item;
-			return i;
-		}
-
-		@Override
-		public void construct(ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries)
-		{
-			if (item != null)
-			{
-				ItemStack stack = item.getDefaultStack();
-				entries.add(stack);
-			}
-		}
-	}
-
-	public static class AbilityRuneItemInitializer implements ItemInGroupInitializer
-	{
-		IWAbstractRuneAbility ability;
-
-		private AbilityRuneItemInitializer()
-		{
-
-		}
-
-		public static AbilityRuneItemInitializer getInstance(IWAbstractRuneAbility ab)
-		{
-			AbilityRuneItemInitializer i = new AbilityRuneItemInitializer();
-			i.ability = ab;
-			return i;
-		}
-
-		@Override
-		public void construct(ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries)
-		{
-			ItemStack stack = IWItems.COMMON_ABILITY_RUNE.getDefaultStack();
-			RuneAbility.setAbility(stack, ability);
-			entries.add(stack);
-		}
-	}
-
-	public static class UpgradeRuneItemInitializer implements ItemInGroupInitializer
-	{
-		IWAbstractRuneUpgrade upgrade;
-
-		private UpgradeRuneItemInitializer()
-		{
-
-		}
-
-		public static UpgradeRuneItemInitializer getInstance(IWAbstractRuneUpgrade ab)
-		{
-			UpgradeRuneItemInitializer i = new UpgradeRuneItemInitializer();
-			i.upgrade = ab;
-			return i;
-		}
-
-		@Override
-		public void construct(ItemGroup.DisplayContext displayContext, ItemGroup.Entries entries)
-		{
-			ItemStack stack = IWItems.COMMON_UPGRADE_RUNE.getDefaultStack();
-			setUpgradeOfRune(stack, upgrade);
-			entries.add(stack);
-		}
-	}
-
-	private static Map<RegistryKey<ItemGroup>, LinkedList<ItemInGroupInitializer>> data = null;
-
-	public static void addItemToGroup(ItemInGroupInitializer itemInGroupInitializer,
+	public static void addItemToGroup(BiConsumer<ItemGroup.DisplayContext, ItemGroup.Entries> itemInGroupInitializer,
 									  RegistryKey<ItemGroup> groupRegistryKey)
 	{
 		if (data == null)
 		{
 			data = new HashMap<>();
 		}
-		LinkedList<ItemInGroupInitializer> l;
+		List<BiConsumer<ItemGroup.DisplayContext, ItemGroup.Entries>> l;
 		if (data.containsKey(groupRegistryKey))
 		{
 			l = data.get(groupRegistryKey);
 		}
-		else l = new LinkedList<>();
+		else l = new ArrayList<>();
 		l.add(itemInGroupInitializer);
 		data.put(groupRegistryKey, l);
 	}
@@ -218,8 +49,8 @@ public class IWItemGroups
 
 	private static ItemStack getRuneDisplay()
 	{
-		ItemStack it = IWItems.COMMON_ABILITY_RUNE.getDefaultStack();
-		RuneAbility.setAbility(it, IWRuneAbilitys.SLASHING_ABILITY);
+		ItemStack it = IWItems.ABILITY_RUNE.getDefaultStack();
+		IWRuneAbilityUtil.setAbility(it, IWRuneAbilities.SLASHING_ABILITY);
 		return it;
 	}
 
@@ -227,21 +58,11 @@ public class IWItemGroups
 								  ItemGroup.Entries entries)
 	{
 		iwlogger.info("adding itemGroup " + groupRegistryKey.getValue().toUnderscoreSeparatedString());
-		if (data != null)
+		if (data.containsKey(groupRegistryKey))
 		{
-			try
-			{
-				if (data.containsKey(groupRegistryKey))
-				{
-					var list = data.get(groupRegistryKey);
-					for (var i : list)
-						i.construct(displayContext, entries);
-				}
-			} catch (Exception ignored)
-			{
-			}
-			data.remove(groupRegistryKey);
-			if (data.isEmpty()) data = null;
+			var list = data.get(groupRegistryKey);
+			for (var i : list)
+				i.accept(displayContext, entries);
 		}
 	}
 
@@ -268,5 +89,6 @@ public class IWItemGroups
 		initializeItemGroup(BLOCKS_GROUP, "itemGroup.blocks_group", IWBlocks.FORGING_BLOCK.asItem().getDefaultStack());
 		initializeItemGroup(RUNES_GROUP, "itemGroup.runes_group", getRuneDisplay());
 		initializeItemGroup(TOOLS_GROUP, "itemGroup.tools_group", getToolDisplay());
+		data = Collections.unmodifiableMap(data);
 	}
 }

@@ -3,18 +3,22 @@ package org.yang.interestingworld.datagen;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.registry.RegistryWrapper;
-import org.yang.interestingworld.*;
-import org.yang.interestingworld.rune.ability.*;
-import org.yang.interestingworld.rune.upgrade.HeavyUpgrade;
-import org.yang.interestingworld.rune.upgrade.Sweeping2Upgrade;
-import org.yang.interestingworld.rune.upgrade.Sweeping3Upgrade;
-import org.yang.interestingworld.rune.upgrade.Sweeping4Upgrade;
+import org.yang.interestingworld.IWItemGroups;
+import org.yang.interestingworld.block.IWBlocks;
+import org.yang.interestingworld.effect.IWEffects;
+import org.yang.interestingworld.entity.IWEntities;
+import org.yang.interestingworld.item.IWItems;
+import org.yang.interestingworld.rune_ability.*;
+import org.yang.interestingworld.rune_upgrade.HeavyUpgrade;
+import org.yang.interestingworld.rune_upgrade.sweeping.Sweeping2Upgrade;
+import org.yang.interestingworld.rune_upgrade.sweeping.Sweeping3Upgrade;
+import org.yang.interestingworld.rune_upgrade.sweeping.Sweeping4Upgrade;
 
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
-import static org.yang.interestingworld.IWUtil.TextStyle.numberToString;
 import static org.yang.interestingworld.datagen.IWDataGen.generator;
+import static org.yang.interestingworld.util.style.TextStyle.numberToString;
 
 public class LanguageGenerator extends FabricLanguageProvider
 {

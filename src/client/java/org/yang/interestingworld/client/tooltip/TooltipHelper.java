@@ -5,7 +5,7 @@ import net.minecraft.client.gui.tooltip.OrderedTextTooltipComponent;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import org.yang.interestingworld.client.mixin.OrderedForTextToolTipAccessor;
+import org.yang.interestingworld.client.mixin.mixin.accessor.AccessOrderedTextTooltipComponent;
 
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class TooltipHelper
             if (components.get(i) instanceof OrderedTextTooltipComponent orderedTextTooltipComponent)
             {
                 Text text = OrderedTextToTextVisitor.get(
-                        ((OrderedForTextToolTipAccessor) orderedTextTooltipComponent).getText());
+                        ((AccessOrderedTextTooltipComponent) orderedTextTooltipComponent).getText());
                 if (text.getSiblings().isEmpty()) continue;
 
                 List<TooltipComponent> wrapped = textRenderer.wrapLines(text, maxSize).stream()
@@ -84,7 +84,7 @@ public class TooltipHelper
             if (components.get(i) instanceof OrderedTextTooltipComponent orderedTextTooltipComponent)
             {
                 Text text = OrderedTextToTextVisitor.get(
-                        ((OrderedForTextToolTipAccessor) orderedTextTooltipComponent).getText());
+                        ((AccessOrderedTextTooltipComponent) orderedTextTooltipComponent).getText());
 
                 List<Text> children = text.getSiblings();
                 for (int j = 0; j < children.size() - 1; j++)

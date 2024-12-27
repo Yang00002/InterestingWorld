@@ -1,5 +1,9 @@
 package org.yang.interestingworld.item.tool;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.component.type.ItemEnchantmentsComponent;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -9,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -18,23 +23,28 @@ import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.yang.interestingworld.IWComponents;
-import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.rune.IWAbstractRuneAbility;
-import org.yang.interestingworld.rune.IWRuneAbilitys;
-import org.yang.interestingworld.util.EnergyToolDataFlag;
+import org.yang.interestingworld.rune_ability.AbstractRuneAbility;
+import org.yang.interestingworld.rune_ability.IWRuneAbilities;
+import org.yang.interestingworld.util.IWEnchantmentUtil;
+import org.yang.interestingworld.util.Server;
+import org.yang.interestingworld.util.style.Color;
+import org.yang.interestingworld.util.style.TextStyle;
+import org.yang.interestingworld.util.toolflag.EnergyToolDataFlag;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.yang.interestingworld.IWUtil.Components.currentEnergy;
 import static org.yang.interestingworld.IWUtil.Components.maxEnergy;
-import static org.yang.interestingworld.IWUtil.Return.*;
-import static org.yang.interestingworld.IWUtil.TextStyle.PURE_GREEN_RGB;
-import static org.yang.interestingworld.util.RuneAbility.getAbility;
-import static org.yang.interestingworld.util.RuneAbility.getColor;
+import static org.yang.interestingworld.util.Return.*;
+import static org.yang.interestingworld.util.IWRuneAbilityUtil.getAbility;
+import static org.yang.interestingworld.util.IWRuneAbilityUtil.getColor;
 
 
 public class EnergyToolItem extends ToolItem
 {
+	public final Map<Server.LoadOnceRegistryEntry<Enchantment>, Integer> defaultEnchantments;
+
 	@Override
 	public boolean isEnchantable(ItemStack stack)
 	{
@@ -75,7 +85,7 @@ public class EnergyToolItem extends ToolItem
 	{
 		ItemStack stack = user.getStackInHand(hand);
 
-		IWAbstractRuneAbility ab = getAbility(stack);
+		AbstractRuneAbility ab = getAbility(stack);
 		if (ab.canWork())
 		{
 			byte res = ab.use(world, user, hand, stack);
@@ -106,7 +116,7 @@ public class EnergyToolItem extends ToolItem
 	@Override
 	public int getMaxUseTime(ItemStack stack, LivingEntity user)
 	{
-		IWAbstractRuneAbility ab = getAbility(stack);
+		AbstractRuneAbility ab = getAbility(stack);
 		if (ab.canWork()) return ab.getMaxUseTime(stack, user, 0);
 		return 0;
 	}
@@ -124,9 +134,11 @@ public class EnergyToolItem extends ToolItem
 		}
 	}
 
-	public EnergyToolItem(ToolMaterial material, Item.Settings settings)
+	public EnergyToolItem(ToolMaterial material, Item.Settings settings, Map<Server.LoadOnceRegistryEntry<Enchantment>
+			, Integer> defaultEnchantments)
 	{
 		super(material, settings.maxCount(1));
+		this.defaultEnchantments = defaultEnchantments;
 	}
 
 	/**
@@ -136,7 +148,7 @@ public class EnergyToolItem extends ToolItem
 	 */
 	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
 	{
-		IWAbstractRuneAbility ab = getAbility(stack);
+		AbstractRuneAbility ab = getAbility(stack);
 		if (ab.canWork()) ab.onStoppedUsing(stack, world, user, remainingUseTicks);
 	}
 
@@ -155,7 +167,7 @@ public class EnergyToolItem extends ToolItem
 	@Override
 	public void postDamageEntity(ItemStack stack, LivingEntity target, LivingEntity attacker)
 	{
-		IWAbstractRuneAbility ab = getAbility(stack);
+		AbstractRuneAbility ab = getAbility(stack);
 		if (ab.canWork()) ab.postDamageEntity(stack, target, attacker);
 		stack.damage(1, attacker, EquipmentSlot.MAINHAND);
 	}
@@ -167,7 +179,7 @@ public class EnergyToolItem extends ToolItem
 		String num = String.valueOf(cur);
 		text.append(Text.literal(num).withColor(MathHelper.hsvToRgb((float) cur / max / 3.0F, 1.0F, 1.0F)))
 				.append(Text.literal(" / ").formatted(Formatting.GRAY))
-				.append(Text.literal(String.valueOf(max)).withColor(PURE_GREEN_RGB));
+				.append(Text.literal(String.valueOf(max)).withColor(Color.PURE_GREEN_RGB));
 	}
 
 	@Override
@@ -189,13 +201,13 @@ public class EnergyToolItem extends ToolItem
 			{
 				tooltip.add(Text.empty());
 				if (EnergyToolDataFlag.getFromItemStack(stack).onlyHaveDefaultEnchantment())
-					tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(IWUtil.TextStyle.GRAY_RGB));
+					tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(Color.GRAY_RGB));
 			}
 		}
 		else
 		{
 			if (EnergyToolDataFlag.getFromItemStack(stack).onlyHaveDefaultEnchantment())
-				tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(IWUtil.TextStyle.GRAY_RGB));
+				tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(Color.GRAY_RGB));
 		}
 	}
 
@@ -206,29 +218,29 @@ public class EnergyToolItem extends ToolItem
 		var ab = getAbility(stack);
 		if (ut == null)
 		{
-			if (ab == IWRuneAbilitys.DEFAULT_ABILITY)
-				return Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+			if (ab == IWRuneAbilities.DEFAULT_ABILITY)
+				return Text.translatable(this.getTranslationKey(stack)).setStyle(TextStyle.BOLD_STYLE)
 						.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor());
-			else return Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+			else return Text.translatable(this.getTranslationKey(stack)).setStyle(TextStyle.BOLD_STYLE)
 					.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor()).append(" ")
-					.append(ab.getTitleText().setStyle(IWUtil.TextStyle.BOLD_STYLE).withColor(getColor(stack)));
+					.append(ab.getTitleText().setStyle(TextStyle.BOLD_STYLE).withColor(getColor(stack)));
 		}
 		else
 		{
-			if (ab == IWRuneAbilitys.DEFAULT_ABILITY) return ut.copy().append(" ")
-					.append(Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+			if (ab == IWRuneAbilities.DEFAULT_ABILITY) return ut.copy().append(" ")
+					.append(Text.translatable(this.getTranslationKey(stack)).setStyle(TextStyle.BOLD_STYLE)
 							.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor()));
 			else return ut.copy().append(" ")
-					.append(Text.translatable(this.getTranslationKey(stack)).setStyle(IWUtil.TextStyle.BOLD_STYLE)
+					.append(Text.translatable(this.getTranslationKey(stack)).setStyle(TextStyle.BOLD_STYLE)
 							.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor())).append(" ")
-					.append(ab.getTitleText().setStyle(IWUtil.TextStyle.BOLD_STYLE).withColor(getColor(stack)));
+					.append(ab.getTitleText().setStyle(TextStyle.BOLD_STYLE).withColor(getColor(stack)));
 		}
 	}
 
 	@Override
 	public UseAction getUseAction(ItemStack stack)
 	{
-		IWAbstractRuneAbility ab = getAbility(stack);
+		AbstractRuneAbility ab = getAbility(stack);
 		if (ab.canWork()) return ab.getUseAction(stack, UseAction.NONE);
 		return UseAction.NONE;
 	}
@@ -236,8 +248,50 @@ public class EnergyToolItem extends ToolItem
 	@Override
 	public boolean isUsedOnRelease(ItemStack stack)
 	{
-		IWAbstractRuneAbility ab = getAbility(stack);
+		AbstractRuneAbility ab = getAbility(stack);
 		if (ab.canWork()) return ab.isUsedOnRelease(stack, false);
 		return false;
+	}
+
+	@Environment(EnvType.SERVER)
+	public ItemStack getEnchantedDefaultItemStackFromServer()
+	{
+		ItemStack ret = getDefaultStack();
+		if (defaultEnchantments == null) return ret;
+		ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(
+				ItemEnchantmentsComponent.DEFAULT);
+		defaultEnchantments.forEach((enchantContainer, level) -> {
+			if (enchantContainer.get() != null && level > 0)
+			{
+				builder.set(enchantContainer.get(), level);
+			}
+		});
+		var ecs = builder.build();
+		if (!ecs.isEmpty()) IWEnchantmentUtil.setDefaultEnchant(ret, ecs);
+		return ret;
+	}
+
+	@Environment(EnvType.CLIENT)
+	public ItemStack getEnchantedDefaultItemStackFromClient(RegistryWrapper<Enchantment> wrapper)
+	{
+		ItemStack ret = getDefaultStack();
+		if (defaultEnchantments == null) return ret;
+		ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(
+				ItemEnchantmentsComponent.DEFAULT);
+		defaultEnchantments.forEach((enchantContainer, level) -> {
+			if (enchantContainer.get() != null && level > 0)
+			{
+				var ec = enchantContainer.get();
+				var eck = ec.getKey();
+				if (eck.isPresent())
+				{
+					var wec = wrapper.getOptional(eck.get());
+					wec.ifPresent(enchantmentReference -> builder.add(enchantmentReference, level));
+				}
+			}
+		});
+		var ecs = builder.build();
+		if (!ecs.isEmpty()) IWEnchantmentUtil.setDefaultEnchant(ret, ecs);
+		return ret;
 	}
 }

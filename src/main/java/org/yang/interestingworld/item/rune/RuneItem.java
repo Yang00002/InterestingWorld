@@ -12,8 +12,6 @@ import java.util.List;
 
 public class RuneItem extends Item
 {
-	public static final int ABILITY = 1;
-
 	public int getLevel(ItemStack stack)
 	{
 		return 0;

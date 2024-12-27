@@ -24,7 +24,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
-import static org.yang.interestingworld.IWUtil.TextStyle.numberToString;
+import static org.yang.interestingworld.util.style.TextStyle.numberToString;
 
 public class DummyEntity extends LivingEntity
 {

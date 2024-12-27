@@ -9,9 +9,8 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.yang.interestingworld.network.IWNetwork;
 import org.yang.interestingworld.network.IWNetwork.ItemBreakParticlePayload;
-import org.yang.interestingworld.playerdatamanager.ClientPlayerDataAccessor;
-import org.yang.interestingworld.playerdatamanager.ClientPlayerDataManager;
-import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+import org.yang.interestingworld.entity.player.IWClientPlayerData;
+import org.yang.interestingworld.rune_ability.AbstractRuneAbility;
 
 public class IWClientNetwork
 {
@@ -41,7 +40,7 @@ public class IWClientNetwork
 												  ClientPlayNetworking.Context context)
 	{
 		ClientPlayerEntity player = context.player();
-		ClientPlayerDataManager manager = ((ClientPlayerDataAccessor) player).getDataManager();
+		IWClientPlayerData manager = player.getIWClientPlayerData();
 		manager.shown_energy = payload.energy();
 	}
 
@@ -49,8 +48,8 @@ public class IWClientNetwork
 													  ClientPlayNetworking.Context context)
 	{
 		ClientPlayerEntity player = context.player();
-		ClientPlayerDataManager manager = ((ClientPlayerDataAccessor) player).getDataManager();
-		IWAbstractRuneAbility ab = payload.ability();
+		IWClientPlayerData manager = player.getIWClientPlayerData();
+		AbstractRuneAbility ab = payload.ability();
 		manager.WeaponAbility = ab;
 		ab.readClientRenderDataFromBuf(player, manager, payload.clientData());
 	}

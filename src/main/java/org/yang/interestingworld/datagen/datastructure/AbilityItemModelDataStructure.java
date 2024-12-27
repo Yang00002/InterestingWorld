@@ -3,7 +3,7 @@ package org.yang.interestingworld.datagen.datastructure;
 import com.google.gson.JsonParser;
 import net.minecraft.data.client.ItemModelGenerator;
 import net.minecraft.util.Identifier;
-import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+import org.yang.interestingworld.rune_ability.AbstractRuneAbility;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -59,7 +59,7 @@ public class AbilityItemModelDataStructure
 		this.textures = new Texture(baseTexture);
 	}
 
-	void addTexture(ItemModelGenerator itemModelGenerator, IWAbstractRuneAbility ability, String path, String parent)
+	void addTexture(ItemModelGenerator itemModelGenerator, AbstractRuneAbility ability, String path, String parent)
 	{
 		if (pathCache == null) pathCache = new HashMap<>();
 		String newPath = "interestingworld:item/" + path;
@@ -68,7 +68,7 @@ public class AbilityItemModelDataStructure
 		pathCache.put(ability.toolIndex, newPath);
 	}
 
-	public void addTexture(ItemModelGenerator itemModelGenerator, IWAbstractRuneAbility ability, String path)
+	public void addTexture(ItemModelGenerator itemModelGenerator, AbstractRuneAbility ability, String path)
 	{
 		if (pathCache == null) pathCache = new HashMap<>();
 		String newPath = "interestingworld:item/" + path;

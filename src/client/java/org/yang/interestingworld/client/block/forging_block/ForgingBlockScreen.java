@@ -14,17 +14,17 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import org.yang.interestingworld.IWItems;
+import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.IWResources;
 import org.yang.interestingworld.block.forgingblock.ForgingBlockScreenHandler;
 import org.yang.interestingworld.util.Base;
-import org.yang.interestingworld.util.RuneEnchantment;
+import org.yang.interestingworld.util.IWEnchantmentUtil;
 
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.Predicate;
 
-import static org.yang.interestingworld.util.RuneEnchantment.getWorldLevelOfXpCost;
+import static org.yang.interestingworld.util.IWEnchantmentUtil.getWorldLevelOfXpCost;
 
 public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler> implements ScreenHandlerListener
 {
@@ -164,7 +164,7 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 					if (this.client != null && this.client.player != null)
 					{
 						var player = this.client.player;
-						int xpHave = RuneEnchantment.getExperienceFromLevel(player.experienceLevel,
+						int xpHave = IWEnchantmentUtil.getExperienceFromLevel(player.experienceLevel,
 								player.experienceProgress);
 						drawer.addText(Text.translatable("forgingblock.text.enchant.3xpl"), 4, xpHave >= xpCost);
 						drawer.addXpTexture(getWorldLevelOfXpCost(xpCost), 0);
@@ -196,10 +196,10 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 				if (this.client != null && this.client.player != null)
 				{
 					var player = this.client.player;
-					int xpHave = RuneEnchantment.getExperienceFromLevel(player.experienceLevel,
+					int xpHave = IWEnchantmentUtil.getExperienceFromLevel(player.experienceLevel,
 							player.experienceProgress);
 					drawer.addText(Text.translatable("forgingblock.text.repair.7l"), 4, xpHave >= xpCost);
-					drawer.addXpTexture(RuneEnchantment.getWorldLevelOfXpCost(xpCost), 0);
+					drawer.addXpTexture(IWEnchantmentUtil.getWorldLevelOfXpCost(xpCost), 0);
 					drawer.addText(
 							Text.translatable("forgingblock.text.repair.7r", xpCost, xpHave, handler.getRepairCount()),
 							4, xpHave >= xpCost);

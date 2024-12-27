@@ -19,26 +19,29 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
-import org.yang.interestingworld.*;
-import org.yang.interestingworld.enchant.TableEnchantGenerator;
+import org.yang.interestingworld.IWResources;
+import org.yang.interestingworld.IWScreenHandlers;
+import org.yang.interestingworld.block.IWBlocks;
+import org.yang.interestingworld.enchant.util.TableEnchantGenerator;
+import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.item.rune.EnchantmentRuneItem;
 import org.yang.interestingworld.item.rune.RuneItem;
 import org.yang.interestingworld.item.rune.UpgradeRuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
-import org.yang.interestingworld.rune.IWAbstractRuneAbility;
-import org.yang.interestingworld.rune.IWRuneAbilitys;
-import org.yang.interestingworld.util.EnergyToolDataFlag;
+import org.yang.interestingworld.rune_ability.AbstractRuneAbility;
+import org.yang.interestingworld.rune_ability.IWRuneAbilities;
 import org.yang.interestingworld.util.Rand;
-import org.yang.interestingworld.util.RuneEnchantment;
+import org.yang.interestingworld.util.IWEnchantmentUtil;
 import org.yang.interestingworld.util.Server;
+import org.yang.interestingworld.util.toolflag.EnergyToolDataFlag;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static org.yang.interestingworld.util.RuneAbility.*;
-import static org.yang.interestingworld.util.RuneEnchantment.*;
-import static org.yang.interestingworld.util.RuneUpgrade.getUpgrade;
+import static org.yang.interestingworld.util.IWRuneAbilityUtil.*;
+import static org.yang.interestingworld.util.IWEnchantmentUtil.*;
+import static org.yang.interestingworld.util.IWRuneUpgradeUtil.getUpgrade;
 
 public class ForgingBlockScreenHandler extends ScreenHandler
 {
@@ -77,7 +80,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		this.clientSide = !(playerInventory.player instanceof ServerPlayerEntity);
 		if (playerInventory.player instanceof ServerPlayerEntity)
 		{
-			var data = IWUtil.EnergyTool.getPlayerData((ServerPlayerEntity) playerInventory.player);
+			var data = ((ServerPlayerEntity) playerInventory.player).getIWServerPlayerData();
 			this.random_seed = data.forging_seed;
 		}
 		else this.random_seed = 0;
@@ -331,7 +334,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		for (it.unimi.dsi.fastutil.objects.Object2IntMap.Entry<net.minecraft.registry.entry.RegistryEntry<Enchantment>> e : component.getEnchantmentEntries())
 		{
 			if (target > 1) target--;
-			else return RuneEnchantment.getRawName(e.getKey(), e.getIntValue());
+			else return IWEnchantmentUtil.getRawName(e.getKey(), e.getIntValue());
 		}
 		return null;
 	}
@@ -393,7 +396,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				else updateGlobalState(14);
 				return;
 			}
-			if (itemDown == IWItems.COMMON_ABILITY_RUNE)
+			if (itemDown == IWItems.ABILITY_RUNE)
 			{
 				updateGlobalState(11);
 				return;
@@ -403,7 +406,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				updateGlobalState(5);
 				return;
 			}
-			if (itemDown == IWItems.COMMON_UPGRADE_RUNE)
+			if (itemDown == IWItems.UPGRADE_RUNE)
 			{
 				updateGlobalState(20);
 				return;
@@ -420,7 +423,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		}
 		Item itemDown = stackDown.getItem();
 		boolean durabilityEnough = stackUp.getDamage() * 4 <= stackUp.getMaxDamage();
-		IWAbstractRuneAbility abilityUp = getAbility(stackUp);
+		AbstractRuneAbility abilityUp = getAbility(stackUp);
 		if (itemDown == IWItems.EMPTY_RUNE)
 		{
 			if (stackDown.hasEnchantments())
@@ -439,14 +442,14 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					return;
 				}
 				updateGlobalState(1);
-				ItemStack stackOut = RuneEnchantment.getEnchantRuneItemStack(component,
+				ItemStack stackOut = IWEnchantmentUtil.getEnchantRuneItemStack(component,
 						getWorldLevelOfXpCost(cost_achieve.getValue()));
 				setOutput(stackOut);
 				return;
 			}
 			if (durabilityEnough)
 			{
-				if (abilityUp == IWRuneAbilitys.DEFAULT_ABILITY)
+				if (abilityUp == IWRuneAbilities.DEFAULT_ABILITY)
 				{
 					updateGlobalState(13);
 					removeOutput();
@@ -455,23 +458,23 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				{
 					updateGlobalState(12);
 					repairCount.set(countToolBreakingProbability(stackUp));
-					ItemStack stackOut = IWItems.COMMON_ABILITY_RUNE.getDefaultStack();
+					ItemStack stackOut = IWItems.ABILITY_RUNE.getDefaultStack();
 					setAbility(stackOut, abilityUp);
 					setOutput(stackOut);
 				}
 				return;
 			}
 		}
-		if (itemDown == IWItems.COMMON_ABILITY_RUNE && durabilityEnough)
+		if (itemDown == IWItems.ABILITY_RUNE && durabilityEnough)
 		{
-			if (abilityUp != IWRuneAbilitys.DEFAULT_ABILITY)
+			if (abilityUp != IWRuneAbilities.DEFAULT_ABILITY)
 			{
 				updateGlobalState(10);
 				removeOutput();
 			}
 			else
 			{
-				IWAbstractRuneAbility abilityDown = getAbility(stackDown);
+				AbstractRuneAbility abilityDown = getAbility(stackDown);
 				if (abilityDown.canApplyTo(stackUp))
 				{
 					updateGlobalState(8);
@@ -506,7 +509,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			}
 			return;
 		}
-		if (itemDown == IWItems.COMMON_UPGRADE_RUNE && durabilityEnough)
+		if (itemDown == IWItems.UPGRADE_RUNE && durabilityEnough)
 		{
 			var flagUp = EnergyToolDataFlag.getFromItemStack(stackUp);
 			if (flagUp.haveUpgrade())
@@ -665,7 +668,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					return;
 				}
 				updateGlobalState(1);
-				ItemStack stackOut = RuneEnchantment.getEnchantRuneItemStack(component,
+				ItemStack stackOut = IWEnchantmentUtil.getEnchantRuneItemStack(component,
 						getWorldLevelOfXpCost(cost_achieve.getValue()));
 				setOutput(stackOut);
 			}

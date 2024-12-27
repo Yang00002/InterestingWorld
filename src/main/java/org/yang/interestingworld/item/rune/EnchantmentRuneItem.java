@@ -6,6 +6,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
 import org.yang.interestingworld.IWUtil;
+import org.yang.interestingworld.util.style.Color;
+import org.yang.interestingworld.util.style.TextStyle;
 
 import java.util.List;
 
@@ -26,8 +28,8 @@ public class EnchantmentRuneItem extends RuneItem
 	@Override
 	public Text getName(ItemStack stack)
 	{
-		return Text.translatable(getTranslationKey()).setStyle(IWUtil.TextStyle.BOLD_STYLE)
-				.withColor(IWUtil.TextStyle.getColorByLevel(getLevel(stack)));
+		return Text.translatable(getTranslationKey()).setStyle(TextStyle.BOLD_STYLE)
+				.withColor(Color.getLevelColor(getLevel(stack)));
 	}
 
 	@Override

@@ -10,12 +10,11 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.playerdatamanager.ServerPlayerDataManager;
-import org.yang.interestingworld.rune.IWAbstractRuneAbility;
+import org.yang.interestingworld.entity.player.IWServerPlayerData;
+import org.yang.interestingworld.rune_ability.AbstractRuneAbility;
 import org.yang.interestingworld.util.Base;
 
-import static org.yang.interestingworld.util.RuneAbility.getAbility;
+import static org.yang.interestingworld.util.IWRuneAbilityUtil.getAbility;
 
 
 public class IWNetwork
@@ -51,7 +50,7 @@ public class IWNetwork
 		}
 	}
 
-	public record AbilityPayload(IWAbstractRuneAbility ability, ServerPlayerDataManager serverData,
+	public record AbilityPayload(AbstractRuneAbility ability, IWServerPlayerData serverData,
 								 ByteBuf clientData) implements CustomPayload
 	{
 		public static final Id<AbilityPayload> ID = new CustomPayload.Id<>(

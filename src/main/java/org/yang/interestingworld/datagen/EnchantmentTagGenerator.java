@@ -6,7 +6,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.EnchantmentTags;
-import org.yang.interestingworld.IWEnchantments;
+import org.yang.interestingworld.enchant.IWEnchantments;
 
 import java.util.concurrent.CompletableFuture;
 

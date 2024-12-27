@@ -6,9 +6,10 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import org.joml.Random;
-import org.yang.interestingworld.enchant.EnchantData;
-import org.yang.interestingworld.enchant.RandomEnchantGenerator;
+import org.yang.interestingworld.enchant.resource.EnchantData;
+import org.yang.interestingworld.enchant.util.RandomEnchantGenerator;
 import org.yang.interestingworld.util.Server;
+import org.yang.interestingworld.util.style.Color;
 
 import java.util.Objects;
 
@@ -39,7 +40,7 @@ public class IWCommands
 							{
 								context.getSource().sendFeedback(
 										() -> Text.translatable("iw.worldlevel_set_fail", level)
-												.withColor(IWUtil.TextStyle.RED_RGB), false);
+												.withColor(Color.RED_RGB), false);
 								return 0;
 							}
 						}))));

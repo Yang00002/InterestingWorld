@@ -10,5 +10,4 @@ public class IWScreens
 	{
 		HandledScreens.register(IWScreenHandlers.FORGINGBLOCK_SCREEN_HANDLER, ForgingBlockScreen::new);
 	}
-
 }
