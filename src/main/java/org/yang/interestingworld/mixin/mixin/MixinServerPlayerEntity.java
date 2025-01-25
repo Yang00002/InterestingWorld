@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.yang.interestingworld.mixin.mixin_interface.InterfaceServerPlayerEntity;
 import org.yang.interestingworld.entity.player.IWServerPlayerData;
+import org.yang.interestingworld.mixin.mixin_interface.InterfaceServerPlayerEntity;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class MixinServerPlayerEntity extends PlayerEntity implements InterfaceServerPlayerEntity

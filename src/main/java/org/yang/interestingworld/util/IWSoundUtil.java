@@ -9,7 +9,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
-import org.yang.interestingworld.network.IWNetwork;
+import org.yang.interestingworld.network.payload.S2CDeferSoundPayload;
 
 import static org.yang.interestingworld.util.Base.iwlogger;
 
@@ -46,8 +46,7 @@ public class IWSoundUtil
 		if (player instanceof ServerPlayerEntity sp)
 		{
 			ServerPlayNetworking.send(sp,
-					new IWNetwork.DeferSoundPayload(Registries.SOUND_EVENT.getEntry(sound), category,
-							(float) sp.getX(),
+					new S2CDeferSoundPayload(Registries.SOUND_EVENT.getEntry(sound), category, (float) sp.getX(),
 							(float) sp.getY(), (float) sp.getZ(), 1.0f, 1.0f, delay));
 		}
 		else iwlogger.warn("playSoundToPlayer 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");

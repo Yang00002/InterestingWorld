@@ -16,7 +16,6 @@ import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
-import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.effect.IWEffects;
 import org.yang.interestingworld.entity.player.IWClientPlayerData;
 import org.yang.interestingworld.entity.player.IWServerPlayerData;
@@ -60,7 +59,7 @@ public class InfiniteCurseAbility extends InfiniteAbility
 		if (user instanceof ServerPlayerEntity player)
 		{
 			var data = player.getIWServerPlayerData();
-			if (data.chargeRate < AbilityDuration) return FAIL;
+			if (!data.isAbilityOn() || data.chargeRate < AbilityDuration) return FAIL;
 			data.chargeRate = 0;
 			data.shouldSync = true;
 			IWSoundUtil.playSoundToPlayer(player, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS);
@@ -127,7 +126,7 @@ public class InfiniteCurseAbility extends InfiniteAbility
 	@Override
 	public int abilityBarForegroundColor(IWClientPlayerData data)
 	{
-		return Color.CYAN_RGB;
+		return data.client_ability_on ? Color.CYAN_RGB : Color.GRAY_RGB;
 	}
 
 	@Override
@@ -147,7 +146,7 @@ public class InfiniteCurseAbility extends InfiniteAbility
 	{
 		int chargeRate = buf.readInt();
 		int c = Math.clamp(chargeRate * 16L / AbilityDuration, 0, 16);
-		if (c == 16 && data.charge_rate16 != 16)
+		if (data.client_ability_on && c == 16 && data.charge_rate16 != 16)
 		{
 			playChargedOverSound(entity);
 		}

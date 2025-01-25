@@ -3,18 +3,20 @@ package org.yang.interestingworld.entity.player;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
-import org.yang.interestingworld.network.IWNetwork;
+import org.yang.interestingworld.network.payload.S2CAbilityDataPayload;
+import org.yang.interestingworld.network.payload.S2CPlayerEnergyDataPayload;
 import org.yang.interestingworld.rune_ability.AbstractRuneAbility;
 import org.yang.interestingworld.rune_ability.IWRuneAbilities;
 import org.yang.interestingworld.util.IWRuneAbilityUtil;
 
-import static org.yang.interestingworld.util.Return.RETURNTRUE;
 import static org.yang.interestingworld.util.IWRuneAbilityUtil.getAbility;
+import static org.yang.interestingworld.util.Return.RETURNTRUE;
 
 
 public class IWServerPlayerData
@@ -23,6 +25,8 @@ public class IWServerPlayerData
 	private float current_energy = 0;
 	private int last_energy = -1;
 	private int energyRegenTimer = 0;
+	private boolean ability_on = true;
+
 	public boolean sweeping = false;
 	public boolean charged = false;
 	public int chargeStep = -1;
@@ -31,11 +35,17 @@ public class IWServerPlayerData
 	public boolean shouldSync = false;
 	public int forging_seed = 0;
 
+	public boolean isAbilityOn()
+	{
+		return ability_on;
+	}
+
 	public void readNbt(NbtCompound nbt)
 	{
 		current_energy = nbt.getFloat("current_energy");
 		energyRegenTimer = nbt.getInt("energyregentimer");
 		forging_seed = nbt.getInt("forging_seed");
+		ability_on = nbt.getBoolean("ability_on");
 	}
 
 	public void writeNbt(NbtCompound nbt)
@@ -43,6 +53,7 @@ public class IWServerPlayerData
 		nbt.putFloat("current_energy", current_energy);
 		nbt.putInt("energyregentimer", energyRegenTimer);
 		nbt.putInt("forging_seed", forging_seed);
+		nbt.putBoolean("ability_on", ability_on);
 	}
 
 	public void updateEnergy(ServerPlayerEntity player, ItemStack stack)
@@ -84,11 +95,11 @@ public class IWServerPlayerData
 		}
 	}
 
-
 	public void tick(ServerPlayerEntity player)
 	{
 		ItemStack stack = player.getWeaponStack();
 		updateEnergy(player, stack);
+		sweeping = false;
 		if (!stack.isEmpty() && stack.getItem() instanceof EnergyToolItem)
 		{
 			var ability = getAbility(stack);
@@ -120,12 +131,12 @@ public class IWServerPlayerData
 		if (last_energy != ce)
 		{
 			last_energy = ce;
-			ServerPlayNetworking.send(player, new IWNetwork.PlayerEnergyPayload(last_energy));
+			ServerPlayNetworking.send(player, new S2CPlayerEnergyDataPayload(last_energy));
 		}
 		if (shouldSync)
 		{
 			shouldSync = false;
-			ServerPlayNetworking.send(player, new IWNetwork.AbilityPayload(WeaponAbility, this, null));
+			ServerPlayNetworking.send(player, new S2CAbilityDataPayload(WeaponAbility, this, null));
 		}
 	}
 
@@ -211,5 +222,20 @@ public class IWServerPlayerData
 	public float getCurrentEnergy()
 	{
 		return current_energy;
+	}
+
+	public void writeS2CInitializeDataToBuffer(RegistryByteBuf buf)
+	{
+		buf.writeBoolean(ability_on);
+	}
+
+	public void changeAbilityOpenCondition(boolean next, ServerPlayerEntity player)
+	{
+		if (ability_on != next)
+		{
+			if (next) WeaponAbility.onServerAbilityOpen(player, this);
+			else WeaponAbility.onServerAbilityClose(player, this);
+		}
+		ability_on = next;
 	}
 }

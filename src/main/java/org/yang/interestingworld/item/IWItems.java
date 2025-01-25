@@ -39,6 +39,9 @@ public class IWItems
 	public static final Item ENCHANTMENT_RUNE = new CommonItemBuilder(EnchantmentRuneItem::new,
 			"enchantment_rune").build();
 
+	public static final Item HEART = new CommonItemBuilder(Item::new, "heart").addToItemGroup(IWItemGroups.RUNES_GROUP)
+			.build();
+
 	public static void initialize()
 	{
 	}

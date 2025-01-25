@@ -52,18 +52,6 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	{
 		return Text.translatable("infiniteslashing_ability_title");
 	}
-/*
-	@Override
-	public IWUtil.Return.AbilityItemBarMessageTaker getAbilityItemBarRenderMessage(ItemStack stack)
-	{
-		IWUtil.Return.AbilityItemBarMessageTaker taker = new IWUtil.Return.AbilityItemBarMessageTaker();
-		short amount = stack.getOrDefault(IWComponents.LEFT_USE_TIME, (short) 0);
-		taker.baseColor = 0;
-		taker.step = (amount < AbilityDuration) ? amount * 13 / AbilityDuration : 13;
-		if (amount >= AbilityDuration) taker.contentColor = CYAN_RGB;
-		else taker.contentColor = GRAY_RGB;
-		return taker;
-	}*/
 
 	@Override
 	public void serverPlayerWeaponTick(PlayerEntity entity, IWServerPlayerData data, ItemStack stack)
@@ -81,32 +69,28 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 		if (attacker instanceof ServerPlayerEntity player)
 		{
 			var manager = player.getIWServerPlayerData();
-			if (manager.sweeping)
+			if (manager.isAbilityOn() && manager.sweeping && manager.chargeRate >= AbilityDuration)
 			{
-				manager.sweeping = false;
-				if (manager.chargeRate >= AbilityDuration)
-				{
-					manager.chargeRate = 0;
-					manager.shouldSync = true;
-					World world = attacker.getWorld();
-					var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
-					var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
-					var damageSource = new DamageSource(IWDamageTypes.ENERGEE_MELEE_entry.get(), attacker);
-					IWSoundUtil.playSoundToPlayer(player, IWSounds.DOUBLE_SWEEP, SoundCategory.PLAYERS);
-					IWLivingEntityUtil.sweepEntity(attacker, AttackMaxAngleCosine, AttackMaxLength, target,
-							(attacker1, entity, distance) -> {
-								entity.takeKnockback(KnockbackDistance, knox, knoz);
-								entity.damage(damageSource, AbilityDamage);
-								IWStatusEffectUtil.addHiddenStatusEffectWithConsistence(entity, IWEffects.BLOOD,
-										(int) (IWDamageUtil.getArmoredDamage(entity, damageSource, AbilityDamage) *
-											   EffectDuration / AbilityDamage), EffectAmplifier, 20);
-								double x = entity.getX();
-								double y = entity.getBodyY(0.5);
-								double z = entity.getZ();
-								IWParticleUtil.spawnParticlesAtPos(world, ParticleTypes.SWEEP_ATTACK, x, y, z, 3, 0.5,
-										0.5, 0.5);
-							});
-				}
+				manager.chargeRate = 0;
+				manager.shouldSync = true;
+				World world = attacker.getWorld();
+				var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
+				var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
+				var damageSource = new DamageSource(IWDamageTypes.ENERGEE_MELEE_entry.get(), attacker);
+				IWSoundUtil.playSoundToPlayer(player, IWSounds.DOUBLE_SWEEP, SoundCategory.PLAYERS);
+				IWLivingEntityUtil.sweepEntity(attacker, AttackMaxAngleCosine, AttackMaxLength, target,
+						(attacker1, entity, distance) -> {
+							entity.takeKnockback(KnockbackDistance, knox, knoz);
+							entity.damage(damageSource, AbilityDamage);
+							IWStatusEffectUtil.addHiddenStatusEffectWithConsistence(entity, IWEffects.BLOOD,
+									(int) (IWDamageUtil.getArmoredDamage(entity, damageSource, AbilityDamage) *
+										   EffectDuration / AbilityDamage), 20);
+							double x = entity.getX();
+							double y = entity.getBodyY(0.5);
+							double z = entity.getZ();
+							IWParticleUtil.spawnParticlesAtPos(world, ParticleTypes.SWEEP_ATTACK, x, y, z, 3, 0.5, 0.5,
+									0.5);
+						});
 			}
 		}
 	}
@@ -114,21 +98,25 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	@Override
 	public void onEnter(PlayerEntity entity, IWServerPlayerData manager)
 	{
-		manager.sweeping = false;
 		manager.chargeRate = 0;
 	}
 
 	@Override
 	public void onLeave(PlayerEntity entity, IWServerPlayerData manager)
 	{
-		manager.charged = false;
 		manager.chargeRate = -1;
+	}
+
+	@Override
+	public AbstractRuneAbility getToolIndexParent()
+	{
+		return IWRuneAbilities.SLASHING_ABILITY;
 	}
 
 	@Override
 	public int abilityBarForegroundColor(IWClientPlayerData data)
 	{
-		return Color.CYAN_RGB;
+		return data.client_ability_on ? Color.CYAN_RGB : Color.GRAY_RGB;
 	}
 
 	@Override
@@ -144,17 +132,11 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	}
 
 	@Override
-	public AbstractRuneAbility getToolIndexParent()
-	{
-		return IWRuneAbilities.SLASHING_ABILITY;
-	}
-
-	@Override
 	public void readClientRenderDataFromBuf(PlayerEntity entity, IWClientPlayerData data, ByteBuf buf)
 	{
 		int chargeRate = buf.readInt();
 		int c = Math.clamp(chargeRate * 16L / AbilityDuration, 0, 16);
-		if (c == 16 && data.charge_rate16 != 16)
+		if (data.client_ability_on && c == 16 && data.charge_rate16 != 16)
 		{
 			playChargedOverSound(entity);
 		}

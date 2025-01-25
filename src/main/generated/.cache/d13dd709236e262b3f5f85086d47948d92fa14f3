@@ -1,4 +1,4 @@
-// 1.21.1	2024-12-25T23:03:56.1158409	InterestingWorld/Tags for minecraft:damage_type
+// 1.21.1	2025-01-25T22:10:42.1475963	InterestingWorld/Tags for minecraft:damage_type
 f8530065623ba2f619da11da2782170dddd1129d data\minecraft\tags\damage_type\always_hurts_ender_dragons.json
 a1954c9ef1fb381015417462ee5b782508581517 data\minecraft\tags\damage_type\is_explosion.json
 fb391413abe481fb7a6923f54220324b6af6c5ee data\minecraft\tags\damage_type\bypasses_cooldown.json

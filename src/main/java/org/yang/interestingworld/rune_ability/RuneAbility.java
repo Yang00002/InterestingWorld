@@ -47,7 +47,7 @@ public class RuneAbility extends AbstractRuneAbility
 	@Override
 	public boolean shouldRenderAbilityBar(IWClientPlayerData data)
 	{
-		return true;
+		return data.client_ability_on || data.charge_rate16 < 16;
 	}
 
 	public void playChargedOverSound(PlayerEntity entity)

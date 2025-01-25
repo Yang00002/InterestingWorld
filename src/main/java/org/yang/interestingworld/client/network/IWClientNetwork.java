@@ -7,16 +7,15 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
-import org.yang.interestingworld.network.IWNetwork;
-import org.yang.interestingworld.network.IWNetwork.ItemBreakParticlePayload;
 import org.yang.interestingworld.entity.player.IWClientPlayerData;
+import org.yang.interestingworld.network.payload.*;
 import org.yang.interestingworld.rune_ability.AbstractRuneAbility;
 
 public class IWClientNetwork
 {
 	private static final java.util.Random RANDOM = new java.util.Random();
 
-	private static void handleItemBreakParticlePayload(ItemBreakParticlePayload payload,
+	private static void handleItemBreakParticlePayload(S2CItemBreakParticlePayload payload,
 													   ClientPlayNetworking.Context context)
 	{
 		ClientPlayerEntity player = context.player();
@@ -36,7 +35,7 @@ public class IWClientNetwork
 		}
 	}
 
-	private static void handlePlayerEnergyPayload(IWNetwork.PlayerEnergyPayload payload,
+	private static void handlePlayerEnergyPayload(S2CPlayerEnergyDataPayload payload,
 												  ClientPlayNetworking.Context context)
 	{
 		ClientPlayerEntity player = context.player();
@@ -44,7 +43,7 @@ public class IWClientNetwork
 		manager.shown_energy = payload.energy();
 	}
 
-	private static void handlePlayerAbilityBarPayload(IWNetwork.AbilityPayload payload,
+	private static void handlePlayerAbilityBarPayload(S2CAbilityDataPayload payload,
 													  ClientPlayNetworking.Context context)
 	{
 		ClientPlayerEntity player = context.player();
@@ -54,8 +53,7 @@ public class IWClientNetwork
 		ab.readClientRenderDataFromBuf(player, manager, payload.clientData());
 	}
 
-	private static void handleDeferSoundPayload(IWNetwork.DeferSoundPayload payload,
-												ClientPlayNetworking.Context context)
+	private static void handleDeferSoundPayload(S2CDeferSoundPayload payload, ClientPlayNetworking.Context context)
 	{
 		var client = context.client();
 		PositionedSoundInstance positionedSoundInstance = new PositionedSoundInstance(payload.sound().value(),
@@ -64,20 +62,40 @@ public class IWClientNetwork
 		client.getSoundManager().play(positionedSoundInstance, payload.delay());
 	}
 
+	private static void handlePlayerDataInitializePayload(S2CPlayerDataInitializePayload payload,
+														  ClientPlayNetworking.Context context)
+	{
+		var client = context.client();
+		if (client != null)
+		{
+			var player = client.player;
+			if (player != null)
+			{
+				var data = player.getIWClientPlayerData();
+				data.handleS2CInitializeDataBuffer(payload.clientData());
+			}
+		}
+	}
+
 	public static void initialize()
 	{
-		PayloadTypeRegistry.playS2C().register(ItemBreakParticlePayload.ID, ItemBreakParticlePayload.CODEC);
-		ClientPlayNetworking.registerGlobalReceiver(ItemBreakParticlePayload.ID,
+		PayloadTypeRegistry.playS2C().register(S2CItemBreakParticlePayload.ID, S2CItemBreakParticlePayload.CODEC);
+		ClientPlayNetworking.registerGlobalReceiver(S2CItemBreakParticlePayload.ID,
 				(payload, context) -> context.client().execute(() -> handleItemBreakParticlePayload(payload,
 						context)));
-		PayloadTypeRegistry.playS2C().register(IWNetwork.PlayerEnergyPayload.ID, IWNetwork.PlayerEnergyPayload.CODEC);
-		ClientPlayNetworking.registerGlobalReceiver(IWNetwork.PlayerEnergyPayload.ID,
+		PayloadTypeRegistry.playS2C().register(S2CPlayerEnergyDataPayload.ID, S2CPlayerEnergyDataPayload.CODEC);
+		ClientPlayNetworking.registerGlobalReceiver(S2CPlayerEnergyDataPayload.ID,
 				(payload, context) -> context.client().execute(() -> handlePlayerEnergyPayload(payload, context)));
-		PayloadTypeRegistry.playS2C().register(IWNetwork.AbilityPayload.ID, IWNetwork.AbilityPayload.CODEC);
-		ClientPlayNetworking.registerGlobalReceiver(IWNetwork.AbilityPayload.ID,
+		PayloadTypeRegistry.playS2C().register(S2CAbilityDataPayload.ID, S2CAbilityDataPayload.CODEC);
+		ClientPlayNetworking.registerGlobalReceiver(S2CAbilityDataPayload.ID,
 				(payload, context) -> context.client().execute(() -> handlePlayerAbilityBarPayload(payload, context)));
-		PayloadTypeRegistry.playS2C().register(IWNetwork.DeferSoundPayload.ID, IWNetwork.DeferSoundPayload.CODEC);
-		ClientPlayNetworking.registerGlobalReceiver(IWNetwork.DeferSoundPayload.ID,
+		PayloadTypeRegistry.playS2C().register(S2CDeferSoundPayload.ID, S2CDeferSoundPayload.CODEC);
+		ClientPlayNetworking.registerGlobalReceiver(S2CDeferSoundPayload.ID,
 				(payload, context) -> context.client().execute(() -> handleDeferSoundPayload(payload, context)));
+		PayloadTypeRegistry.playS2C().register(S2CPlayerDataInitializePayload.ID,
+				S2CPlayerDataInitializePayload.CODEC);
+		ClientPlayNetworking.registerGlobalReceiver(S2CPlayerDataInitializePayload.ID,
+				(payload, context) -> context.client()
+						.execute(() -> handlePlayerDataInitializePayload(payload, context)));
 	}
 }

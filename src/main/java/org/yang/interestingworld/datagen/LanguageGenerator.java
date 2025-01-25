@@ -34,6 +34,8 @@ public class LanguageGenerator extends FabricLanguageProvider
 	public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup,
 									 TranslationBuilder translationBuilder)
 	{
+		translationBuilder.add("iw.key.category", "InterestingWorld 按键绑定");
+		translationBuilder.add("iw.key.ability_oc", "开关主手武器能力");
 		translationBuilder.add("enchantment.level.11", "XI");
 		translationBuilder.add("enchantment.level.12", "XII");
 		translationBuilder.add("enchantment.level.13", "XIII");
@@ -48,6 +50,7 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add("enchantment.level.22", "XXII");
 		translationBuilder.add("enchantment.level.23", "XXIII");
 		translationBuilder.add("enchantment.level.24", "XXIV");
+		translationBuilder.add(IWItems.HEART, "心");
 		translationBuilder.add(IWItems.BLAZEROD, "烈焰棒子");
 		translationBuilder.add(IWItems.STICK, "棍子");
 		translationBuilder.add(IWItems.STONE_SWORD, "石剑");
@@ -118,35 +121,31 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add("attribute.modifier.iwt.1", "-%s%% %s");
 		translationBuilder.add("attribute.modifier.iwt.2", "x%s %s");
 		translationBuilder.add("slashing_ability_title", "斩击");
-		translationBuilder.add("slashing_ability_detail", "右键消耗" + numberToString(SlashingAbility.EnergyCosume) +
-														  "点能量充能，充能后的第一次横扫攻击额外对前方一定范围内所有敌人造成" +
-														  numberToString(SlashingAbility.AbilityDamage) +
-														  "点伤害，并使它们流血" +
-														  numberToString((float) SlashingAbility.EffectDuration / 20) +
-														  "秒。流血的敌人每秒损失1点生命值。");
+		translationBuilder.add("slashing_ability_detail",
+				"横扫攻击消耗" + numberToString(SlashingAbility.EnergyCosume) + "点能量对前方一定范围内所有敌人造成" +
+				numberToString(SlashingAbility.AbilityDamage) + "点伤害，并使它们流血" +
+				numberToString((float) SlashingAbility.EffectDuration / 20) + "秒。流血的敌人每秒损失1点生命值。");
 		translationBuilder.add("repeatslashing_ability_title", "连斩");
 		translationBuilder.add("repeatslashing_ability_detail",
-				"右键消耗" + numberToString(RepeatSlashingAbility.EnergyConsume) +
-				"点能量充能，强化充能后的三次攻击。充能后的第一次横扫攻击对前方敌人造成" +
-				numberToString(RepeatSlashingAbility.FirstAttackDamage) + "点伤害，第二次横扫攻击对同样范围敌人造成" +
-				numberToString(RepeatSlashingAbility.SecondAttackDamage) + "点伤害，第三次横扫攻击对更大范围敌人造成" +
+				"横扫攻击消耗" + numberToString(RepeatSlashingAbility.EnergyConsume) + "点对前方敌人造成" +
+				numberToString(RepeatSlashingAbility.FirstAttackDamage) +
+				"点伤害，并强化后两次横扫。第一次横扫对同样范围敌人造成" +
+				numberToString(RepeatSlashingAbility.SecondAttackDamage) + "点伤害，第二次横扫对更大范围敌人造成" +
 				numberToString(RepeatSlashingAbility.ThirdAttackDamage) +
-				"伤害，并击退它们。如果短时间内没有将三次攻击全部打出，将会返还一部分的能量值。");
+				"伤害，并击退它们。如果短时间内没有将两次攻击全部打出，将会返还一部分的能量值。");
 		translationBuilder.add("boostrepeatslashing_ability_title", "强化连斩");
 		translationBuilder.add("boostrepeatslashing_ability_detail",
-				"右键消耗" + numberToString(BoostRepeatSlashingAbility.EnergyConsume) +
-				"点能量充能，强化充能后的三次攻击。充能后的第一次横扫攻击对前方敌人造成" +
+				"横扫攻击消耗" + numberToString(BoostRepeatSlashingAbility.EnergyConsume) + "点对前方敌人造成" +
 				numberToString(BoostRepeatSlashingAbility.FirstAttackDamage) +
-				"点伤害，紧接第二次攻击对同样范围敌人造成" +
-				numberToString(BoostRepeatSlashingAbility.SecondAttackDamage) + "点伤害，第三次攻击对更大范围敌人造成" +
+				"点伤害，并强化后两次攻击。第一次攻击对同样范围敌人造成" +
+				numberToString(BoostRepeatSlashingAbility.SecondAttackDamage) + "点伤害，第二次攻击对更大范围敌人造成" +
 				numberToString(BoostRepeatSlashingAbility.ThirdAttackDamage) +
-				"伤害，并击退它们。如果短时间内没有将三次攻击全部打出，将会返还一部分的能量值。");
+				"伤害，并击退它们。如果短时间内没有将两次攻击全部打出，将会返还一部分的能量值。");
 		translationBuilder.add("infiniteslashing_ability_title", "无限斩击");
 		translationBuilder.add("infiniteslashing_ability_detail",
-				"你的武器不再消耗能量。横扫攻击将额外对前方大范围内所有敌人造成" +
-				numberToString(InfiniteSlashingAbility.AbilityDamage) + "点伤害，并使它们流血" +
-				numberToString((float) InfiniteSlashingAbility.EffectDuration / 20) + "秒。流血的敌人每秒损失" +
-				numberToString(InfiniteSlashingAbility.EffectAmplifier + 1) + "点生命值。");
+				"横扫攻击将对前方大范围内所有敌人造成" + numberToString(InfiniteSlashingAbility.AbilityDamage) +
+				"点伤害，并使它们流血" + numberToString((float) InfiniteSlashingAbility.EffectDuration / 20) +
+				"秒。流血的敌人每秒损失" + numberToString(InfiniteSlashingAbility.EffectAmplifier + 1) + "点生命值。");
 		translationBuilder.add("sweetcurse_ability_title", "甜蜜诅咒");
 		translationBuilder.add("sweetcurse_ability_detail",
 				"右键消耗" + numberToString(SweetCurseAbility.EnergyConsume) + "点能量使你周围的敌人受到" +
@@ -155,23 +154,23 @@ public class LanguageGenerator extends FabricLanguageProvider
 				numberToString(SweetCurseAbility.HurtingAmplifier + 1) + "0%。");
 		translationBuilder.add("infinitecurse_ability_title", "无限诅咒");
 		translationBuilder.add("infinitecurse_ability_detail",
-				"你的武器不再消耗能量。右键对周围大范围敌人施加永久诅咒并击退它们。受到诅咒的敌人将更容易受伤，且其收到的伤害将增加" +
+				"右键对周围大范围敌人施加永久诅咒并击退它们。受到诅咒的敌人将更容易受伤，且其收到的伤害将增加" +
 				numberToString(InfiniteCurseAbility.HurtingAmplifier + 1) + "0%。如果敌人在被施加诅咒后" +
 				numberToString((float) InfiniteCurseAbility.ExplodeTick / 20) + "秒内未受到伤害，则它会爆炸，并受到" +
 				numberToString(InfiniteCurseAbility.ExplodeDamage) + "伤害。");
 		translationBuilder.add("eviscerate_ability_title", "剔骨");
 		translationBuilder.add("eviscerate_ability_detail",
-				"右键消耗" + numberToString(EviscerateAbility.EnergyConsume) +
-				"点能量充能，充能后的第一次横扫攻击将使前方小范围敌人流血" +
+				"横扫攻击消耗" + numberToString(EviscerateAbility.EnergyConsume) + "点能量使前方小范围敌人流血" +
 				numberToString((float) EviscerateAbility.EffectDuration / 20) +
-				"秒并加剧已经流血敌人的流血效果。拥有该能力的武器的横扫攻击将对拥有流血的敌人造成额外伤害，每级效果" +
+				"秒，并加剧已经流血敌人的流血效果。拥有该能力的武器的横扫攻击将对拥有流血的敌人造成额外伤害，每级效果" +
 				numberToString(EviscerateAbility.PerLevelAbilityDamage) + "点。");
 		translationBuilder.add("infiniteeviscerate_ability_title", "无限剔骨");
-		translationBuilder.add("infiniteeviscerate_ability_detail",
-				"你的武器不再消耗能量。横扫攻击将使前方一定范围敌人流血" +
-				numberToString((float) InfiniteEviscerateAbility.EffectDuration / 20) +
-				"秒并加剧已经流血敌人的流血效果。拥有该能力的武器的横扫攻击将对拥有流血的敌人造成额外伤害，每级效果" +
-				numberToString(InfiniteEviscerateAbility.PerLevelAbilityDamage) + "点。");
+		translationBuilder.add("infiniteeviscerate_ability_detail", "横扫攻击使前方一定范围敌人流血" + numberToString(
+				(float) InfiniteEviscerateAbility.EffectDuration / 20) +
+																	"秒，并加剧已经流血敌人的流血效果。拥有该能力的武器的横扫攻击将对拥有流血的敌人造成额外伤害，每级效果" +
+																	numberToString(
+																			InfiniteEviscerateAbility.PerLevelAbilityDamage) +
+																	"点。");
 		translationBuilder.add("upgrade.need.txet", "需求：");
 		translationBuilder.add("banedabilitydetail", "你还不能使用此能力。");
 		translationBuilder.add("banedupgradedetail", "你还不能使用此升级。");

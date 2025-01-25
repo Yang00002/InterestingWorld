@@ -9,7 +9,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
-import org.yang.interestingworld.network.IWNetwork;
+import org.yang.interestingworld.network.payload.S2CItemBreakParticlePayload;
 
 import static org.yang.interestingworld.util.Base.iwlogger;
 
@@ -20,8 +20,7 @@ public class IWParticleUtil
 		if (entity instanceof ServerPlayerEntity)
 		{
 			ServerPlayNetworking.send((ServerPlayerEntity) entity,
-					new IWNetwork.ItemBreakParticlePayload(new ItemStackParticleEffect(ParticleTypes.ITEM,
-							stack)));
+					new S2CItemBreakParticlePayload(new ItemStackParticleEffect(ParticleTypes.ITEM, stack)));
 		}
 		else iwlogger.warn("spawnItemParticle 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
 	}
@@ -30,7 +29,7 @@ public class IWParticleUtil
 	{
 		if (entity instanceof ServerPlayerEntity)
 		{
-			ServerPlayNetworking.send((ServerPlayerEntity) entity, new IWNetwork.ItemBreakParticlePayload(effect));
+			ServerPlayNetworking.send((ServerPlayerEntity) entity, new S2CItemBreakParticlePayload(effect));
 		}
 		else iwlogger.warn("spawnItemParticle 尝试将 ClientPlayerEntity 转为 ServerPlayerEntity");
 	}
@@ -62,9 +61,8 @@ public class IWParticleUtil
 		World world = entity.getWorld();
 		if (world instanceof ServerWorld)
 		{
-			((ServerWorld) world).spawnParticles(particle, entity.getX(), entity.getBodyY(0.5), entity.getZ(), 1
-					, 0,
-					0, 0, 0);
+			((ServerWorld) world).spawnParticles(particle, entity.getX(), entity.getBodyY(0.5), entity.getZ(), 1, 0, 0,
+					0, 0);
 		}
 		else iwlogger.warn("spawnParticleAtEntity 尝试将 ClientWorld 转为 ServerWorld");
 	}
@@ -78,8 +76,8 @@ public class IWParticleUtil
 	public static void spawnParticlesAtPos(World world, ParticleEffect particle, double x, double y, double z,
 										   int count, double dx, double dy, double dz)
 	{
-		if (world instanceof ServerWorld)
-			((ServerWorld) world).spawnParticles(particle, x, y, z, count, dx, dy, dz, 0);
+		if (world instanceof ServerWorld) ((ServerWorld) world).spawnParticles(particle, x, y, z, count, dx, dy, dz,
+				0);
 		else iwlogger.warn("spawnParticleAtPos 尝试将 ClientWorld 转为 ServerWorld");
 	}
 

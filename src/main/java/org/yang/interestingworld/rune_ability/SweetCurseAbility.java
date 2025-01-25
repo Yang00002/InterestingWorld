@@ -15,7 +15,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
-import org.yang.interestingworld.IWUtil;
 import org.yang.interestingworld.effect.IWEffects;
 import org.yang.interestingworld.entity.player.IWClientPlayerData;
 import org.yang.interestingworld.entity.player.IWServerPlayerData;
@@ -64,7 +63,8 @@ public class SweetCurseAbility extends RuneAbility
 		if (user instanceof ServerPlayerEntity player)
 		{
 			var data = player.getIWServerPlayerData();
-			if (data.chargeRate < AbilityDuration || !data.extractAutomicEnergy(stack, EnergyConsume)) return FAIL;
+			if (!data.isAbilityOn() || data.chargeRate < AbilityDuration ||
+				!data.extractAutomicEnergy(stack, EnergyConsume)) return FAIL;
 			double x = user.getX();
 			double y = user.getY();
 			double z = user.getZ();
@@ -119,7 +119,7 @@ public class SweetCurseAbility extends RuneAbility
 	@Override
 	public int abilityBarForegroundColor(IWClientPlayerData data)
 	{
-		return Color.PINK_RGB;
+		return data.client_ability_on ? Color.PINK_RGB : Color.GRAY_RGB;
 	}
 
 	@Override
@@ -139,7 +139,7 @@ public class SweetCurseAbility extends RuneAbility
 	{
 		int chargeRate = buf.readInt();
 		int c = Math.clamp(chargeRate * 16L / AbilityDuration, 0, 16);
-		if (c == 16 && data.charge_rate16 != 16)
+		if (data.client_ability_on && c == 16 && data.charge_rate16 != 16)
 		{
 			playChargedOverSound(entity);
 		}

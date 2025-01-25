@@ -72,9 +72,8 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 		if (attacker instanceof ServerPlayerEntity player)
 		{
 			var manager = player.getIWServerPlayerData();
-			if (manager.sweeping)
+			if (manager.isAbilityOn() && manager.sweeping)
 			{
-				manager.sweeping = false;
 				World world = attacker.getWorld();
 				var damageSource = new DamageSource(IWDamageTypes.BLOOD_EFFECT_entry.get(), attacker);
 				if (manager.chargeRate >= AbilityCooldown)
@@ -116,21 +115,19 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 	@Override
 	public void onEnter(PlayerEntity entity, IWServerPlayerData manager)
 	{
-		manager.sweeping = false;
 		manager.chargeRate = 0;
 	}
 
 	@Override
 	public void onLeave(PlayerEntity entity, IWServerPlayerData manager)
 	{
-		manager.charged = false;
 		manager.chargeRate = -1;
 	}
 
 	@Override
 	public int abilityBarForegroundColor(IWClientPlayerData data)
 	{
-		return Color.CYAN_RGB;
+		return data.client_ability_on ? Color.CYAN_RGB : Color.GRAY_RGB;
 	}
 
 	@Override
@@ -162,7 +159,7 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 	{
 		int chargeRate = buf.readInt();
 		int c = Math.clamp(chargeRate * 16L / AbilityCooldown, 0, 16);
-		if (c == 16 && data.charge_rate16 != 16)
+		if (data.client_ability_on && c == 16 && data.charge_rate16 != 16)
 		{
 			playChargedOverSound(entity);
 		}

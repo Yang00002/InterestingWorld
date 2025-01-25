@@ -11,9 +11,9 @@ import net.minecraft.data.client.ModelIds;
 import net.minecraft.data.client.Models;
 import net.minecraft.item.Item;
 import org.yang.interestingworld.block.IWBlocks;
-import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.datagen.datastructure.AbilityItemModelDataStructure;
 import org.yang.interestingworld.datagen.datastructure.RuneModelDataStructure;
+import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.rune_ability.IWRuneAbilities;
 import org.yang.interestingworld.rune_upgrade.IWRuneUpgrades;
 
@@ -102,6 +102,7 @@ public class IWModelGenerator extends FabricModelProvider
 	public void generateItemModels(ItemModelGenerator itemModelGenerator)
 	{
 		itemModelGenerator.register(IWItems.EMPTY_RUNE, Models.GENERATED);
+		itemModelGenerator.register(IWItems.HEART, Models.GENERATED);
 		buildAbilityRuneModel(itemModelGenerator);
 		buildUpgradeRuneModel(itemModelGenerator);
 		buildSwordModel(itemModelGenerator);

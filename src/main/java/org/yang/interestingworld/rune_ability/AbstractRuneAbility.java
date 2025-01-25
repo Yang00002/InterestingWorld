@@ -1,11 +1,13 @@
 package org.yang.interestingworld.rune_ability;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
@@ -35,6 +37,14 @@ public class AbstractRuneAbility
 	}
 
 	public void appendToolTip(List<Text> tooltip)
+	{
+	}
+
+	public void onServerAbilityOpen(ServerPlayerEntity player, IWServerPlayerData data)
+	{
+	}
+
+	public void onServerAbilityClose(ServerPlayerEntity player, IWServerPlayerData data)
 	{
 	}
 

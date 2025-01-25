@@ -15,6 +15,7 @@ public class InterestingworldClient implements ClientModInitializer
 		IWScreens.initialize();
 		IWClientEntities.initialize();
 		IWClientParticles.initialize();
+		IWKeyBindings.initialize();
 		// EventManager.addListener(ThirstOverlayRenderer::onClientTick);
 	}
 }

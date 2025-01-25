@@ -97,7 +97,7 @@ public abstract class MixinLivingEntity extends Entity implements Attackable, In
 	}
 
 	@ModifyConstant(method = "damage(Lnet/minecraft/entity/damage/DamageSource;F)Z", constant = @Constant(floatValue =
-			10.0f))
+			10.0f, ordinal = 0))
 	private float mixinDamage4(float cooldownGate, @Local(argsOnly = true) DamageSource source)
 	{
 		if (source.isIn(DamageTypeTags.BYPASSES_COOLDOWN))

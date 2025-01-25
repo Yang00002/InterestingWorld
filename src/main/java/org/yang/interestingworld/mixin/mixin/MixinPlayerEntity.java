@@ -18,9 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWUtil;
-import org.yang.interestingworld.entity.player.IWServerPlayerData;
 import org.yang.interestingworld.mixin.mixin_interface.InterfaceServerPlayerEntity;
 import org.yang.interestingworld.rune_ability.AbstractRuneAbility;
 import org.yang.interestingworld.util.toolflag.EnergyToolDataFlag;
@@ -36,6 +34,9 @@ public abstract class MixinPlayerEntity extends LivingEntity implements Interfac
 
 	@Shadow
 	public abstract void addEnchantedHitParticles(Entity target);
+
+	@Shadow
+	public abstract void tick();
 
 	protected MixinPlayerEntity(EntityType<? extends LivingEntity> entityType, World world)
 	{
@@ -56,19 +57,24 @@ public abstract class MixinPlayerEntity extends LivingEntity implements Interfac
 	private ItemStack handleSweeping(PlayerEntity instance, Hand hand)
 	{
 		ItemStack before = instance.getWeaponStack();
-		if (instance instanceof ServerPlayerEntity player && before.contains(IWComponents.DATA_FLAGS))
-		{
-			IWServerPlayerData manager = player.getIWServerPlayerData();
-			AbstractRuneAbility ab = getAbility(before);
-			if (EnergyToolDataFlag.getFromItemStack(before).canSweep())
-			{
-				if (ab.canWork()) ab.atSweeping(before, instance);
-				manager.sweeping = true;
-				return Items.DIAMOND_SWORD.getDefaultStack();
-			}
-			manager.sweeping = false;
-		}
+		if (instance instanceof ServerPlayerEntity && EnergyToolDataFlag.getFromItemStack(before).canSweep())
+			return Items.DIAMOND_SWORD.getDefaultStack();
 		return before;
+	}
+
+	@Inject(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;" +
+																   "getNonSpectatingEntities(Ljava/lang/Class;" +
+																   "Lnet/minecraft/util/math/Box;)Ljava/util/List;"))
+	public void handleSweepingCondition(Entity target, CallbackInfo ci)
+	{
+		PlayerEntity player = (PlayerEntity) (Object) this;
+		if (player instanceof ServerPlayerEntity serverPlayer)
+		{
+			ItemStack itemStack = this.getWeaponStack();
+			this.getIWServerPlayerData().sweeping = true;
+			AbstractRuneAbility ab = getAbility(itemStack);
+			if (ab.canWork()) ab.atSweeping(itemStack, serverPlayer);
+		}
 	}
 
 	@Inject(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;" +
