@@ -15,6 +15,7 @@ public class IWDataGen implements DataGeneratorEntrypoint
 		pack.addProvider(LanguageGenerator::new);
 		pack.addProvider(DamageTypeTagGenerator::new);
 		pack.addProvider(EnchantmentTagGenerator::new);
-		pack.addProvider(IWModelGenerator::new);
+		pack.addProvider(ModelGenerator::new);
+		pack.addProvider(ItemTagGenerator::new);
 	}
 }

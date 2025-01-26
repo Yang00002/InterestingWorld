@@ -47,7 +47,7 @@ public class BoostRepeatSlashingAbility extends RuneAbility
 	@Override
 	public int level()
 	{
-		return 8;
+		return 7;
 	}
 
 	public int getColor()
@@ -272,6 +272,7 @@ public class BoostRepeatSlashingAbility extends RuneAbility
 	{
 		return data.server_ability_on_opt || data.charge_rate16 < 16;
 	}
+
 	@Override
 	public boolean shouldRenderAbilityNumber(IWClientPlayerData data)
 	{

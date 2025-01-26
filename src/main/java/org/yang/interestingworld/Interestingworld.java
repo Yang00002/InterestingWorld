@@ -5,6 +5,7 @@ import org.yang.interestingworld.block.IWBlocks;
 import org.yang.interestingworld.effect.IWEffects;
 import org.yang.interestingworld.enchant.IWEnchantments;
 import org.yang.interestingworld.entity.IWEntities;
+import org.yang.interestingworld.item.IWItemTags;
 import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.loot.IWLoots;
 import org.yang.interestingworld.network.IWNetwork;
@@ -21,6 +22,7 @@ public class Interestingworld implements ModInitializer
 	public void onInitialize()
 	{
 		Server.initialize();
+		IWItemTags.initialize();
 		IWDamageTypes.initialize();
 		IWEffects.initialize();
 		IWComponents.initialize();

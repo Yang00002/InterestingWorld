@@ -71,7 +71,7 @@ public class Sweeping3Upgrade extends RuneUpgrade
 	@Override
 	public int level()
 	{
-		return 4;
+		return 3;
 	}
 
 	@Override

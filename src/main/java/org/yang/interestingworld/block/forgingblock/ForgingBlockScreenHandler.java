@@ -24,14 +24,15 @@ import org.yang.interestingworld.IWScreenHandlers;
 import org.yang.interestingworld.block.IWBlocks;
 import org.yang.interestingworld.enchant.util.TableEnchantGenerator;
 import org.yang.interestingworld.item.IWItems;
+import org.yang.interestingworld.item.heart.base.BaseHeart;
 import org.yang.interestingworld.item.rune.EnchantmentRuneItem;
 import org.yang.interestingworld.item.rune.RuneItem;
 import org.yang.interestingworld.item.rune.UpgradeRuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.rune_ability.AbstractRuneAbility;
 import org.yang.interestingworld.rune_ability.IWRuneAbilities;
-import org.yang.interestingworld.util.Rand;
 import org.yang.interestingworld.util.IWEnchantmentUtil;
+import org.yang.interestingworld.util.Rand;
 import org.yang.interestingworld.util.Server;
 import org.yang.interestingworld.util.toolflag.EnergyToolDataFlag;
 
@@ -39,8 +40,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import static org.yang.interestingworld.item.IWItems.ENCHANTED_HEART;
+import static org.yang.interestingworld.util.IWEnchantmentUtil.applyEnchant;
+import static org.yang.interestingworld.util.IWEnchantmentUtil.getExperienceFromLevel;
 import static org.yang.interestingworld.util.IWRuneAbilityUtil.*;
-import static org.yang.interestingworld.util.IWEnchantmentUtil.*;
 import static org.yang.interestingworld.util.IWRuneUpgradeUtil.getUpgrade;
 
 public class ForgingBlockScreenHandler extends ScreenHandler
@@ -199,7 +202,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			public boolean canInsert(ItemStack stack)
 			{
 				var item = stack.getItem();
-				return item instanceof RuneItem;
+				return item instanceof RuneItem || item instanceof BaseHeart;
 			}
 
 			@Override
@@ -326,7 +329,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	public Text getFirstEnchantOut()
 	{
 		var stackOut = inventoryOut.getStack(0);
-		if (stackOut == null || !(stackOut.getItem() instanceof EnchantmentRuneItem)) return null;
+		if (stackOut == null || stackOut.getItem() != ENCHANTED_HEART) return null;
 		ItemEnchantmentsComponent component = stackOut.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS,
 				ItemEnchantmentsComponent.DEFAULT);
 		if (component.isEmpty()) return null;
@@ -390,10 +393,14 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				return;
 			}
 			Item itemDown = stackDown.getItem();
+			if (itemDown instanceof BaseHeart && stackDown.hasEnchantments())
+			{
+				updateGlobalState(2);
+				return;
+			}
 			if (itemDown == IWItems.EMPTY_RUNE)
 			{
-				if (stackDown.hasEnchantments()) updateGlobalState(2);
-				else updateGlobalState(14);
+				updateGlobalState(14);
 				return;
 			}
 			if (itemDown == IWItems.ABILITY_RUNE)
@@ -424,46 +431,43 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		Item itemDown = stackDown.getItem();
 		boolean durabilityEnough = stackUp.getDamage() * 4 <= stackUp.getMaxDamage();
 		AbstractRuneAbility abilityUp = getAbility(stackUp);
-		if (itemDown == IWItems.EMPTY_RUNE)
+
+		if (itemDown instanceof BaseHeart && stackDown.hasEnchantments())
 		{
-			if (stackDown.hasEnchantments())
+			MutableInt crystal_count = new MutableInt(inventoryCount(Items.AMETHYST_SHARD));
+			MutableInt lapis_count = new MutableInt(inventoryCount(Items.LAPIS_LAZULI));
+			MutableInt cost_achieve = new MutableInt(0);
+			ItemEnchantmentsComponent component = TableEnchantGenerator.generateFromItemStack(stackUp, stackDown,
+					random_seed, crystal_count, lapis_count, cost_achieve);
+			repairCount.set(lapis_count.getValue());
+			experienceCost.set(crystal_count.getValue());
+			if (component == null || component.isEmpty())
 			{
-				MutableInt crystal_count = new MutableInt(inventoryCount(Items.AMETHYST_SHARD));
-				MutableInt lapis_count = new MutableInt(inventoryCount(Items.LAPIS_LAZULI));
-				MutableInt cost_achieve = new MutableInt(0);
-				ItemEnchantmentsComponent component = TableEnchantGenerator.generateFromItemStack(stackUp, stackDown,
-						random_seed, crystal_count, lapis_count, cost_achieve);
-				repairCount.set(lapis_count.getValue());
-				experienceCost.set(crystal_count.getValue());
-				if (component == null || component.isEmpty())
-				{
-					updateGlobalState(15);
-					removeOutput();
-					return;
-				}
-				updateGlobalState(1);
-				ItemStack stackOut = IWEnchantmentUtil.getEnchantRuneItemStack(component,
-						getWorldLevelOfXpCost(cost_achieve.getValue()));
+				updateGlobalState(15);
+				removeOutput();
+				return;
+			}
+			updateGlobalState(1);
+			ItemStack stackOut = ENCHANTED_HEART.stackOf(component, cost_achieve.getValue(), (BaseHeart) itemDown);
+			setOutput(stackOut);
+			return;
+		}
+		if (itemDown == IWItems.EMPTY_RUNE && durabilityEnough)
+		{
+			if (abilityUp == IWRuneAbilities.DEFAULT_ABILITY)
+			{
+				updateGlobalState(13);
+				removeOutput();
+			}
+			else
+			{
+				updateGlobalState(12);
+				repairCount.set(countToolBreakingProbability(stackUp));
+				ItemStack stackOut = IWItems.ABILITY_RUNE.getDefaultStack();
+				setAbility(stackOut, abilityUp);
 				setOutput(stackOut);
-				return;
 			}
-			if (durabilityEnough)
-			{
-				if (abilityUp == IWRuneAbilities.DEFAULT_ABILITY)
-				{
-					updateGlobalState(13);
-					removeOutput();
-				}
-				else
-				{
-					updateGlobalState(12);
-					repairCount.set(countToolBreakingProbability(stackUp));
-					ItemStack stackOut = IWItems.ABILITY_RUNE.getDefaultStack();
-					setAbility(stackOut, abilityUp);
-					setOutput(stackOut);
-				}
-				return;
-			}
+			return;
 		}
 		if (itemDown == IWItems.ABILITY_RUNE && durabilityEnough)
 		{
@@ -668,8 +672,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					return;
 				}
 				updateGlobalState(1);
-				ItemStack stackOut = IWEnchantmentUtil.getEnchantRuneItemStack(component,
-						getWorldLevelOfXpCost(cost_achieve.getValue()));
+				ItemStack stackOut = ENCHANTED_HEART.stackOf(component, cost_achieve.getValue(),
+						(BaseHeart) stackDown.getItem());
 				setOutput(stackOut);
 			}
 			case 16, 17 ->

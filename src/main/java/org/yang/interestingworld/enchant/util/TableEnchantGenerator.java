@@ -2,11 +2,13 @@ package org.yang.interestingworld.enchant.util;
 
 
 import net.minecraft.component.type.ItemEnchantmentsComponent;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.yang.interestingworld.enchant.IWEnchantments;
 import org.yang.interestingworld.enchant.resource.TableEnchantGroup;
+import org.yang.interestingworld.item.heart.base.BaseHeart;
 import org.yang.interestingworld.util.Rand;
 import org.yang.interestingworld.util.Server;
 
@@ -14,7 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.yang.interestingworld.enchant.resource.ToolGroup.getRandomTableEnchantGroupOfItemStack;
-import static org.yang.interestingworld.util.IWEnchantmentUtil.getXpCostOfWorldLevel;
+import static org.yang.interestingworld.util.IWEnchantmentUtil.getMaxAllowXpCostOfWorldLevel;
 
 /***
  * 一个 Generator 仅能生成一次附魔
@@ -49,7 +51,7 @@ public class TableEnchantGenerator
 	}
 
 	//使用 MutableInt, 输入拥有, 输出使用数量 crystalCount -> 22 位 附魔id 10 位消耗水晶数
-	public static ItemEnchantmentsComponent generateFromItemStack(ItemStack toolStack, ItemStack runeStack, int seed,
+	public static ItemEnchantmentsComponent generateFromItemStack(ItemStack toolStack, ItemStack heartStack, int seed,
 																  MutableInt crystalCount, MutableInt lapisCount,
 																  MutableInt costAchieve)
 	{
@@ -61,7 +63,7 @@ public class TableEnchantGenerator
 		if (enchantGroupSize < 1) return null;
 		//附魔池
 		List<TableEnchantEntry> enchantmentPool = new LinkedList<>();
-		ItemEnchantmentsComponent runeComponent = runeStack.getEnchantments();
+		ItemEnchantmentsComponent runeComponent = heartStack.getEnchantments();
 		//是否均衡
 		boolean balanced = runeComponent.getLevel(IWEnchantments.BALANCE_entry.get()) > 0;
 		boolean firstUp = true;
@@ -74,13 +76,12 @@ public class TableEnchantGenerator
 		int maxTryAmount = crystalCount.getValue() + 1 + runeComponent.getLevel(IWEnchantments.PLENTIFUL_entry.get());
 		int efficiency = runeComponent.getLevel(IWEnchantments.ENERGY_EFFICIENCY_entry.get());
 		//获得最大消耗
+		Item heartItem = heartStack.getItem();
 		int worldGate = Server.getPersistentData().worldEnergyLevel;
+		if (heartItem instanceof BaseHeart baseHeart) worldGate = Math.min(worldGate, baseHeart.getMaxSupportLevel());
 		int maxCost = (200 * (1 + lapisCount.getValue()) * (efficiency + 1));
-		if (worldGate < 10)
-		{
-			int cap = getXpCostOfWorldLevel(worldGate);
-			if (maxCost > cap) maxCost = cap;
-		}
+		int cap = getMaxAllowXpCostOfWorldLevel(worldGate);
+		if (maxCost > cap) maxCost = cap;
 		int maxWeight = 0;
 		for (var i : enchantGroup.getEnchants())
 		{

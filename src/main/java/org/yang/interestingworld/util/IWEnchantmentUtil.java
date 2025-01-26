@@ -114,32 +114,30 @@ public class IWEnchantmentUtil
 
 	public static int getWorldLevelOfXpCost(int cost)
 	{
-		if (cost >= 2045)
+		if (cost >= 910)
 		{
-			if (cost >= 4020)
+			if (cost >= 2045)
 			{
-				if (cost >= 8670) return 10;
-				if (cost >= 5345) return 9;
-				return 8;
+				if (cost >= 4020) return 8;
+				if (cost >= 2920) return 7;
+				return 6;
 			}
-			if (cost >= 2920) return 7;
-			return 6;
-		}
-		if (cost >= 550)
-		{
 			if (cost >= 1395) return 5;
-			if (cost >= 910) return 4;
-			return 3;
+			return 4;
 		}
-		if (cost >= 315) return 2;
+		if (cost >= 315)
+		{
+			if (cost >= 550) return 3;
+			return 2;
+		}
 		if (cost >= 160) return 1;
 		return 0;
 	}
 
-	//									   1    2    3    4    5     6     7     8     9     10
-	private static final int[] xp_costs = {160, 315, 550, 910, 1395, 2045, 2920, 4020, 5345, 8670, 12895};
+	//									   1    2    3    4    5     6     7     8
+	private static final int[] xp_costs = {160, 315, 550, 910, 1395, 2045, 2920, 4020, 5345};
 
-	public static int getXpCostOfWorldLevel(int level)
+	public static int getMaxAllowXpCostOfWorldLevel(int level)
 	{
 		return xp_costs[level] - 1;
 	}

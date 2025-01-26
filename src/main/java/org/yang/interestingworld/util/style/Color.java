@@ -2,6 +2,13 @@ package org.yang.interestingworld.util.style;
 
 public class Color
 {
+	public static final int CopperColorRGB = 0xff6d40;
+	public static final int IronColorRGB = 0xd8d8d8;
+	public static final int GoldColorRGB = 0xffff55;
+	public static final int DiamondColorRGB = 0X55ffff;
+	public static final int NetheriteColorRGB = 0X4f484f;
+	public static final int EnderiteColorRGB = 0X143c34;
+	public static final int VoidalloyColorRGB = 0Xa9fff6;
 	public static final int BLUE_RGB = 5592575;
 	public static final int GREEN_RGB = 5635925;
 
@@ -18,10 +25,12 @@ public class Color
 
 	public static int getLevelColor(int lvl)
 	{
-		return LEVEL_COLOR_MAP[lvl >> 1];
+		return LEVEL_COLOR_MAP[lvl];
 	}
 
-	private static final int[] LEVEL_COLOR_MAP = {WHITE_RGB, GREEN_RGB, BLUE_RGB, DARK_PURPLE_RGB, GOLD_RGB, CYAN_RGB};
+	private static final int[] LEVEL_COLOR_MAP = {WHITE_RGB, CopperColorRGB, IronColorRGB, GoldColorRGB,
+												  DiamondColorRGB, NetheriteColorRGB, EnderiteColorRGB,
+												  VoidalloyColorRGB, VoidalloyColorRGB};
 
 	public static int rgbToArgb(int rgb)
 	{

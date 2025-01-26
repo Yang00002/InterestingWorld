@@ -2,9 +2,9 @@ package org.yang.interestingworld.enchant.util;
 
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.item.ItemStack;
-import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.enchant.resource.ConflictGroup;
 import org.yang.interestingworld.enchant.resource.RandomEnchantGroup;
+import org.yang.interestingworld.item.IWItems;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +16,6 @@ public class RandomEnchantGenerator
 {
 	public static ItemStack generate(int seed, int level)
 	{
-		//if (level >= 10) return generateMax(seed);
 		Random random = new Random(seed); //rd
 		//获得附魔组
 		int enchantGroupWeight = random.nextInt(1, RandomEnchantGroup.getMaxWeight() + 1);
@@ -223,7 +222,7 @@ public class RandomEnchantGenerator
 		maxEnchantCount += dif;
 		if (maxEnchantCount < 1) maxEnchantCount = 1;
 		int maxCost = getRandomXpCostOfWorldLevel(10, random);
-		int leftCostGate = maxCost - getXpCostOfWorldLevel(9) - 1;
+		int leftCostGate = maxCost - getMaxAllowXpCostOfWorldLevel(9) - 1;
 		int giveUpChances = random.nextInt(6) + random.nextInt(6);
 		//获得最大消耗
 		int maxWeight = 0;

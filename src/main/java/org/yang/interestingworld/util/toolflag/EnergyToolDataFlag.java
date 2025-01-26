@@ -6,8 +6,8 @@ import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.rune_ability.IWRuneAbilities;
 import org.yang.interestingworld.util.style.Color;
 
-import static org.yang.interestingworld.util.IWRuneAbilityUtil.getAbility;
 import static org.yang.interestingworld.util.IWEnchantmentUtil.getWorldLevelOfXpCost;
+import static org.yang.interestingworld.util.IWRuneAbilityUtil.getAbility;
 
 public class EnergyToolDataFlag implements FlagOnlyCheckable
 {
@@ -148,7 +148,7 @@ public class EnergyToolDataFlag implements FlagOnlyCheckable
 			if (ability_level >= maxLevel) count++;
 			if (upgrade_level >= maxLevel) count++;
 			if (enchant_level >= maxLevel) count++;
-			if (count > 1 && maxLevel < 10) maxLevel++;
+			if (count > 1 && maxLevel < 8) maxLevel++;
 			flag = (flag & ~LEVEL_FLAG) | maxLevel;
 		}
 		return this;

@@ -50,7 +50,17 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add("enchantment.level.22", "XXII");
 		translationBuilder.add("enchantment.level.23", "XXIII");
 		translationBuilder.add("enchantment.level.24", "XXIV");
+
 		translationBuilder.add(IWItems.HEART, "心");
+		translationBuilder.add(IWItems.COPPER_HEART, "铜心");
+		translationBuilder.add(IWItems.IRON_HEART, "铁心");
+		translationBuilder.add(IWItems.GOLD_HEART, "金心");
+		translationBuilder.add(IWItems.DIAMOND_HEART, "钻石心");
+		translationBuilder.add(IWItems.NETHERITE_HEART, "下界合金心");
+		translationBuilder.add(IWItems.ENDERITE_HEART, "末影合金心");
+		translationBuilder.add(IWItems.VOIDALLOY_HEART, "虚空合金心");
+		translationBuilder.add(IWItems.ENCHANTED_HEART, "附魔之心");
+
 		translationBuilder.add(IWItems.BLAZEROD, "烈焰棒子");
 		translationBuilder.add(IWItems.STICK, "棍子");
 		translationBuilder.add(IWItems.STONE_SWORD, "石剑");
@@ -64,6 +74,7 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add(IWItemGroups.TOOLS_GROUP, "IW: 工具");
 		translationBuilder.add(IWItemGroups.RUNES_GROUP, "IW：符文");
 		translationBuilder.add(IWItemGroups.BLOCKS_GROUP, "IW：方块");
+		translationBuilder.add(IWItemGroups.IngredientGroup, "IW：材料");
 		translationBuilder.add(IWEffects.BLOOD.value(), "流血");
 		translationBuilder.add(IWEffects.COOLDOWN.value(), "受击");
 		translationBuilder.add(IWEffects.HURTING.value(), "易伤");

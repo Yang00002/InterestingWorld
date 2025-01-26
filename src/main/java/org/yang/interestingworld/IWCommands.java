@@ -23,7 +23,7 @@ public class IWCommands
 				CommandManager.literal("iwworldlevel").requires(source -> source.hasPermissionLevel(2))
 						.then(argument("level", IntegerArgumentType.integer()).executes(context -> {
 							final int level = IntegerArgumentType.getInteger(context, "level");
-							if (level >= 0)
+							if (level >= 0 && level <= 8)
 							{
 								var pd = Server.getPersistentData();
 								if (pd.worldEnergyLevel != level)
@@ -63,7 +63,7 @@ public class IWCommands
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
 				CommandManager.literal("iwenchant").requires(source -> source.hasPermissionLevel(2))
 						.then(argument("level", IntegerArgumentType.integer()).executes(context -> {
-							final int level = Math.clamp(IntegerArgumentType.getInteger(context, "level"), 0, 10);
+							final int level = Math.clamp(IntegerArgumentType.getInteger(context, "level"), 0, 8);
 							var p = context.getSource().getPlayer();
 							if (p != null)
 								p.giveItemStack(RandomEnchantGenerator.generate((int) Random.newSeed(), level));

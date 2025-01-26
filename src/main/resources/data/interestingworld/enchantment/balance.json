@@ -15,6 +15,6 @@
   "slots": [
     "mainhand"
   ],
-  "supported_items": "interestingworld:rune",
+  "supported_items": "#interestingworld:can_pre_enchant",
   "weight": 2
 }

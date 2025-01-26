@@ -15,6 +15,6 @@
     "base": 15,
     "per_level_above_first": 9
   },
-  "supported_items": "interestingworld:rune",
+  "supported_items": "#interestingworld:can_pre_enchant",
   "weight": 3
 }

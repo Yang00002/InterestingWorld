@@ -44,6 +44,15 @@ public class EnchantRuneEntry extends LeafEntry
 	protected void generateLoot(Consumer<ItemStack> lootConsumer, LootContext context)
 	{
 		var rd = context.getRandom();
+		//var pos = context.get(LootContextParameters.ORIGIN);
+		//if (pos != null && context.getWorld().getBiome(BlockPos.ofFloored(pos.x, pos.y, pos.z)).getKey().orElse
+		// (null) ==
+		//				   BiomeKeys.THE_VOID)
+		//{
+		//	lootConsumer.accept(
+		//			RandomEnchantGenerator.generate(rd.nextInt(), rd.nextBetween(min_level + 3, max_level + 3)));
+		//}
+		//else
 		lootConsumer.accept(RandomEnchantGenerator.generate(rd.nextInt(), rd.nextBetween(min_level, max_level)));
 	}
 

@@ -10,7 +10,7 @@ public class InfiniteAbility extends RuneAbility
 	@Override
 	public int level()
 	{
-		return 10;
+		return 8;
 	}
 
 	@Override

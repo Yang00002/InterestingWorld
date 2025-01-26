@@ -4,6 +4,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ToolMaterials;
 import org.yang.interestingworld.IWItemGroups;
 import org.yang.interestingworld.enchant.IWEnchantments;
+import org.yang.interestingworld.item.heart.EnchantedHeart;
+import org.yang.interestingworld.item.heart.base.*;
 import org.yang.interestingworld.item.item_builder.CommonItemBuilder;
 import org.yang.interestingworld.item.item_builder.EnergyToolItemBuilder;
 import org.yang.interestingworld.item.rune.AbilityRuneItem;
@@ -39,8 +41,24 @@ public class IWItems
 	public static final Item ENCHANTMENT_RUNE = new CommonItemBuilder(EnchantmentRuneItem::new,
 			"enchantment_rune").build();
 
-	public static final Item HEART = new CommonItemBuilder(Item::new, "heart").addToItemGroup(IWItemGroups.RUNES_GROUP)
-			.build();
+	public static final Item HEART = new CommonItemBuilder(Item::new, "heart").addToItemGroup(
+			IWItemGroups.IngredientGroup).build();
+	public static final Item COPPER_HEART = new CommonItemBuilder(CopperHeartItem::new, "copper_heart").addToItemGroup(
+			IWItemGroups.IngredientGroup).build();
+	public static final Item IRON_HEART = new CommonItemBuilder(IronHeartItem::new, "iron_heart").addToItemGroup(
+			IWItemGroups.IngredientGroup).build();
+	public static final Item GOLD_HEART = new CommonItemBuilder(GoldHeartItem::new, "gold_heart").addToItemGroup(
+			IWItemGroups.IngredientGroup).build();
+	public static final Item DIAMOND_HEART = new CommonItemBuilder(DiamondHeartItem::new,
+			"diamond_heart").addToItemGroup(IWItemGroups.IngredientGroup).build();
+	public static final Item NETHERITE_HEART = new CommonItemBuilder(NetheriteHeartItem::new,
+			"netherite_heart").addToItemGroup(IWItemGroups.IngredientGroup).build();
+	public static final Item ENDERITE_HEART = new CommonItemBuilder(EnderiteHeartItem::new,
+			"enderite_heart").addToItemGroup(IWItemGroups.IngredientGroup).build();
+	public static final Item VOIDALLOY_HEART = new CommonItemBuilder(VoidalloyHeartItem::new,
+			"voidalloy_heart").addToItemGroup(IWItemGroups.IngredientGroup).build();
+	public static final EnchantedHeart ENCHANTED_HEART = (EnchantedHeart) new CommonItemBuilder(EnchantedHeart::new,
+			"enchanted_heart").build();
 
 	public static void initialize()
 	{

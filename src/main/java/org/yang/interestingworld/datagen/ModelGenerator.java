@@ -17,9 +17,9 @@ import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.rune_ability.IWRuneAbilities;
 import org.yang.interestingworld.rune_upgrade.IWRuneUpgrades;
 
-public class IWModelGenerator extends FabricModelProvider
+public class ModelGenerator extends FabricModelProvider
 {
-	public IWModelGenerator(FabricDataOutput output)
+	public ModelGenerator(FabricDataOutput output)
 	{
 		super(output);
 	}
@@ -103,6 +103,13 @@ public class IWModelGenerator extends FabricModelProvider
 	{
 		itemModelGenerator.register(IWItems.EMPTY_RUNE, Models.GENERATED);
 		itemModelGenerator.register(IWItems.HEART, Models.GENERATED);
+		itemModelGenerator.register(IWItems.COPPER_HEART, Models.GENERATED);
+		itemModelGenerator.register(IWItems.IRON_HEART, Models.GENERATED);
+		itemModelGenerator.register(IWItems.GOLD_HEART, Models.GENERATED);
+		itemModelGenerator.register(IWItems.DIAMOND_HEART, Models.GENERATED);
+		itemModelGenerator.register(IWItems.NETHERITE_HEART, Models.GENERATED);
+		itemModelGenerator.register(IWItems.ENDERITE_HEART, Models.GENERATED);
+		itemModelGenerator.register(IWItems.VOIDALLOY_HEART, Models.GENERATED);
 		buildAbilityRuneModel(itemModelGenerator);
 		buildUpgradeRuneModel(itemModelGenerator);
 		buildSwordModel(itemModelGenerator);

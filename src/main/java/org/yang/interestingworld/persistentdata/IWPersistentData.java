@@ -27,6 +27,8 @@ public class IWPersistentData extends PersistentState
 	{
 		IWPersistentData state = new IWPersistentData();
 		state.worldEnergyLevel = tag.getInt("worldenergylevel");
+		if (state.worldEnergyLevel > 8) state.worldEnergyLevel = 8;
+		else if (state.worldEnergyLevel < 0) state.worldEnergyLevel = 0;
 		return state;
 	}
 

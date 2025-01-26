@@ -14,9 +14,9 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.IWResources;
 import org.yang.interestingworld.block.forgingblock.ForgingBlockScreenHandler;
+import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.util.Base;
 import org.yang.interestingworld.util.IWEnchantmentUtil;
 
@@ -266,7 +266,7 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 		{
 			ItemStack itemStack = this.focusedSlot.getStack();
 			if (this.getScreenHandler().isOutputInventory(this.focusedSlot.inventory) &&
-				itemStack.getItem() == IWItems.ENCHANTMENT_RUNE) return;
+				itemStack.getItem() == IWItems.ENCHANTED_HEART) return;
 			context.drawTooltip(this.textRenderer, this.getTooltipFromItem(itemStack), itemStack.getTooltipData(), x,
 					y);
 		}
