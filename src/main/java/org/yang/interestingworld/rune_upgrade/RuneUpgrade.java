@@ -54,7 +54,7 @@ public class RuneUpgrade extends AbstractRuneUpgrade
 	public void applyUpgrade(ItemStack toolStack)
 	{
 		toolStack.set(IWComponents.UPGRADE_TEXT, getTitleText().setStyle(TextStyle.BOLD_STYLE).withColor(getColor()));
-		toolStack.set(IWComponents.DATA_FLAGS, EnergyToolDataFlag.copyFromItemStack(toolStack).setUpgradeLevel(level())
+		toolStack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(toolStack).setUpgradeLevel(level())
 				.updateLevelFromItemStack(toolStack));
 	}
 }

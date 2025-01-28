@@ -8,6 +8,7 @@ import net.minecraft.text.Text;
 import org.joml.Random;
 import org.yang.interestingworld.enchant.resource.EnchantData;
 import org.yang.interestingworld.enchant.util.RandomEnchantGenerator;
+import org.yang.interestingworld.item.heart.base.BaseHeart;
 import org.yang.interestingworld.util.Server;
 import org.yang.interestingworld.util.style.Color;
 
@@ -65,8 +66,9 @@ public class IWCommands
 						.then(argument("level", IntegerArgumentType.integer()).executes(context -> {
 							final int level = Math.clamp(IntegerArgumentType.getInteger(context, "level"), 0, 8);
 							var p = context.getSource().getPlayer();
-							if (p != null)
-								p.giveItemStack(RandomEnchantGenerator.generate((int) Random.newSeed(), level));
+							if (p != null) p.giveItemStack(
+									RandomEnchantGenerator.generate((int) Random.newSeed(), level,
+											BaseHeart.baseHeartSupportLevel(level)));
 							return 1;
 						}))));
 	}

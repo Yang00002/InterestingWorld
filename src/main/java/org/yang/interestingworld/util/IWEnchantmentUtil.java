@@ -196,7 +196,7 @@ public class IWEnchantmentUtil
 			flag.setHaveRealEnchantment();
 		}
 		flag.updateLevelFromItemStack(stack);
-		stack.set(IWComponents.DATA_FLAGS, flag);
+		stack.set(IWComponents.TOOL_FLAG, flag);
 	}
 
 	public static void setRealEnchantValue(ItemStack stack, int value)
@@ -205,7 +205,7 @@ public class IWEnchantmentUtil
 		var flag = EnergyToolDataFlag.copyFromItemStack(stack);
 		flag.setHaveRealEnchantment();
 		flag.updateLevelFromItemStack(stack);
-		stack.set(IWComponents.DATA_FLAGS, flag);
+		stack.set(IWComponents.TOOL_FLAG, flag);
 	}
 
 	public static void clearRealEnchantValue(ItemStack stack)
@@ -214,7 +214,7 @@ public class IWEnchantmentUtil
 		var flag = EnergyToolDataFlag.copyFromItemStack(stack);
 		flag.removeHaveRealEnchantment();
 		flag.updateLevelFromItemStack(stack);
-		stack.set(IWComponents.DATA_FLAGS, flag);
+		stack.set(IWComponents.TOOL_FLAG, flag);
 	}
 
 	public static void setDefaultEnchant(ItemStack stack, ItemEnchantmentsComponent component)
@@ -231,6 +231,6 @@ public class IWEnchantmentUtil
 		setRealEnchant(stack, builder.build());
 		var flag = EnergyToolDataFlag.copyFromItemStack(stack);
 		flag.setHaveDefaultEnchantment();
-		stack.set(IWComponents.DATA_FLAGS, flag);
+		stack.set(IWComponents.TOOL_FLAG, flag);
 	}
 }

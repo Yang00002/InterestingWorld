@@ -2,36 +2,28 @@ package org.yang.interestingworld.item.heart.base;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
+import org.yang.interestingworld.IWComponents;
+import org.yang.interestingworld.util.heartflag.HeartDataFlag;
 import org.yang.interestingworld.util.style.Color;
 
 public class NetheriteHeartItem extends BaseHeart
 {
 	public NetheriteHeartItem(Settings settings)
 	{
-		super(settings);
+		super(settings.component(IWComponents.HEART_FLAG, HeartDataFlag.copyEmpty().setMaterialLevel(5)));
 	}
 
 	@Override
-	public Text getName(ItemStack stack)
+	public int getNameColorRGB()
 	{
-		return Text.translatable(getTranslationKey()).withColor(Color.NetheriteColorRGB);
+		return Color.NetheriteColorRGB;
 	}
 
 	@Override
 	public int getEnchantability()
 	{
-		return 17;
+		return 15;
 	}
 
-	@Override
-	public int getMaxSupportLevel()
-	{
-		return 5;
-	}
 
-	@Override
-	public int getModelIndex()
-	{
-		return 4;
-	}
 }

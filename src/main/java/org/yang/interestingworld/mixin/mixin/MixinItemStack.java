@@ -7,6 +7,7 @@ import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.ScreenTexts;
@@ -32,6 +33,9 @@ public abstract class MixinItemStack implements ComponentHolder
 	@Shadow
 	public abstract void applyAttributeModifier(AttributeModifierSlot slot, BiConsumer<RegistryEntry<EntityAttribute>,
 			EntityAttributeModifier> attributeModifierConsumer);
+
+	@Shadow
+	public abstract Item getItem();
 
 	@Inject(method = "appendAttributeModifiersTooltip", at = @At(value = "HEAD"), cancellable = true)
 	private void mixinAppendAttributeModifiersTooltip(Consumer<Text> textConsumer, @Nullable PlayerEntity player,
@@ -60,8 +64,7 @@ public abstract class MixinItemStack implements ComponentHolder
 					if (attributeMap.containsKey(attribute)) modifierSum = attributeMap.get(attribute);
 					else
 					{
-						modifierSum =
-								new org.yang.interestingworld.mixin.helper.HelperItemStack.ModifierSummerizer();
+						modifierSum = new org.yang.interestingworld.mixin.helper.HelperItemStack.ModifierSummerizer();
 						attributeMap.put(attribute, modifierSum);
 					}
 					switch (modifier.operation())
@@ -71,8 +74,8 @@ public abstract class MixinItemStack implements ComponentHolder
 						case ADD_MULTIPLIED_TOTAL -> modifierSum.mul2 *= modifier.value();
 					}
 				});
-				org.yang.interestingworld.mixin.helper.HelperItemStack.appendAttributeModifierToolTip(
-						textConsumer, player, attributeMap, attributeModifierSlot);
+				org.yang.interestingworld.mixin.helper.HelperItemStack.appendAttributeModifierToolTip(textConsumer,
+						player, attributeMap, attributeModifierSlot);
 			}
 		}
 		ci.cancel();

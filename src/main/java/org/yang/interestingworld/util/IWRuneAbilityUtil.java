@@ -31,7 +31,7 @@ public class IWRuneAbilityUtil
 			if (item instanceof EnergyToolItem)
 			{
 				stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
-				stack.set(IWComponents.DATA_FLAGS,
+				stack.set(IWComponents.TOOL_FLAG,
 						EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 				origin.onRemoveAbility(stack);
 				ability.onSetAbility(stack);
@@ -52,7 +52,7 @@ public class IWRuneAbilityUtil
 			if (item instanceof EnergyToolItem)
 			{
 				stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
-				stack.set(IWComponents.DATA_FLAGS,
+				stack.set(IWComponents.TOOL_FLAG,
 						EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 				origin.onRemoveAbility(stack);
 				ability.onSetAbility(stack);
@@ -88,7 +88,7 @@ public class IWRuneAbilityUtil
 		stack.remove(IWComponents.ABILITY_INDEX);
 		stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 		stack.set(IWComponents.ABILITY_COLOR_RGB, IWRuneAbilities.DEFAULT_ABILITY.getColor());
-		stack.set(IWComponents.DATA_FLAGS,
+		stack.set(IWComponents.TOOL_FLAG,
 				EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 		ability.onRemoveAbility(stack);
 	}
@@ -103,7 +103,7 @@ public class IWRuneAbilityUtil
 		stack.remove(IWComponents.ABILITY_INDEX);
 		stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 		stack.set(IWComponents.ABILITY_COLOR_RGB, IWRuneAbilities.DEFAULT_ABILITY.getColor());
-		stack.set(IWComponents.DATA_FLAGS,
+		stack.set(IWComponents.TOOL_FLAG,
 				EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 		ability.onRemoveAbility(stack);
 	}

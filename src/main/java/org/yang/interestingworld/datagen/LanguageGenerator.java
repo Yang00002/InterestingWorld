@@ -59,7 +59,6 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add(IWItems.NETHERITE_HEART, "下界合金心");
 		translationBuilder.add(IWItems.ENDERITE_HEART, "末影合金心");
 		translationBuilder.add(IWItems.VOIDALLOY_HEART, "虚空合金心");
-		translationBuilder.add(IWItems.ENCHANTED_HEART, "附魔之心");
 
 		translationBuilder.add(IWItems.BLAZEROD, "烈焰棒子");
 		translationBuilder.add(IWItems.STICK, "棍子");
@@ -79,6 +78,7 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add(IWEffects.COOLDOWN.value(), "受击");
 		translationBuilder.add(IWEffects.HURTING.value(), "易伤");
 		translationBuilder.add(IWEffects.INFINITECURSE.value(), "无限诅咒");
+		translationBuilder.add(IWItems.CHERRY_HEART, "樱之心");
 		translationBuilder.add("forgingblock.title.all", "修复、附魔、升级和能力修改");
 		translationBuilder.add("forgingblock.title.rune_enchant", "符文附魔");
 		translationBuilder.add("forgingblock.text.rune_enchant.2", "放入工具以指示附魔种类");
@@ -105,6 +105,8 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add("forgingblock.text.upgrade.18", "升级和工具不兼容");
 		translationBuilder.add("forgingblock.text.upgrade.19", "不能重复升级");
 		translationBuilder.add("forgingblock.text.upgrade.20", "放入工具以进行升级");
+		translationBuilder.add("forgingblock.text.rune_enchant.21", "这种心无法携物品上的能力");
+		translationBuilder.add("forgingblock.text.rune_enchant.22", "这种心材料太差, 无法提取能力");
 		translationBuilder.add("enchantment.interestingworld.fast_hit", "迅捷打击");
 		translationBuilder.add("enchantment.interestingworld.balance", "均衡");
 		translationBuilder.add("enchantment.interestingworld.plentiful", "充盈");
@@ -193,6 +195,15 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add("iw.worldlevel_set_success", "世界等级已设置为 %s。");
 		translationBuilder.add("iw.worldlevel_set_fail", "无法将世界等级设置为 %s，只能设置为一个非负数。");
 		translationBuilder.add(IWEntities.DUMMY, "测试假人");
+
+		translationBuilder.add("tooltip.heart.containerLevel", "材料等级: ");
+		translationBuilder.add("tooltip.heart.canEnchant", "可附魔");
+		translationBuilder.add("tooltip.heart.canHaveAbility", "可携带能力");
+		translationBuilder.add("tooltip.heart.enchantLevel", "附魔等级: ");
+		translationBuilder.add("tooltip.heart.abilityLevel", "能力等级: ");
+		translationBuilder.add("tooltip.heart.furtherEnchant", "它还需要打磨");
+		translationBuilder.add("item.interestingworld.enchantedheart", "附魔之心");
+		translationBuilder.add(IWItems.TINKER_HEART, "工匠之心");
 		try
 		{
 			Path existingFilePath = generator.getModContainer().findPath("assets/interestingworld/lang/zh_cn.json")

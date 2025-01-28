@@ -24,8 +24,7 @@ import org.yang.interestingworld.IWScreenHandlers;
 import org.yang.interestingworld.block.IWBlocks;
 import org.yang.interestingworld.enchant.util.TableEnchantGenerator;
 import org.yang.interestingworld.item.IWItems;
-import org.yang.interestingworld.item.heart.base.BaseHeart;
-import org.yang.interestingworld.item.rune.EnchantmentRuneItem;
+import org.yang.interestingworld.item.heart.AbstractHeart;
 import org.yang.interestingworld.item.rune.RuneItem;
 import org.yang.interestingworld.item.rune.UpgradeRuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
@@ -34,13 +33,14 @@ import org.yang.interestingworld.rune_ability.IWRuneAbilities;
 import org.yang.interestingworld.util.IWEnchantmentUtil;
 import org.yang.interestingworld.util.Rand;
 import org.yang.interestingworld.util.Server;
+import org.yang.interestingworld.util.heartflag.HeartDataFlag;
+import org.yang.interestingworld.util.heartflag.HeartFlagOnlyCheckable;
 import org.yang.interestingworld.util.toolflag.EnergyToolDataFlag;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static org.yang.interestingworld.item.IWItems.ENCHANTED_HEART;
 import static org.yang.interestingworld.util.IWEnchantmentUtil.applyEnchant;
 import static org.yang.interestingworld.util.IWEnchantmentUtil.getExperienceFromLevel;
 import static org.yang.interestingworld.util.IWRuneAbilityUtil.*;
@@ -202,7 +202,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			public boolean canInsert(ItemStack stack)
 			{
 				var item = stack.getItem();
-				return item instanceof RuneItem || item instanceof BaseHeart;
+				return item instanceof RuneItem || item instanceof AbstractHeart;
 			}
 
 			@Override
@@ -314,8 +314,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	{
 		ItemStack stackDown = inventoryDown.getStack(0);
 		Item item = stackDown.getItem();
-		if (item instanceof EnchantmentRuneItem it)
-			return Server.getPersistentData().worldEnergyLevel >= it.getLevel(stackDown);
+		if (isEnchantHeart(stackDown)) return Server.getPersistentData().worldEnergyLevel >=
+											  HeartDataFlag.getFromItemStack(stackDown).getTakingLevel();
 		if (item instanceof UpgradeRuneItem it)
 			return Server.getPersistentData().worldEnergyLevel >= it.getLevel(stackDown);
 		return false;
@@ -329,7 +329,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	public Text getFirstEnchantOut()
 	{
 		var stackOut = inventoryOut.getStack(0);
-		if (stackOut == null || stackOut.getItem() != ENCHANTED_HEART) return null;
+		if (stackOut == null) return null;
 		ItemEnchantmentsComponent component = stackOut.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS,
 				ItemEnchantmentsComponent.DEFAULT);
 		if (component.isEmpty()) return null;
@@ -359,6 +359,29 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		inventoryOut.setStack(0, stack);
 	}
 
+	private boolean isAbilityHeart(ItemStack stack)
+	{
+		return stack.getItem() instanceof AbstractHeart &&
+			   HeartDataFlag.getFromItemStack(stack).getTypeTaking() == HeartFlagOnlyCheckable.HeartTypeTaking.ABILITY;
+	}
+
+	private boolean isEnchantHeart(ItemStack stack)
+	{
+		return stack.getItem() instanceof AbstractHeart &&
+			   HeartDataFlag.getFromItemStack(stack).getTypeTaking() == HeartFlagOnlyCheckable.HeartTypeTaking.ENCHANT;
+	}
+
+	private boolean isPreEnchantHeart(ItemStack stack)
+	{
+		return stack.getItem() instanceof AbstractHeart && HeartDataFlag.getFromItemStack(stack).getTypeTaking() ==
+														   HeartFlagOnlyCheckable.HeartTypeTaking.PREENCHANT;
+	}
+
+	private boolean isEmptyAbilityHeart(ItemStack stack)
+	{
+		return stack.getItem() instanceof AbstractHeart h && h.supportAbility() &&
+			   HeartDataFlag.getFromItemStack(stack).getTypeTaking() == HeartFlagOnlyCheckable.HeartTypeTaking.NULL;
+	}
 
 	//0: 耐久满 空 -> 标题(所有)
 	//>1: 有物品 预附魔 -> 标题(符文附魔), 高亮可能使用的原料格, 输出T附魔符文, 隐藏物品提示, 提示T(输出符文的第一条附魔)
@@ -380,6 +403,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	//17:耐久足够,无升级 升级 -> [如果原料不足, 物品匹配] 标题(升级), 高亮可能使用的原料格, 提示F("缺少原料")
 	//18:耐久足够,有升级 升级 -> 标题(升级), 提示F("不能重复升级")
 	//19:无物品 升级 -> 标题(升级), 提示F("放入工具以进行升级")
+	//21:能力不兼容, 不能提取
+	//22: 材料太差, 不能提取
 	private void onUpDownContentChanged()
 	{
 		ItemStack stackUp = inventoryUp.getStack(0);
@@ -393,29 +418,32 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				return;
 			}
 			Item itemDown = stackDown.getItem();
-			if (itemDown instanceof BaseHeart && stackDown.hasEnchantments())
+			if (itemDown == IWItems.UPGRADE_RUNE)
+			{
+				updateGlobalState(20);
+				return;
+			}
+			AbstractHeart abstractHeart = (AbstractHeart) itemDown;
+			HeartFlagOnlyCheckable flagOnlyCheckable = HeartDataFlag.getFromItemStack(stackDown);
+			var typeTaking = flagOnlyCheckable.getTypeTaking();
+			if (typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.PREENCHANT)
 			{
 				updateGlobalState(2);
 				return;
 			}
-			if (itemDown == IWItems.EMPTY_RUNE)
+			if (abstractHeart.supportAbility() && typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.NULL)
 			{
 				updateGlobalState(14);
 				return;
 			}
-			if (itemDown == IWItems.ABILITY_RUNE)
+			if (typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.ABILITY)
 			{
 				updateGlobalState(11);
 				return;
 			}
-			if (itemDown == IWItems.ENCHANTMENT_RUNE)
+			if (typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.ENCHANT)
 			{
 				updateGlobalState(5);
-				return;
-			}
-			if (itemDown == IWItems.UPGRADE_RUNE)
-			{
-				updateGlobalState(20);
 				return;
 			}
 			updateGlobalState(0);
@@ -428,123 +456,146 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			removeOutput();
 			return;
 		}
-		Item itemDown = stackDown.getItem();
+
 		boolean durabilityEnough = stackUp.getDamage() * 4 <= stackUp.getMaxDamage();
-		AbstractRuneAbility abilityUp = getAbility(stackUp);
-
-		if (itemDown instanceof BaseHeart && stackDown.hasEnchantments())
+		if (!stackDown.isEmpty())
 		{
-			MutableInt crystal_count = new MutableInt(inventoryCount(Items.AMETHYST_SHARD));
-			MutableInt lapis_count = new MutableInt(inventoryCount(Items.LAPIS_LAZULI));
-			MutableInt cost_achieve = new MutableInt(0);
-			ItemEnchantmentsComponent component = TableEnchantGenerator.generateFromItemStack(stackUp, stackDown,
-					random_seed, crystal_count, lapis_count, cost_achieve);
-			repairCount.set(lapis_count.getValue());
-			experienceCost.set(crystal_count.getValue());
-			if (component == null || component.isEmpty())
+			Item itemDown = stackDown.getItem();
+			AbstractRuneAbility abilityUp = getAbility(stackUp);
+			AbstractHeart abstractHeart = itemDown == IWItems.UPGRADE_RUNE ? null : (AbstractHeart) itemDown;
+			HeartFlagOnlyCheckable flagOnlyCheckable = HeartDataFlag.getFromItemStack(stackDown);
+			var typeTaking = flagOnlyCheckable.getTypeTaking();
+			if (durabilityEnough)
 			{
-				updateGlobalState(15);
-				removeOutput();
-				return;
-			}
-			updateGlobalState(1);
-			ItemStack stackOut = ENCHANTED_HEART.stackOf(component, cost_achieve.getValue(), (BaseHeart) itemDown);
-			setOutput(stackOut);
-			return;
-		}
-		if (itemDown == IWItems.EMPTY_RUNE && durabilityEnough)
-		{
-			if (abilityUp == IWRuneAbilities.DEFAULT_ABILITY)
-			{
-				updateGlobalState(13);
-				removeOutput();
-			}
-			else
-			{
-				updateGlobalState(12);
-				repairCount.set(countToolBreakingProbability(stackUp));
-				ItemStack stackOut = IWItems.ABILITY_RUNE.getDefaultStack();
-				setAbility(stackOut, abilityUp);
-				setOutput(stackOut);
-			}
-			return;
-		}
-		if (itemDown == IWItems.ABILITY_RUNE && durabilityEnough)
-		{
-			if (abilityUp != IWRuneAbilities.DEFAULT_ABILITY)
-			{
-				updateGlobalState(10);
-				removeOutput();
-			}
-			else
-			{
-				AbstractRuneAbility abilityDown = getAbility(stackDown);
-				if (abilityDown.canApplyTo(stackUp))
+				if (itemDown == IWItems.UPGRADE_RUNE)
 				{
-					updateGlobalState(8);
-					ItemStack stackOut = stackUp.copy();
-					setAbility(stackOut, abilityDown);
-					setOutput(stackOut);
-				}
-				else
-				{
-					updateGlobalState(9);
-					removeOutput();
-				}
-			}
-			return;
-		}
-		if (itemDown == IWItems.ENCHANTMENT_RUNE && durabilityEnough)
-		{
-			ItemStack stackOut = stackUp.copy();
-			int cost = applyEnchant(
-					stackDown.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT),
-					stackOut);
-			if (cost > -1)
-			{
-				experienceCost.set(cost);
-				updateGlobalState(3);
-				setOutput(stackOut);
-			}
-			else
-			{
-				updateGlobalState(4);
-				removeOutput();
-			}
-			return;
-		}
-		if (itemDown == IWItems.UPGRADE_RUNE && durabilityEnough)
-		{
-			var flagUp = EnergyToolDataFlag.getFromItemStack(stackUp);
-			if (flagUp.haveUpgrade())
-			{
-				updateGlobalState(19);
-				removeOutput();
-			}
-			else
-			{
-				var upgrade = getUpgrade(stackDown);
-				if (upgrade.canApplyTo(stackUp))
-				{
-					var ig = upgrade.getIngredients();
-
-					if (ig == null || inventoryHave(upgrade.getIngredients())) updateGlobalState(16);
-					else
+					var flagUp = EnergyToolDataFlag.getFromItemStack(stackUp);
+					if (flagUp.haveUpgrade())
 					{
-						updateGlobalState(17);
+						updateGlobalState(19);
 						removeOutput();
 					}
-					ItemStack stackOut = stackUp.copy();
-					upgrade.applyUpgrade(stackOut);
-					setOutput(stackOut);
+					else
+					{
+						var upgrade = getUpgrade(stackDown);
+						if (upgrade.canApplyTo(stackUp))
+						{
+							var ig = upgrade.getIngredients();
+
+							if (ig == null || inventoryHave(upgrade.getIngredients())) updateGlobalState(16);
+							else
+							{
+								updateGlobalState(17);
+								removeOutput();
+							}
+							ItemStack stackOut = stackUp.copy();
+							upgrade.applyUpgrade(stackOut);
+							setOutput(stackOut);
+						}
+						else
+						{
+							updateGlobalState(18);
+							removeOutput();
+						}
+					}
+					return;
 				}
-				else
+				if (abstractHeart.supportAbility() && typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.NULL)
 				{
-					updateGlobalState(18);
-					removeOutput();
+					if (abilityUp == IWRuneAbilities.DEFAULT_ABILITY)
+					{
+						updateGlobalState(13);
+						removeOutput();
+					}
+					else switch (((AbstractHeart) itemDown).supportAbility(stackDown, abilityUp))
+					{
+						case SUPPORT ->
+						{
+							updateGlobalState(12);
+							repairCount.set(countToolBreakingProbability(stackUp));
+							ItemStack stackOut = inventoryDown.getStack(0).copy();
+							((AbstractHeart) stackOut.getItem()).setAbility(stackOut, abilityUp);
+							setOutput(stackOut);
+						}
+						case LOW_LEVEL ->
+						{
+							updateGlobalState(22);
+							removeOutput();
+						}
+						case NO_ABILITY ->
+						{
+							updateGlobalState(21);
+							removeOutput();
+						}
+					}
+					return;
+				}
+				if (typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.ABILITY)
+				{
+					if (abilityUp != IWRuneAbilities.DEFAULT_ABILITY)
+					{
+						updateGlobalState(10);
+						removeOutput();
+					}
+					else
+					{
+						AbstractRuneAbility abilityDown = getAbility(stackDown);
+						if (abilityDown.canApplyTo(stackUp))
+						{
+							updateGlobalState(8);
+							ItemStack stackOut = stackUp.copy();
+							setAbility(stackOut, abilityDown);
+							setOutput(stackOut);
+						}
+						else
+						{
+							updateGlobalState(9);
+							removeOutput();
+						}
+					}
+					return;
+				}
+				if (typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.ENCHANT)
+				{
+					ItemStack stackOut = stackUp.copy();
+					int cost = applyEnchant(stackDown.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS,
+							ItemEnchantmentsComponent.DEFAULT), stackOut);
+					if (cost > -1)
+					{
+						experienceCost.set(cost);
+						updateGlobalState(3);
+						setOutput(stackOut);
+					}
+					else
+					{
+						updateGlobalState(4);
+						removeOutput();
+					}
+					return;
 				}
 			}
-			return;
+			if (abstractHeart != null && typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.PREENCHANT)
+			{
+				MutableInt crystal_count = new MutableInt(inventoryCount(Items.AMETHYST_SHARD));
+				MutableInt lapis_count = new MutableInt(inventoryCount(Items.LAPIS_LAZULI));
+				MutableInt cost_achieve = new MutableInt(0);
+				ItemEnchantmentsComponent component = TableEnchantGenerator.generateFromItemStack(stackUp, stackDown,
+						random_seed, crystal_count, lapis_count, cost_achieve);
+				repairCount.set(lapis_count.getValue());
+				experienceCost.set(crystal_count.getValue());
+				if (component == null || component.isEmpty())
+				{
+					updateGlobalState(15);
+					removeOutput();
+					return;
+				}
+				updateGlobalState(1);
+				ItemStack stackOut = stackDown.copy();
+				stackOut.set(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+				((AbstractHeart) stackDown.getItem()).setEnchant(stackOut, component, cost_achieve.getValue());
+				setOutput(stackOut);
+				return;
+			}
 		}
 		boolean durabilityFull = stackUp.getDamage() == 0;
 		if ((!durabilityEnough) || (!durabilityFull && stackDown.isEmpty()))
@@ -672,8 +723,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					return;
 				}
 				updateGlobalState(1);
-				ItemStack stackOut = ENCHANTED_HEART.stackOf(component, cost_achieve.getValue(),
-						(BaseHeart) stackDown.getItem());
+				ItemStack stackOut = stackDown.copy();
+				((AbstractHeart) stackDown.getItem()).dumpPreEnchant(stackOut, component, cost_achieve.getValue());
 				setOutput(stackOut);
 			}
 			case 16, 17 ->
@@ -910,7 +961,13 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				inventoryUp.setWaiting();
 				inventoryDown.setSleeping();
 				inventoryUp.setStack(0, ItemStack.EMPTY);
-				inventoryDown.setStack(0, IWItems.EMPTY_RUNE.getDefaultStack());
+				var stackDown = inventoryDown.getStack(0);
+				if (!isEnchantHeart(stackDown)) inventoryDown.removeStack(0);
+				else
+				{
+					((AbstractHeart) stackDown.getItem()).removeEnchant(stackDown);
+					inventoryDown.setStack(0, stackDown);
+				}
 				inventoryDown.setActive();
 				inventoryUp.setActive();
 			}
@@ -929,7 +986,14 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				inventoryUp.setWaiting();
 				inventoryDown.setSleeping();
 				inventoryUp.setStack(0, ItemStack.EMPTY);
-				inventoryDown.setStack(0, IWItems.EMPTY_RUNE.getDefaultStack());
+				var stackDown = inventoryDown.getStack(0);
+				if (isAbilityHeart(stackDown))
+				{
+					AbstractHeart itemDown = (AbstractHeart) stackDown.getItem();
+					itemDown.removeAbility(stackDown);
+					inventoryDown.setStack(0, stackDown);
+				}
+				else inventoryDown.setStack(0, IWItems.COPPER_HEART.getDefaultStack());
 				inventoryDown.setActive();
 				inventoryUp.setActive();
 			}
@@ -981,8 +1045,9 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			case 3 ->
 			{
 				ItemStack stackDown = inventoryDown.getStack(0);
-				if (!(stackDown.getItem() instanceof EnchantmentRuneItem it)) return false;
-				return (Server.getPersistentData().worldEnergyLevel >= it.getLevel(stackDown)) &&
+				if (!isEnchantHeart(stackDown)) return false;
+				return (Server.getPersistentData().worldEnergyLevel >=
+						HeartDataFlag.getFromItemStack(stackDown).getTakingLevel()) &&
 					   (getExperienceFromLevel(player.experienceLevel, player.experienceProgress) >=
 						experienceCost.get());
 			}

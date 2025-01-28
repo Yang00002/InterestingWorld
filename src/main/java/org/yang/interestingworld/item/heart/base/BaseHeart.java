@@ -1,18 +1,75 @@
 package org.yang.interestingworld.item.heart.base;
 
-import net.minecraft.item.Item;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
+import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
+import org.yang.interestingworld.item.IWItems;
+import org.yang.interestingworld.item.heart.AbstractHeart;
+import org.yang.interestingworld.util.heartflag.HeartDataFlag;
+import org.yang.interestingworld.util.heartflag.HeartFlagOnlyCheckable;
 
-public class BaseHeart extends Item
+public abstract class BaseHeart extends AbstractHeart
 {
-	public BaseHeart(Settings settings)
+	@Override
+	public boolean hasGlint(ItemStack stack)
 	{
-		super(settings);
+		var type = HeartDataFlag.getFromItemStack(stack).getTypeTaking();
+		return type != HeartFlagOnlyCheckable.HeartTypeTaking.NULL;
 	}
 
-	public boolean isEnchantable(ItemStack stack)
+	private static final CustomModelDataComponent ENCHANTED_MODEL_INDEX = new CustomModelDataComponent(1);
+
+	public int getMaxSupportLevel()
+	{
+		return HeartDataFlag.getFromItem(this).getMaterialLevel();
+	}
+
+	public BaseHeart(Settings settings)
+	{
+		super(settings.component(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT));
+	}
+
+	@Override
+	public boolean setEnchant(ItemStack stack, ItemEnchantmentsComponent component, int enchantCost)
+	{
+		if (super.setEnchant(stack, component, enchantCost))
+		{
+			stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, ENCHANTED_MODEL_INDEX);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean dumpPreEnchant(ItemStack stack, ItemEnchantmentsComponent component, int enchantCost)
+	{
+		if (super.dumpPreEnchant(stack, component, enchantCost))
+		{
+			stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, ENCHANTED_MODEL_INDEX);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void removeEnchant(ItemStack stack)
+	{
+		super.removeEnchant(stack);
+		stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT);
+	}
+
+	@Override
+	public boolean supportEnchant()
 	{
 		return true;
+	}
+
+	@Override
+	public boolean supportAbility()
+	{
+		return false;
 	}
 
 	@Override
@@ -21,13 +78,52 @@ public class BaseHeart extends Item
 		return 1;
 	}
 
-	public int getMaxSupportLevel()
+	public static BaseHeart baseHeartSupportLevel(int lvl)
 	{
-		return 0;
+		switch (lvl)
+		{
+			case 2 ->
+			{
+				return IWItems.IRON_HEART;
+			}
+			case 3 ->
+			{
+				return IWItems.GOLD_HEART;
+			}
+			case 4 ->
+			{
+				return IWItems.DIAMOND_HEART;
+			}
+			case 5 ->
+			{
+				return IWItems.NETHERITE_HEART;
+			}
+			case 6 ->
+			{
+				return IWItems.ENDERITE_HEART;
+			}
+			case 7, 8 ->
+			{
+				return IWItems.VOIDALLOY_HEART;
+			}
+			default ->
+			{
+				return IWItems.COPPER_HEART;
+			}
+		}
 	}
 
-	public int getModelIndex()
+	@Override
+	public ItemStack getDefaultStack(int materialLevel)
 	{
-		return 0;
+		return getDefaultStack();
+	}
+
+	@Override
+	public Text getName(ItemStack stack)
+	{
+		if (HeartDataFlag.getFromItemStack(stack).getTypeTaking() == HeartFlagOnlyCheckable.HeartTypeTaking.ENCHANT)
+			return Text.translatable("item.interestingworld.enchantedheart").withColor(getNameColorRGB());
+		return Text.translatable(getTranslationKey()).withColor(getNameColorRGB());
 	}
 }

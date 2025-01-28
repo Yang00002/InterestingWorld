@@ -1,37 +1,26 @@
 package org.yang.interestingworld.item.heart.base;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
+import org.yang.interestingworld.IWComponents;
+import org.yang.interestingworld.util.heartflag.HeartDataFlag;
 import org.yang.interestingworld.util.style.Color;
 
 public class DiamondHeartItem extends BaseHeart
 {
 	public DiamondHeartItem(Settings settings)
 	{
-		super(settings);
+		super(settings.component(IWComponents.HEART_FLAG, HeartDataFlag.copyEmpty().setMaterialLevel(4)));
 	}
 
 	@Override
-	public Text getName(ItemStack stack)
+	public int getNameColorRGB()
 	{
-		return Text.translatable(getTranslationKey()).withColor(Color.DiamondColorRGB);
+		return Color.DiamondColorRGB;
 	}
 
 	@Override
 	public int getEnchantability()
 	{
-		return 13;
+		return 10;
 	}
 
-	@Override
-	public int getMaxSupportLevel()
-	{
-		return 4;
-	}
-
-	@Override
-	public int getModelIndex()
-	{
-		return 3;
-	}
 }

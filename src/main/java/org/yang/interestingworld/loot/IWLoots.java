@@ -29,17 +29,17 @@ public class IWLoots
 			if (lootTableRegistry == LootTables.DESERT_PYRAMID_CHEST)
 			{
 				builder.pool(LootPool.builder().rolls(ConstantLootNumberProvider.create(1))
-						.with(EmptyEntry.builder().weight(80)).with(EnchantRuneEntry.builder(0, 1).weight(20)));
+						.with(EmptyEntry.builder().weight(80)).with(EnchantRuneEntry.builder(0, 1, 1).weight(20)));
 			}
 			else if (lootTableRegistry == LootTables.ABANDONED_MINESHAFT_CHEST)
 			{
 				builder.pool(LootPool.builder().rolls(ConstantLootNumberProvider.create(1))
-						.with(EmptyEntry.builder().weight(90)).with(EnchantRuneEntry.builder(0, 2).weight(10)));
+						.with(EmptyEntry.builder().weight(90)).with(EnchantRuneEntry.builder(0, 2, 2).weight(10)));
 			}
 			else if (lootTableRegistry == LootTables.ANCIENT_CITY_CHEST)
 			{
 				builder.pool(LootPool.builder().rolls(ConstantLootNumberProvider.create(1))
-						.with(EmptyEntry.builder().weight(90)).with(EnchantRuneEntry.builder(1, 4).weight(10)));
+						.with(EmptyEntry.builder().weight(90)).with(EnchantRuneEntry.builder(1, 4, 4).weight(10)));
 			}
 		});
 	}

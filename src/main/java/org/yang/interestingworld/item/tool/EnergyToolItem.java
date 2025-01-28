@@ -14,6 +14,7 @@ import net.minecraft.item.ToolItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -36,14 +37,15 @@ import java.util.Map;
 
 import static org.yang.interestingworld.IWUtil.Components.currentEnergy;
 import static org.yang.interestingworld.IWUtil.Components.maxEnergy;
-import static org.yang.interestingworld.util.Return.*;
 import static org.yang.interestingworld.util.IWRuneAbilityUtil.getAbility;
 import static org.yang.interestingworld.util.IWRuneAbilityUtil.getColor;
+import static org.yang.interestingworld.util.Return.*;
 
 
 public class EnergyToolItem extends ToolItem
 {
 	public final Map<Server.LoadOnceRegistryEntry<Enchantment>, Integer> defaultEnchantments;
+	private RegistryEntry.Reference<Enchantment> entry;
 
 	@Override
 	public boolean isEnchantable(ItemStack stack)
@@ -84,7 +86,6 @@ public class EnergyToolItem extends ToolItem
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
 		ItemStack stack = user.getStackInHand(hand);
-
 		AbstractRuneAbility ab = getAbility(stack);
 		if (ab.canWork())
 		{
@@ -252,6 +253,7 @@ public class EnergyToolItem extends ToolItem
 		if (ab.canWork()) return ab.isUsedOnRelease(stack, false);
 		return false;
 	}
+
 
 	@Environment(EnvType.SERVER)
 	public ItemStack getEnchantedDefaultItemStackFromServer()

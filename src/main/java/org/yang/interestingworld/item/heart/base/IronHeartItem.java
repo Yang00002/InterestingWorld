@@ -1,37 +1,28 @@
 package org.yang.interestingworld.item.heart.base;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
+import org.yang.interestingworld.IWComponents;
+import org.yang.interestingworld.util.heartflag.HeartDataFlag;
 import org.yang.interestingworld.util.style.Color;
 
 public class IronHeartItem extends BaseHeart
 {
 	public IronHeartItem(Settings settings)
 	{
-		super(settings);
+		super(settings.component(IWComponents.HEART_FLAG, HeartDataFlag.copyEmpty().setMaterialLevel(2)));
 	}
 
 	@Override
-	public Text getName(ItemStack stack)
+	public int getNameColorRGB()
 	{
-		return Text.translatable(getTranslationKey()).withColor(Color.IronColorRGB);
+		return Color.IronColorRGB;
 	}
+
 
 	@Override
 	public int getEnchantability()
 	{
-		return 5;
+		return 14;
 	}
 
-	@Override
-	public int getMaxSupportLevel()
-	{
-		return 2;
-	}
 
-	@Override
-	public int getModelIndex()
-	{
-		return 1;
-	}
 }

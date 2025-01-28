@@ -103,13 +103,8 @@ public class ModelGenerator extends FabricModelProvider
 	{
 		itemModelGenerator.register(IWItems.EMPTY_RUNE, Models.GENERATED);
 		itemModelGenerator.register(IWItems.HEART, Models.GENERATED);
-		itemModelGenerator.register(IWItems.COPPER_HEART, Models.GENERATED);
-		itemModelGenerator.register(IWItems.IRON_HEART, Models.GENERATED);
-		itemModelGenerator.register(IWItems.GOLD_HEART, Models.GENERATED);
-		itemModelGenerator.register(IWItems.DIAMOND_HEART, Models.GENERATED);
-		itemModelGenerator.register(IWItems.NETHERITE_HEART, Models.GENERATED);
-		itemModelGenerator.register(IWItems.ENDERITE_HEART, Models.GENERATED);
-		itemModelGenerator.register(IWItems.VOIDALLOY_HEART, Models.GENERATED);
+		itemModelGenerator.register(IWItems.TINKER_HEART, Models.GENERATED);
+		itemModelGenerator.register(IWItems.CHERRY_HEART, Models.GENERATED);
 		buildAbilityRuneModel(itemModelGenerator);
 		buildUpgradeRuneModel(itemModelGenerator);
 		buildSwordModel(itemModelGenerator);

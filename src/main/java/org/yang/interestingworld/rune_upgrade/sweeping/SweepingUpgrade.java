@@ -36,7 +36,7 @@ public class SweepingUpgrade extends RuneUpgrade
 	public void applyUpgrade(ItemStack toolStack)
 	{
 		super.applyUpgrade(toolStack);
-		toolStack.set(IWComponents.DATA_FLAGS, EnergyToolDataFlag.copyFromItemStack(toolStack).setCanSweep());
+		toolStack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(toolStack).setCanSweep());
 	}
 
 	@Override

@@ -7,7 +7,6 @@ import net.minecraft.component.type.ToolComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +27,7 @@ public class EnergySwordItem extends EnergyToolItem
 						   Map<Server.LoadOnceRegistryEntry<Enchantment>, Integer> defaultEnchantments)
 	{
 		super(material, settings.component(DataComponentTypes.TOOL, createToolComponent())
-				.component(IWComponents.DATA_FLAGS, EnergyToolDataFlag.copyEmpty().setCanSweep()),
+				.component(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyEmpty().setCanSweep()),
 				defaultEnchantments);
 	}
 

@@ -42,7 +42,7 @@ public class Sweeping2Upgrade extends RuneUpgrade
 	public void applyUpgrade(ItemStack toolStack)
 	{
 		super.applyUpgrade(toolStack);
-		toolStack.set(IWComponents.DATA_FLAGS, EnergyToolDataFlag.copyFromItemStack(toolStack).setCanSweep());
+		toolStack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(toolStack).setCanSweep());
 		var at = toolStack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
 		at = at.with(EntityAttributes.PLAYER_SWEEPING_DAMAGE_RATIO,
 				new EntityAttributeModifier(Identifier.of(Base.MOD_ID, "ecg"), SWEEP_RATIO,

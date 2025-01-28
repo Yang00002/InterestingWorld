@@ -9,7 +9,7 @@ import org.yang.interestingworld.util.style.Color;
 import static org.yang.interestingworld.util.IWEnchantmentUtil.getWorldLevelOfXpCost;
 import static org.yang.interestingworld.util.IWRuneAbilityUtil.getAbility;
 
-public class EnergyToolDataFlag implements FlagOnlyCheckable
+public class EnergyToolDataFlag implements ToolFlagOnlyCheckable
 {
 	private static final EnergyToolDataFlag EMPTY = new EnergyToolDataFlag(0);
 	private int flag;
@@ -27,14 +27,14 @@ public class EnergyToolDataFlag implements FlagOnlyCheckable
 	private static final int DEFAULT_ENCHANT_FLAG = 0b01000000000;
 	private static final int SWEEP_FLAG = 0b010000000000;
 
-	public static FlagOnlyCheckable getFromItemStack(ItemStack stack)
+	public static ToolFlagOnlyCheckable getFromItemStack(ItemStack stack)
 	{
-		return stack.getOrDefault(IWComponents.DATA_FLAGS, EMPTY);
+		return stack.getOrDefault(IWComponents.TOOL_FLAG, EMPTY);
 	}
 
 	public static EnergyToolDataFlag copyFromItemStack(ItemStack stack)
 	{
-		var ret = stack.getOrDefault(IWComponents.DATA_FLAGS, null);
+		var ret = stack.getOrDefault(IWComponents.TOOL_FLAG, null);
 		if (ret == null) return new EnergyToolDataFlag(0);
 		else return new EnergyToolDataFlag(ret.flag);
 	}

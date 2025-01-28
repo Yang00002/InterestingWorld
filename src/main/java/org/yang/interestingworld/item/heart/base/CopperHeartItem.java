@@ -1,25 +1,25 @@
 package org.yang.interestingworld.item.heart.base;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
+import org.yang.interestingworld.IWComponents;
+import org.yang.interestingworld.util.heartflag.HeartDataFlag;
 import org.yang.interestingworld.util.style.Color;
 
 public class CopperHeartItem extends BaseHeart
 {
 	public CopperHeartItem(Settings settings)
 	{
-		super(settings);
+		super(settings.component(IWComponents.HEART_FLAG, HeartDataFlag.copyEmpty().setMaterialLevel(1)));
 	}
 
 	@Override
-	public Text getName(ItemStack stack)
+	public int getEnchantability()
 	{
-		return Text.translatable(getTranslationKey()).withColor(Color.CopperColorRGB);
+		return 15;
 	}
 
 	@Override
-	public int getMaxSupportLevel()
+	public int getNameColorRGB()
 	{
-		return 1;
+		return Color.CopperColorRGB;
 	}
 }

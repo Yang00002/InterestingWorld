@@ -1,12 +1,6 @@
 package org.yang.interestingworld.rune_ability;
 
-import net.minecraft.item.ItemStack;
-import org.yang.interestingworld.IWItemGroups;
-import org.yang.interestingworld.item.IWItems;
-
 import java.util.LinkedList;
-
-import static org.yang.interestingworld.util.IWRuneAbilityUtil.setAbility;
 
 public class IWRuneAbilities
 {
@@ -30,7 +24,8 @@ public class IWRuneAbilities
 	{
 		ABILITY_COUNT = register.build();
 		register = null;
-		for (int i = 1; i < ABILITY_COUNT; i++)
+		/*
+		 for (int i = 1; i < ABILITY_COUNT; i++)
 		{
 			int finalI = i;
 			IWItemGroups.addItemToGroup((context, entries) -> {
@@ -39,6 +34,8 @@ public class IWRuneAbilities
 				entries.add(it);
 			}, IWItemGroups.RUNES_GROUP);
 		}
+		 */
+
 	}
 
 	private static class AbilityRegister

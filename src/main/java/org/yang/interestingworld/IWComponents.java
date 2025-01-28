@@ -8,6 +8,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
+import org.yang.interestingworld.util.heartflag.HeartDataFlag;
 import org.yang.interestingworld.util.toolflag.EnergyToolDataFlag;
 
 import static org.yang.interestingworld.util.Base.MOD_ID;
@@ -26,14 +27,21 @@ public class IWComponents
 			Identifier.of(MOD_ID, "ai"), ComponentType.<Short>builder().codec(Codec.SHORT).build());
 	public static ComponentType<Integer> ABILITY_COLOR_RGB = Registry.register(Registries.DATA_COMPONENT_TYPE,
 			Identifier.of(MOD_ID, "acd"), ComponentType.<Integer>builder().codec(Codec.INT).build());
+
 	public static ComponentType<ItemEnchantmentsComponent> DEFAULT_ENCHANTMENTS = Registry.register(
 			Registries.DATA_COMPONENT_TYPE, Identifier.of(MOD_ID, "de"),
 			ComponentType.<ItemEnchantmentsComponent>builder().codec(ItemEnchantmentsComponent.CODEC).build());
-	public static ComponentType<EnergyToolDataFlag> DATA_FLAGS = Registry.register(Registries.DATA_COMPONENT_TYPE,
-			Identifier.of(MOD_ID, "df"),
+
+	public static ComponentType<EnergyToolDataFlag> TOOL_FLAG = Registry.register(Registries.DATA_COMPONENT_TYPE,
+			Identifier.of(MOD_ID, "tf"),
 			ComponentType.<EnergyToolDataFlag>builder().codec(EnergyToolDataFlag.CODEC).build());
+
+	public static ComponentType<HeartDataFlag> HEART_FLAG = Registry.register(Registries.DATA_COMPONENT_TYPE,
+			Identifier.of(MOD_ID, "hf"), ComponentType.<HeartDataFlag>builder().codec(HeartDataFlag.CODEC).build());
+
 	public static ComponentType<Integer> ENCHANT_VALUE = Registry.register(Registries.DATA_COMPONENT_TYPE,
 			Identifier.of(MOD_ID, "ev"), ComponentType.<Integer>builder().codec(Codec.INT).build());
+
 	public static ComponentType<Text> UPGRADE_TEXT = Registry.register(Registries.DATA_COMPONENT_TYPE,
 			Identifier.of(MOD_ID, "ut"), ComponentType.<Text>builder().codec(TextCodecs.STRINGIFIED_CODEC)
 					.packetCodec(TextCodecs.REGISTRY_PACKET_CODEC).cache().build());

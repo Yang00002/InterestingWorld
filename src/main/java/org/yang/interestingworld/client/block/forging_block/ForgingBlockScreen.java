@@ -16,7 +16,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.yang.interestingworld.IWResources;
 import org.yang.interestingworld.block.forgingblock.ForgingBlockScreenHandler;
-import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.util.Base;
 import org.yang.interestingworld.util.IWEnchantmentUtil;
 
@@ -256,6 +255,13 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 				drawer.addText(Text.translatable("forgingblock.text.upgrade." + state), 4, false);
 				drawer.draw();
 			}
+			case 21, 22 ->
+			{
+				drawTitle(context, Text.translatable("forgingblock.title.abilityremove"));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable("forgingblock.text.rune_enchant." + state), 4, false);
+				drawer.draw();
+			}
 		}
 	}
 
@@ -265,8 +271,8 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 		if (this.handler.getCursorStack().isEmpty() && this.focusedSlot != null && this.focusedSlot.hasStack())
 		{
 			ItemStack itemStack = this.focusedSlot.getStack();
-			if (this.getScreenHandler().isOutputInventory(this.focusedSlot.inventory) &&
-				itemStack.getItem() == IWItems.ENCHANTED_HEART) return;
+			if (this.getScreenHandler().isOutputInventory(this.focusedSlot.inventory) && handler.getGlobalState() == 1)
+				return;
 			context.drawTooltip(this.textRenderer, this.getTooltipFromItem(itemStack), itemStack.getTooltipData(), x,
 					y);
 		}
