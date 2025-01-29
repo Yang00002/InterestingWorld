@@ -2,19 +2,19 @@
   "parent": "minecraft:item/handheld",
   "overrides": [
     {
-      "model": "interestingworld:item/stone_sword_slashing",
+      "model": "interestingworld:item/stone_sword/slashing",
       "predicate": {
         "custom_model_data": 1
       }
     },
     {
-      "model": "interestingworld:item/stone_sword_sweetcurse",
+      "model": "interestingworld:item/stone_sword/sweetcurse",
       "predicate": {
         "custom_model_data": 2
       }
     },
     {
-      "model": "interestingworld:item/stone_sword_infinitecurse",
+      "model": "interestingworld:item/stone_sword/infinitecurse",
       "predicate": {
         "custom_model_data": 3
       }

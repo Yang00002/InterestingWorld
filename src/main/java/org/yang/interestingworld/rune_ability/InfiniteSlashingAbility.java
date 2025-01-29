@@ -33,24 +33,14 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	public static final double AttackMaxAngleCosine = 0.3;
 	public static final double AttackMaxLength = 5;
 	public static final double KnockbackDistance = 0.8;
-
+	public String id()
+	{
+		return "infiniteslashing";
+	}
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
 		return EnergyToolDataFlag.getFromItemStack(stack).canSweep();
-	}
-
-	@Override
-	public void appendToolTip(List<Text> tooltip)
-	{
-		super.appendToolTip(tooltip);
-		tooltip.add(Text.translatable("infiniteslashing_ability_detail").withColor(getColor()));
-	}
-
-	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("infiniteslashing_ability_title");
 	}
 
 	@Override

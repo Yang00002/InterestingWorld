@@ -13,10 +13,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.rune_upgrade.AbstractRuneUpgrade;
-import org.yang.interestingworld.rune_upgrade.IWRuneUpgrades;
-import org.yang.interestingworld.rune_upgrade.RuneUpgrade;
 import org.yang.interestingworld.util.Base;
-import org.yang.interestingworld.util.style.TextStyle;
+import org.yang.interestingworld.util.style.Color;
 import org.yang.interestingworld.util.toolflag.EnergyToolDataFlag;
 
 import java.util.Collections;
@@ -24,9 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Sweeping2Upgrade extends RuneUpgrade
+public class Sweeping2Upgrade extends AbstractRuneUpgrade
 {
 	public static final float SWEEP_RATIO = 0.1f;
+
 	private static final Map<Item, Integer> ingredientMap;
 
 	static
@@ -37,18 +36,22 @@ public class Sweeping2Upgrade extends RuneUpgrade
 		ingredientMap = Collections.unmodifiableMap(map);
 	}
 
+	@Override
+	public boolean canApplyTo(ItemStack stack)
+	{
+		return !EnergyToolDataFlag.getFromItemStack(stack).canSweep();
+	}
+
 
 	@Override
-	public void applyUpgrade(ItemStack toolStack)
+	protected void applyUpgradeContent(ItemStack toolStack)
 	{
-		super.applyUpgrade(toolStack);
 		toolStack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(toolStack).setCanSweep());
 		var at = toolStack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
 		at = at.with(EntityAttributes.PLAYER_SWEEPING_DAMAGE_RATIO,
 				new EntityAttributeModifier(Identifier.of(Base.MOD_ID, "ecg"), SWEEP_RATIO,
 						EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND);
 		toolStack.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, at);
-		toolStack.set(IWComponents.UPGRADE_TEXT, getTitleText().setStyle(TextStyle.BOLD_STYLE).withColor(getColor()));
 	}
 
 	@Override
@@ -58,28 +61,33 @@ public class Sweeping2Upgrade extends RuneUpgrade
 	}
 
 	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("sweeping_upgrade_title");
-	}
-
-	@Override
-	public void appendToolTip(List<Text> tooltip)
-	{
-		super.appendToolTip(tooltip);
-		tooltip.add(Text.translatable("sweeping2_upgrade_detail").withColor(getColor()));
-		appendIngredientToolTip(tooltip);
-	}
-
-	@Override
 	public int level()
 	{
 		return 1;
 	}
 
 	@Override
-	public AbstractRuneUpgrade getRuneIndexParent()
+	public int getColor()
 	{
-		return IWRuneUpgrades.SWEEPING_UPGRADE;
+		return Color.WHITE_RGB;
 	}
+
+	@Override
+	public String getIdentifierString()
+	{
+		return "sweeping4";
+	}
+
+	@Override
+	public MutableText getTitleText()
+	{
+		return Text.translatable("sweeping_upgrade_title");
+	}
+
+	@Override
+	public void appendExplanation(List<Text> tooltip)
+	{
+		tooltip.add(Text.translatable("sweeping2_upgrade_detail").withColor(getColor()));
+	}
+
 }

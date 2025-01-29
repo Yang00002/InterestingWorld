@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/generated",
+  "overrides": [
+    {
+      "model": "interestingworld:item/enchanted/copper_heart",
+      "predicate": {
+        "custom_model_data": 1
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "interestingworld:item/baseheart/copper_heart"
+  }
+}

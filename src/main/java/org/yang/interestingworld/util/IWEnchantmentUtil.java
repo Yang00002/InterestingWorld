@@ -57,15 +57,6 @@ public class IWEnchantmentUtil
 		return cost;
 	}
 
-
-	public static ItemStack getEnchantRuneItemStack(ItemEnchantmentsComponent component, int level)
-	{
-		ItemStack stack = IWItems.ENCHANTMENT_RUNE.getDefaultStack();
-		stack.set(DataComponentTypes.STORED_ENCHANTMENTS, component);
-		stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(level));
-		return stack;
-	}
-
 	public static int calculatNextEnchantLevel(int currentLevel, int applyLevel, int maxLevel)
 	{
 		if (currentLevel >= maxLevel) return maxLevel;

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "interestingworld:item/energy_stick/slashing"
+  }
+}

@@ -25,9 +25,8 @@ import org.yang.interestingworld.block.IWBlocks;
 import org.yang.interestingworld.enchant.util.TableEnchantGenerator;
 import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.item.heart.AbstractHeart;
-import org.yang.interestingworld.item.rune.RuneItem;
-import org.yang.interestingworld.item.rune.UpgradeRuneItem;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
+import org.yang.interestingworld.item.upgrade.UpgradeTemplate;
 import org.yang.interestingworld.rune_ability.AbstractRuneAbility;
 import org.yang.interestingworld.rune_ability.IWRuneAbilities;
 import org.yang.interestingworld.util.IWEnchantmentUtil;
@@ -44,7 +43,6 @@ import java.util.function.Predicate;
 import static org.yang.interestingworld.util.IWEnchantmentUtil.applyEnchant;
 import static org.yang.interestingworld.util.IWEnchantmentUtil.getExperienceFromLevel;
 import static org.yang.interestingworld.util.IWRuneAbilityUtil.*;
-import static org.yang.interestingworld.util.IWRuneUpgradeUtil.getUpgrade;
 
 public class ForgingBlockScreenHandler extends ScreenHandler
 {
@@ -202,7 +200,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			public boolean canInsert(ItemStack stack)
 			{
 				var item = stack.getItem();
-				return item instanceof RuneItem || item instanceof AbstractHeart;
+				return item instanceof UpgradeTemplate || item instanceof AbstractHeart;
 			}
 
 			@Override
@@ -281,9 +279,9 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	public Map<Item, Integer> getUpgradeNeed()
 	{
 		ItemStack stack = inventoryDown.getStack(0);
-		if (stack.getItem() instanceof UpgradeRuneItem up)
+		if (stack.getItem() instanceof UpgradeTemplate up)
 		{
-			var upgrade = getUpgrade(stack);
+			var upgrade = up.getUpgrade();
 			return upgrade.getIngredients();
 		}
 		return null;
@@ -316,8 +314,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		Item item = stackDown.getItem();
 		if (isEnchantHeart(stackDown)) return Server.getPersistentData().worldEnergyLevel >=
 											  HeartDataFlag.getFromItemStack(stackDown).getTakingLevel();
-		if (item instanceof UpgradeRuneItem it)
-			return Server.getPersistentData().worldEnergyLevel >= it.getLevel(stackDown);
+		if (item instanceof UpgradeTemplate it) return Server.getPersistentData().worldEnergyLevel >= it.getLevel();
 		return false;
 	}
 
@@ -418,7 +415,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				return;
 			}
 			Item itemDown = stackDown.getItem();
-			if (itemDown == IWItems.UPGRADE_RUNE)
+			if (itemDown instanceof UpgradeTemplate)
 			{
 				updateGlobalState(20);
 				return;
@@ -462,12 +459,12 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		{
 			Item itemDown = stackDown.getItem();
 			AbstractRuneAbility abilityUp = getAbility(stackUp);
-			AbstractHeart abstractHeart = itemDown == IWItems.UPGRADE_RUNE ? null : (AbstractHeart) itemDown;
+			AbstractHeart abstractHeart = itemDown instanceof UpgradeTemplate ? null : (AbstractHeart) itemDown;
 			HeartFlagOnlyCheckable flagOnlyCheckable = HeartDataFlag.getFromItemStack(stackDown);
 			var typeTaking = flagOnlyCheckable.getTypeTaking();
 			if (durabilityEnough)
 			{
-				if (itemDown == IWItems.UPGRADE_RUNE)
+				if (itemDown instanceof UpgradeTemplate upgradeTemplate)
 				{
 					var flagUp = EnergyToolDataFlag.getFromItemStack(stackUp);
 					if (flagUp.haveUpgrade())
@@ -477,7 +474,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					}
 					else
 					{
-						var upgrade = getUpgrade(stackDown);
+						var upgrade = upgradeTemplate.getUpgrade();
 						if (upgrade.canApplyTo(stackUp))
 						{
 							var ig = upgrade.getIngredients();
@@ -730,7 +727,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			case 16, 17 ->
 			{
 				ItemStack stackDown = inventoryDown.getStack(0);
-				var upgrade = getUpgrade(stackDown);
+				var upgrade = ((UpgradeTemplate) stackDown.getItem()).getUpgrade();
 				var ig = upgrade.getIngredients();
 				if (ig == null || inventoryHave(upgrade.getIngredients())) updateGlobalState(16);
 				else updateGlobalState(17);
@@ -1022,7 +1019,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				inventoryUp.setWaiting();
 				inventoryIngredient.setSleeping();
 				ItemStack stackDown = inventoryDown.getStack(0);
-				var upgrade = getUpgrade(stackDown);
+				var upgrade = ((UpgradeTemplate) stackDown.getItem()).getUpgrade();
 				var ig = upgrade.getIngredients();
 				if (ig != null) extractIngredient(ig);
 				inventoryUp.removeStack(0);
@@ -1063,8 +1060,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			case 16 ->
 			{
 				ItemStack stackDown = inventoryDown.getStack(0);
-				if (!(stackDown.getItem() instanceof UpgradeRuneItem it)) return false;
-				return Server.getPersistentData().worldEnergyLevel >= it.getLevel(stackDown);
+				if (!(stackDown.getItem() instanceof UpgradeTemplate it)) return false;
+				return Server.getPersistentData().worldEnergyLevel >= it.getLevel();
 			}
 		}
 		return false;

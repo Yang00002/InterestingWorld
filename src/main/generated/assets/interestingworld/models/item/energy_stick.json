@@ -2,19 +2,19 @@
   "parent": "minecraft:item/handheld",
   "overrides": [
     {
-      "model": "interestingworld:item/stick_slashing",
+      "model": "interestingworld:item/energy_stick/slashing",
       "predicate": {
         "custom_model_data": 1
       }
     },
     {
-      "model": "interestingworld:item/stick_sweetcurse",
+      "model": "interestingworld:item/energy_stick/sweetcurse",
       "predicate": {
         "custom_model_data": 2
       }
     },
     {
-      "model": "interestingworld:item/stick_infinitecurse",
+      "model": "interestingworld:item/energy_stick/infinitecurse",
       "predicate": {
         "custom_model_data": 3
       }

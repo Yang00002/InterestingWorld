@@ -43,6 +43,9 @@
       ],
       "net/minecraft/client/network/ClientPlayerEntity": [
         "org/yang/interestingworld/mixin/mixin_interface/InterfaceClientPlayerEntity"
+      ],
+      "net/minecraft/data/client/Model": [
+        "org/yang/interestingworld/mixin/mixin_interface/InterfaceModel"
       ]
     }
   },

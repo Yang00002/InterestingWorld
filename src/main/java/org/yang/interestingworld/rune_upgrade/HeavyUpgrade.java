@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HeavyUpgrade extends RuneUpgrade
+public class HeavyUpgrade extends AbstractRuneUpgrade
 {
 	public static final float BASIC_DAMAGE_ADD = 0.12f;
 	public static final float BASIC_SPEED_DOWN = 0.1f;
@@ -30,9 +30,8 @@ public class HeavyUpgrade extends RuneUpgrade
 	}
 
 	@Override
-	public void applyUpgrade(ItemStack toolStack)
+	protected void applyUpgradeContent(ItemStack toolStack)
 	{
-		super.applyUpgrade(toolStack);
 		var at = toolStack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
 		AttributeModifiersComponent.Builder builder = AttributeModifiersComponent.builder();
 		for (var md : at.modifiers())
@@ -66,22 +65,38 @@ public class HeavyUpgrade extends RuneUpgrade
 	}
 
 	@Override
+	public int level()
+	{
+		return 0;
+	}
+
+	@Override
 	public MutableText getTitleText()
 	{
 		return Text.translatable("heavy_upgrade_title");
 	}
 
 	@Override
-	public void appendToolTip(List<Text> tooltip)
+	public void appendExplanation(List<Text> tooltip)
 	{
-		super.appendToolTip(tooltip);
 		tooltip.add(Text.translatable("heavy_upgrade_detail").withColor(getColor()));
-		appendIngredientToolTip(tooltip);
+	}
+
+	@Override
+	public boolean canApplyTo(ItemStack stack)
+	{
+		return true;
 	}
 
 	@Override
 	public int getColor()
 	{
 		return Color.GRAY_RGB;
+	}
+
+	@Override
+	public String getIdentifierString()
+	{
+		return "heavy";
 	}
 }

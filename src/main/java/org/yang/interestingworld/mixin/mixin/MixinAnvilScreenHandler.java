@@ -24,8 +24,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.yang.interestingworld.IWComponents;
-import org.yang.interestingworld.item.IWItems;
+import org.yang.interestingworld.item.heart.AbstractHeart;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
+import org.yang.interestingworld.util.heartflag.HeartDataFlag;
+import org.yang.interestingworld.util.heartflag.HeartFlagOnlyCheckable;
 import org.yang.interestingworld.util.style.Color;
 import org.yang.interestingworld.util.style.TextStyle;
 
@@ -85,11 +87,16 @@ public abstract class MixinAnvilScreenHandler extends ForgingScreenHandler
 			this.levelCost.set(0);
 			ci.cancel();
 		}
-		else if (itemStackLeft.getItem() == IWItems.EMPTY_RUNE)
+		else if (itemStackLeft.getItem() instanceof AbstractHeart &&
+				 HeartDataFlag.getFromItemStack(itemStackLeft).getTypeTaking() ==
+				 HeartFlagOnlyCheckable.HeartTypeTaking.PREENCHANT)
 		{
 			if (itemStackRight.isEmpty()) return;
-			if (itemStackRight.getItem() != IWItems.EMPTY_RUNE) return;
-			if (!itemStackLeft.hasEnchantments() || !itemStackRight.hasEnchantments()) return;
+			if (itemStackRight.getItem() != itemStackLeft.getItem()) return;
+			if (HeartDataFlag.getFromItemStack(itemStackRight).getTypeTaking() !=
+				HeartFlagOnlyCheckable.HeartTypeTaking.PREENCHANT) return;
+			if (HeartDataFlag.getFromItemStack(itemStackRight).getMaterialLevel() !=
+				HeartDataFlag.getFromItemStack(itemStackLeft).getMaterialLevel()) return;
 			this.levelCost.set(1);
 			int repairCostLevel = 0;
 			long l = 0L;

@@ -9,8 +9,6 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.yang.interestingworld.IWDamageTypes;
@@ -24,8 +22,6 @@ import org.yang.interestingworld.util.IWSoundUtil;
 import org.yang.interestingworld.util.IWStatusEffectUtil;
 import org.yang.interestingworld.util.style.Color;
 import org.yang.interestingworld.util.toolflag.EnergyToolDataFlag;
-
-import java.util.List;
 
 public class EviscerateAbility extends RuneAbility
 {
@@ -49,23 +45,15 @@ public class EviscerateAbility extends RuneAbility
 		return Color.RED_RGB;
 	}
 
-	@Override
-	public void appendToolTip(List<Text> tooltip)
+	public String id()
 	{
-		super.appendToolTip(tooltip);
-		tooltip.add(Text.translatable("eviscerate_ability_detail").withColor(getColor()));
+		return "eviscerate";
 	}
 
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
 		return EnergyToolDataFlag.getFromItemStack(stack).canSweep();
-	}
-
-	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("eviscerate_ability_title");
 	}
 
 	@Override

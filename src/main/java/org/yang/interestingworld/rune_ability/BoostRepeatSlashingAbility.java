@@ -55,11 +55,9 @@ public class BoostRepeatSlashingAbility extends RuneAbility
 		return Color.DARK_RED_RGB;
 	}
 
-	@Override
-	public void appendToolTip(List<Text> tooltip)
+	public String id()
 	{
-		super.appendToolTip(tooltip);
-		tooltip.add(Text.translatable("boostrepeatslashing_ability_detail").withColor(getColor()));
+		return "boostrepeatslashing";
 	}
 
 	@Override
@@ -68,11 +66,6 @@ public class BoostRepeatSlashingAbility extends RuneAbility
 		return EnergyToolDataFlag.getFromItemStack(stack).canSweep();
 	}
 
-	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("boostrepeatslashing_ability_title");
-	}
 
 	@Override
 	public void serverPlayerWeaponTick(PlayerEntity entity, IWServerPlayerData data, ItemStack stack)

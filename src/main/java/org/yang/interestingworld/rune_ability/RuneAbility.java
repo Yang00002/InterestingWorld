@@ -2,6 +2,7 @@ package org.yang.interestingworld.rune_ability;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.yang.interestingworld.IWSounds;
 import org.yang.interestingworld.entity.player.IWClientPlayerData;
@@ -14,12 +15,16 @@ import java.util.List;
 
 public class RuneAbility extends AbstractRuneAbility
 {
+	private final MutableText tip = Text.translatable(id() + "_ability_detail").withColor(getColor());
+	private final MutableText title = Text.translatable(id() + "_ability_title");
+
 	@Override
 	public void appendToolTip(List<Text> tooltip)
 	{
 		tooltip.add(Text.empty());
 		tooltip.add(Text.literal("【").append(getTitleText()).append("】").setStyle(TextStyle.BOLD_STYLE)
 				.withColor(getColor()));
+		tooltip.add(tip);
 	}
 
 	@Override
@@ -35,6 +40,12 @@ public class RuneAbility extends AbstractRuneAbility
 		tooltip.add(Text.literal("【").append(getTitleText()).append("】").setStyle(TextStyle.BOLD_STYLE)
 				.withColor(Color.GRAY_RGB));
 		tooltip.add(Text.translatable("banedabilitydetail").withColor(Color.GRAY_RGB));
+	}
+
+	@Override
+	public MutableText getTitleText()
+	{
+		return title;
 	}
 
 	@Override

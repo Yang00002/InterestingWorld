@@ -36,24 +36,14 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 	public static final double AttackMaxLength = 5;
 	public static final int LevelCap = 10;
 	public static final float Knockback = 0.4f;
-
+	public String id()
+	{
+		return "infiniteeviscerate";
+	}
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
 		return EnergyToolDataFlag.getFromItemStack(stack).canSweep();
-	}
-
-	@Override
-	public void appendToolTip(List<Text> tooltip)
-	{
-		super.appendToolTip(tooltip);
-		tooltip.add(Text.translatable("infiniteeviscerate_ability_detail").withColor(getColor()));
-	}
-
-	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("infiniteeviscerate_ability_title");
 	}
 
 	@Override

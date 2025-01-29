@@ -1,5 +1,6 @@
 package org.yang.interestingworld.item.item_builder;
 
+import net.minecraft.data.client.Model;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.registry.Registries;
@@ -8,6 +9,9 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import org.yang.interestingworld.IWItemGroups;
+import org.yang.interestingworld.datagen.itemmodel.CommonItemModelProvider;
+import org.yang.interestingworld.datagen.itemmodel.ItemModelProvider;
+import org.yang.interestingworld.datagen.itemmodel.ItemModelPool;
 import org.yang.interestingworld.util.Base;
 
 import java.util.function.Function;
@@ -18,11 +22,24 @@ public class CommonItemBuilder
 	private final Function<Item.Settings, Item> constructor;
 	private final String id;
 	private RegistryKey<ItemGroup> itemGroupBelong = null;
+	private Function<Item, ItemModelProvider> modelProvider = null;
 
 	public CommonItemBuilder(Function<Item.Settings, Item> constructor, String id)
 	{
 		this.constructor = constructor;
 		this.id = id;
+	}
+
+	public CommonItemBuilder setModel(Function<Item, ItemModelProvider> provider)
+	{
+		modelProvider = provider;
+		return this;
+	}
+
+	public CommonItemBuilder setCommonModel(Model model)
+	{
+		modelProvider = item -> new CommonItemModelProvider(item, model);
+		return this;
 	}
 
 	public CommonItemBuilder addToItemGroup(RegistryKey<ItemGroup> itemGroup)
@@ -44,6 +61,7 @@ public class CommonItemBuilder
 				wrapperOp.ifPresent(wrapper -> entries.add(ret));
 			}, itemGroupBelong);
 		}
+		if (modelProvider != null) ItemModelPool.addModel(modelProvider.apply(ret));
 		return ret;
 	}
 }

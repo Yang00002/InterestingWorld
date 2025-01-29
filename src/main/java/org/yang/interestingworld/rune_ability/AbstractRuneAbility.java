@@ -1,7 +1,6 @@
 package org.yang.interestingworld.rune_ability;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,6 +29,11 @@ public class AbstractRuneAbility
 	public short index = 0;
 	public short runeIndex = 0;
 	public short toolIndex = 0;
+
+	public String id()
+	{
+		return "";
+	}
 
 	public byte extractPower(MutableFloat value)
 	{

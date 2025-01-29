@@ -10,8 +10,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
@@ -24,8 +22,6 @@ import org.yang.interestingworld.util.IWParticleUtil;
 import org.yang.interestingworld.util.IWSoundUtil;
 import org.yang.interestingworld.util.IWStatusEffectUtil;
 import org.yang.interestingworld.util.style.Color;
-
-import java.util.List;
 
 import static org.yang.interestingworld.util.Return.FAIL;
 import static org.yang.interestingworld.util.Return.PASS;
@@ -44,17 +40,9 @@ public class SweetCurseAbility extends RuneAbility
 		return Color.PINK_RGB;
 	}
 
-	@Override
-	public void appendToolTip(List<Text> tooltip)
+	public String id()
 	{
-		super.appendToolTip(tooltip);
-		tooltip.add(Text.translatable("sweetcurse_ability_detail").withColor(getColor()));
-	}
-
-	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("sweetcurse_ability_title");
+		return "sweetcurse";
 	}
 
 	@Override

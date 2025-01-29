@@ -1,5 +1,6 @@
 package org.yang.interestingworld.item.item_builder;
 
+import net.minecraft.data.client.Model;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.registry.Registries;
@@ -9,6 +10,9 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWItemGroups;
+import org.yang.interestingworld.datagen.itemmodel.CommonItemModelProvider;
+import org.yang.interestingworld.datagen.itemmodel.ItemModelProvider;
+import org.yang.interestingworld.datagen.itemmodel.ItemModelPool;
 import org.yang.interestingworld.item.heart.common.CommonHeart;
 import org.yang.interestingworld.rune_ability.IWRuneAbilities;
 import org.yang.interestingworld.util.Base;
@@ -23,6 +27,19 @@ public class AbilityHeartItemBuilder
 	private final Function<Item.Settings, CommonHeart> constructor;
 	private final String id;
 	private RegistryKey<ItemGroup> itemGroupBelong = null;
+	private Function<Item, ItemModelProvider> modelProvider = null;
+
+	public AbilityHeartItemBuilder setModel(Function<Item, ItemModelProvider> provider)
+	{
+		modelProvider = provider;
+		return this;
+	}
+
+	public AbilityHeartItemBuilder setCommonModel(Model model)
+	{
+		modelProvider = item -> new CommonItemModelProvider(item, model);
+		return this;
+	}
 
 	public AbilityHeartItemBuilder(Function<Item.Settings, CommonHeart> constructor, String id)
 	{
@@ -64,6 +81,7 @@ public class AbilityHeartItemBuilder
 				}
 			}
 		}
+		if (modelProvider != null) ItemModelPool.addModel(modelProvider.apply(ret));
 		return ret;
 	}
 }

@@ -11,7 +11,6 @@ import net.minecraft.util.Identifier;
 import org.yang.interestingworld.block.IWBlocks;
 import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.rune_ability.IWRuneAbilities;
-import org.yang.interestingworld.util.IWRuneAbilityUtil;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -42,11 +41,11 @@ public class IWItemGroups
 		data.put(groupRegistryKey, l);
 	}
 
-	private static ItemStack getRuneDisplay()
+	private static ItemStack getAbilityDisplay()
 	{
-		ItemStack it = IWItems.ABILITY_RUNE.getDefaultStack();
-		IWRuneAbilityUtil.setAbility(it, IWRuneAbilities.SLASHING_ABILITY);
-		return it;
+		var stack = IWItems.BLOOD_HEART.getDefaultStack();
+		IWItems.BLOOD_HEART.setAbility(stack, IWRuneAbilities.EVISCERATE_ABILITY);
+		return stack;
 	}
 
 	private static void applyData(RegistryKey<ItemGroup> groupRegistryKey, ItemGroup.DisplayContext displayContext,
@@ -82,7 +81,7 @@ public class IWItemGroups
 	{
 		initializeItemGroup(BLOCKS_GROUP, IWBlocks.FORGING_BLOCK.asItem().getDefaultStack());
 		initializeItemGroup(IngredientGroup, IWItems.HEART.getDefaultStack());
-		initializeItemGroup(RUNES_GROUP, getRuneDisplay());
+		initializeItemGroup(RUNES_GROUP, getAbilityDisplay());
 		initializeItemGroup(TOOLS_GROUP, IWItems.NETHERITE_SWORD.getDefaultStack());
 		data = Collections.unmodifiableMap(data);
 	}

@@ -8,14 +8,12 @@ import net.minecraft.block.Blocks;
 import net.minecraft.data.client.BlockStateModelGenerator;
 import net.minecraft.data.client.ItemModelGenerator;
 import net.minecraft.data.client.ModelIds;
-import net.minecraft.data.client.Models;
 import net.minecraft.item.Item;
 import org.yang.interestingworld.block.IWBlocks;
 import org.yang.interestingworld.datagen.datastructure.AbilityItemModelDataStructure;
-import org.yang.interestingworld.datagen.datastructure.RuneModelDataStructure;
+import org.yang.interestingworld.datagen.itemmodel.ItemModelPool;
 import org.yang.interestingworld.item.IWItems;
 import org.yang.interestingworld.rune_ability.IWRuneAbilities;
-import org.yang.interestingworld.rune_upgrade.IWRuneUpgrades;
 
 public class ModelGenerator extends FabricModelProvider
 {
@@ -28,32 +26,6 @@ public class ModelGenerator extends FabricModelProvider
 	public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator)
 	{
 		blockStateModelGenerator.registerParented(Blocks.SMITHING_TABLE, IWBlocks.FORGING_BLOCK);
-	}
-
-	private static void buildAbilityRuneModel(ItemModelGenerator itemModelGenerator)
-	{
-		RuneModelDataStructure ar = new RuneModelDataStructure();
-		ar.addTexture(itemModelGenerator, IWRuneAbilities.SLASHING_ABILITY, "slashing_ability_rune");
-		ar.addTexture(itemModelGenerator, IWRuneAbilities.INFINITESLASHING_ABILITY, "infiniteslashing_ability_rune");
-		ar.addTexture(itemModelGenerator, IWRuneAbilities.SWEETCURSE_ABILITY, "sweetcurse_ability_rune");
-		ar.addTexture(itemModelGenerator, IWRuneAbilities.INFINITECURSE_ABILITY, "infinitecurse_ability_rune");
-
-		ar.build();
-		JsonElement j = new Gson().toJsonTree(ar);
-		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.ABILITY_RUNE), () -> j);
-
-	}
-
-	private static void buildUpgradeRuneModel(ItemModelGenerator itemModelGenerator)
-	{
-		RuneModelDataStructure ur = new RuneModelDataStructure();
-		ur.addTexture(itemModelGenerator, IWRuneUpgrades.SWEEPING_UPGRADE, "sweeping_upgrade_rune");
-		ur.addTexture(itemModelGenerator, IWRuneUpgrades.SWEEPING3_UPGRADE, "sweeping3_upgrade_rune");
-		ur.addTexture(itemModelGenerator, IWRuneUpgrades.SWEEPING4_UPGRADE, "sweeping4_upgrade_rune");
-		ur.addTexture(itemModelGenerator, IWRuneUpgrades.HEAVY_UPGRADE, "heavy_upgrade_rune");
-		ur.build();
-		JsonElement j = new Gson().toJsonTree(ur);
-		itemModelGenerator.writer.accept(ModelIds.getItemModelId(IWItems.UPGRADE_RUNE), () -> j);
 	}
 
 	private static void buildSwordModel(ItemModelGenerator itemModelGenerator)
@@ -101,14 +73,9 @@ public class ModelGenerator extends FabricModelProvider
 	@Override
 	public void generateItemModels(ItemModelGenerator itemModelGenerator)
 	{
-		itemModelGenerator.register(IWItems.EMPTY_RUNE, Models.GENERATED);
-		itemModelGenerator.register(IWItems.HEART, Models.GENERATED);
-		itemModelGenerator.register(IWItems.TINKER_HEART, Models.GENERATED);
-		itemModelGenerator.register(IWItems.CHERRY_HEART, Models.GENERATED);
-		buildAbilityRuneModel(itemModelGenerator);
-		buildUpgradeRuneModel(itemModelGenerator);
-		buildSwordModel(itemModelGenerator);
-		buildStickModel(itemModelGenerator);
-		buildBlazeRodModel(itemModelGenerator);
+		ItemModelPool.generatePool(itemModelGenerator);
+		//buildSwordModel(itemModelGenerator);
+		//buildStickModel(itemModelGenerator);
+		//buildBlazeRodModel(itemModelGenerator);
 	}
 }

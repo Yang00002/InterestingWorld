@@ -2,19 +2,19 @@
   "parent": "minecraft:item/handheld",
   "overrides": [
     {
-      "model": "interestingworld:item/blazerod_slashing",
+      "model": "interestingworld:item/energy_blazerod/slashing",
       "predicate": {
         "custom_model_data": 1
       }
     },
     {
-      "model": "interestingworld:item/blazerod_sweetcurse",
+      "model": "interestingworld:item/energy_blazerod/sweetcurse",
       "predicate": {
         "custom_model_data": 2
       }
     },
     {
-      "model": "interestingworld:item/blazerod_infinitecurse",
+      "model": "interestingworld:item/energy_blazerod/infinitecurse",
       "predicate": {
         "custom_model_data": 3
       }

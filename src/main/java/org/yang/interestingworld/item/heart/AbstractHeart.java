@@ -20,7 +20,6 @@ import org.yang.interestingworld.util.style.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.yang.interestingworld.util.Base.iwlogger;
 import static org.yang.interestingworld.util.IWEnchantmentUtil.getWorldLevelOfXpCost;
 import static org.yang.interestingworld.util.IWRuneAbilityUtil.getAbility;
 

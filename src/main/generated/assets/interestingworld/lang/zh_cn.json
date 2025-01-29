@@ -79,12 +79,12 @@
   "interestingworld.ingredients": "IW：材料",
   "interestingworld.runes_group": "IW：符文",
   "interestingworld.tools_group": "IW: 工具",
+  "item.interestingworld.blood_heart": "血之心",
   "item.interestingworld.cherry_heart": "樱之心",
   "item.interestingworld.copper_heart": "铜心",
   "item.interestingworld.diamond_heart": "钻石心",
   "item.interestingworld.diamond_sword": "钻石剑",
   "item.interestingworld.enchantedheart": "附魔之心",
-  "item.interestingworld.enchantment_rune": "附魔符文",
   "item.interestingworld.enderite_heart": "末影合金心",
   "item.interestingworld.energy_blazerod": "烈焰棒子",
   "item.interestingworld.energy_stick": "棍子",
@@ -95,7 +95,6 @@
   "item.interestingworld.iron_sword": "铁剑",
   "item.interestingworld.netherite_heart": "下界合金心",
   "item.interestingworld.netherite_sword": "下界合金剑",
-  "item.interestingworld.rune": "空白符文",
   "item.interestingworld.stone_sword": "石剑",
   "item.interestingworld.tinker_heart": "工匠之心",
   "item.interestingworld.voidalloy_heart": "虚空合金心",
@@ -125,5 +124,6 @@
   "tooltip.heart.enchantLevel": "附魔等级: ",
   "tooltip.heart.furtherEnchant": "它还需要打磨",
   "tooltip.rune.needlevel": "需求等级",
+  "tooltip.upgradeTemplate.level": "升级等级: ",
   "upgrade.need.txet": "需求："
 }

@@ -6,7 +6,8 @@ import net.minecraft.item.Items;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.yang.interestingworld.IWComponents;
-import org.yang.interestingworld.rune_upgrade.RuneUpgrade;
+import org.yang.interestingworld.rune_upgrade.AbstractRuneUpgrade;
+import org.yang.interestingworld.util.style.Color;
 import org.yang.interestingworld.util.toolflag.EnergyToolDataFlag;
 
 import java.util.Collections;
@@ -14,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SweepingUpgrade extends RuneUpgrade
+public class SweepingUpgrade extends AbstractRuneUpgrade
 {
 	private static final Map<Item, Integer> ingredientMap;
 
@@ -32,10 +33,10 @@ public class SweepingUpgrade extends RuneUpgrade
 		return !EnergyToolDataFlag.getFromItemStack(stack).canSweep();
 	}
 
+
 	@Override
-	public void applyUpgrade(ItemStack toolStack)
+	protected void applyUpgradeContent(ItemStack toolStack)
 	{
-		super.applyUpgrade(toolStack);
 		toolStack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(toolStack).setCanSweep());
 	}
 
@@ -46,17 +47,33 @@ public class SweepingUpgrade extends RuneUpgrade
 	}
 
 	@Override
+	public int level()
+	{
+		return 0;
+	}
+
+	@Override
+	public int getColor()
+	{
+		return Color.WHITE_RGB;
+	}
+
+	@Override
+	public String getIdentifierString()
+	{
+		return "sweeping";
+	}
+
+	@Override
 	public MutableText getTitleText()
 	{
 		return Text.translatable("sweeping_upgrade_title");
 	}
 
 	@Override
-	public void appendToolTip(List<Text> tooltip)
+	public void appendExplanation(List<Text> tooltip)
 	{
-		super.appendToolTip(tooltip);
 		tooltip.add(Text.translatable("sweeping_upgrade_detail").withColor(getColor()));
-		appendIngredientToolTip(tooltip);
 	}
 
 }

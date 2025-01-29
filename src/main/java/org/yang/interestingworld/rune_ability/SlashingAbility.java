@@ -33,29 +33,21 @@ public class SlashingAbility extends RuneAbility
 	public static final double AttackMaxLength = 3.5;
 	public static final float EnergyCosume = 10;
 	public static final double KnockbackDistance = 0.4;
-
+	public String id()
+	{
+		return "slashing";
+	}
 	public int getColor()
 	{
 		return Color.RED_RGB;
 	}
 
-	@Override
-	public void appendToolTip(List<Text> tooltip)
-	{
-		super.appendToolTip(tooltip);
-		tooltip.add(Text.translatable("slashing_ability_detail").withColor(getColor()));
-	}
+
 
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
 		return EnergyToolDataFlag.getFromItemStack(stack).canSweep();
-	}
-
-	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("slashing_ability_title");
 	}
 
 

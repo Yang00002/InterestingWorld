@@ -67,8 +67,7 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add(IWItems.GOLDEN_SWORD, "金剑");
 		translationBuilder.add(IWItems.DIAMOND_SWORD, "钻石剑");
 		translationBuilder.add(IWItems.NETHERITE_SWORD, "下界合金剑");
-		translationBuilder.add(IWItems.EMPTY_RUNE, "空白符文");
-		translationBuilder.add(IWItems.ENCHANTMENT_RUNE, "附魔符文");
+		translationBuilder.add("tooltip.upgradeTemplate.level", "升级等级: ");
 		translationBuilder.add("abilityrune.suffix", "符文");
 		translationBuilder.add(IWItemGroups.TOOLS_GROUP, "IW: 工具");
 		translationBuilder.add(IWItemGroups.RUNES_GROUP, "IW：符文");
@@ -79,6 +78,7 @@ public class LanguageGenerator extends FabricLanguageProvider
 		translationBuilder.add(IWEffects.HURTING.value(), "易伤");
 		translationBuilder.add(IWEffects.INFINITECURSE.value(), "无限诅咒");
 		translationBuilder.add(IWItems.CHERRY_HEART, "樱之心");
+		translationBuilder.add(IWItems.BLOOD_HEART, "血之心");
 		translationBuilder.add("forgingblock.title.all", "修复、附魔、升级和能力修改");
 		translationBuilder.add("forgingblock.title.rune_enchant", "符文附魔");
 		translationBuilder.add("forgingblock.text.rune_enchant.2", "放入工具以指示附魔种类");

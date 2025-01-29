@@ -92,12 +92,6 @@ public class IWRuneAbilityUtil
 				EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 		ability.onRemoveAbility(stack);
 	}
-
-	public static ItemStack getEmptyAbilityRune()
-	{
-		return IWItems.EMPTY_RUNE.getDefaultStack();
-	}
-
 	private static void removeToolAbility(ItemStack stack, AbstractRuneAbility ability)
 	{
 		stack.remove(IWComponents.ABILITY_INDEX);

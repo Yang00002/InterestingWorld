@@ -71,7 +71,7 @@ public abstract class MixinItemStack implements ComponentHolder
 					{
 						case ADD_VALUE -> modifierSum.base += modifier.value();
 						case ADD_MULTIPLIED_BASE -> modifierSum.mul1 += modifier.value();
-						case ADD_MULTIPLIED_TOTAL -> modifierSum.mul2 *= modifier.value();
+						case ADD_MULTIPLIED_TOTAL -> modifierSum.mul2 *= (1 + modifier.value());
 					}
 				});
 				org.yang.interestingworld.mixin.helper.HelperItemStack.appendAttributeModifierToolTip(textConsumer,

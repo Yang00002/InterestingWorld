@@ -54,24 +54,15 @@ public class RepeatSlashingAbility extends RuneAbility
 	{
 		return Color.RED_RGB;
 	}
-
-	@Override
-	public void appendToolTip(List<Text> tooltip)
+	public String id()
 	{
-		super.appendToolTip(tooltip);
-		tooltip.add(Text.translatable("repeatslashing_ability_detail").withColor(getColor()));
+		return "repeatslashing";
 	}
 
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
 		return EnergyToolDataFlag.getFromItemStack(stack).canSweep();
-	}
-
-	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("repeatslashing_ability_title");
 	}
 
 	@Override

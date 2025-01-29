@@ -2,6 +2,7 @@ package org.yang.interestingworld.item.item_builder;
 
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
+import net.minecraft.data.client.Model;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -15,12 +16,16 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import org.yang.interestingworld.IWComponents;
 import org.yang.interestingworld.IWItemGroups;
+import org.yang.interestingworld.datagen.itemmodel.CommonItemModelProvider;
+import org.yang.interestingworld.datagen.itemmodel.ItemModelPool;
+import org.yang.interestingworld.datagen.itemmodel.ItemModelProvider;
 import org.yang.interestingworld.item.tool.EnergyToolItem;
 import org.yang.interestingworld.util.Base;
 import org.yang.interestingworld.util.Server;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
 import static net.minecraft.item.Item.BASE_ATTACK_SPEED_MODIFIER_ID;
@@ -49,6 +54,8 @@ public class EnergyToolItemBuilder
 	private final Identifier BASE_ENTITY_INTERACTION_RANGE = Identifier.of(Base.MOD_ID,
 			"base_entity_interaction_range");
 
+	private Function<Item, ItemModelProvider> modelProvider = null;
+
 	public EnergyToolItemBuilder(EnergyToolItemConstructor constructor, String id, ToolMaterial material)
 	{
 		this.constructor = constructor;
@@ -72,6 +79,18 @@ public class EnergyToolItemBuilder
 	{
 		if (defaultEnchantments == null) defaultEnchantments = new HashMap<>();
 		defaultEnchantments.put(enchantEntry, level);
+		return this;
+	}
+
+	public EnergyToolItemBuilder setModel(Function<Item, ItemModelProvider> provider)
+	{
+		modelProvider = provider;
+		return this;
+	}
+
+	public EnergyToolItemBuilder setCommonModel(Model model)
+	{
+		modelProvider = item -> new CommonItemModelProvider(item, model);
 		return this;
 	}
 
@@ -139,6 +158,7 @@ public class EnergyToolItemBuilder
 				wrapperOp.ifPresent(wrapper -> entries.add(ret.getEnchantedDefaultItemStackFromClient(wrapper)));
 			}, itemGroupBelong);
 		}
+		if (modelProvider != null) ItemModelPool.addModel(modelProvider.apply(ret));
 		return ret;
 	}
 }

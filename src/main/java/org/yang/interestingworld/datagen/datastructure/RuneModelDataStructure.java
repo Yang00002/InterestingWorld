@@ -52,15 +52,6 @@ public class RuneModelDataStructure
 		pathCache.put(ability.runeIndex, newPath);
 	}
 
-	public void addTexture(ItemModelGenerator itemModelGenerator, AbstractRuneUpgrade upgrade, String path)
-	{
-		if (pathCache == null) pathCache = new HashMap<>();
-		String newPath = "interestingworld:item/" + path;
-		String s = "{\"parent\":\"minecraft:item/generated\",\"textures\": {\"layer0\":\"" + newPath + "\"}}";
-		itemModelGenerator.writer.accept(Identifier.of(newPath), () -> JsonParser.parseString(s));
-		pathCache.put(upgrade.runeIndex, newPath);
-	}
-
 	public void build()
 	{
 		if (pathCache != null)

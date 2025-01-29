@@ -53,13 +53,13 @@ public class TinkerHeart extends CommonHeart
 	{
 		AttributeModifiersComponent.Builder builder = IWAttributeModifierUtil.getModifiersFromItemStack(stack);
 		IWAttributeModifierUtil.addModifier(builder, EntityAttributes.GENERIC_ATTACK_DAMAGE,
-				AttributeModifierIds.ATTACK_DAMAGE_ADD_OFF_HAND, lvl * 0.2 + 0.1,
-				EntityAttributeModifier.Operation.ADD_VALUE, AttributeModifierSlot.OFFHAND);
+				AttributeModifierIds.ATTACK_DAMAGE_MULADD_OFF_HAND, lvl * 0.02 + 0.01,
+				EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE, AttributeModifierSlot.OFFHAND);
 		IWAttributeModifierUtil.addModifier(builder, EntityAttributes.GENERIC_ATTACK_SPEED,
-				AttributeModifierIds.ATTACK_DAMAGE_ADD_OFF_HAND, lvl * 0.04 + 0.02,
-				EntityAttributeModifier.Operation.ADD_VALUE, AttributeModifierSlot.OFFHAND);
+				AttributeModifierIds.ATTACK_SPEED_MULADD_OFF_HAND, lvl * 0.02 + 0.01,
+				EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE, AttributeModifierSlot.OFFHAND);
 		IWAttributeModifierUtil.addModifier(builder, EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE,
-				AttributeModifierIds.INTERACTION_RANGE_ADD_OFF_HAND, lvl * 0.05 + 0.05,
+				AttributeModifierIds.INTERACTION_RANGE_ADD_OFF_HAND, lvl * 0.04 + 0.05,
 				EntityAttributeModifier.Operation.ADD_VALUE, AttributeModifierSlot.OFFHAND);
 		IWAttributeModifierUtil.applyAttributeModifierToItemStack(builder, stack);
 		return stack;

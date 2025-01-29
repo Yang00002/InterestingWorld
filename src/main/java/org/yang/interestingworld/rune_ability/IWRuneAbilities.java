@@ -1,6 +1,7 @@
 package org.yang.interestingworld.rune_ability;
 
 import java.util.LinkedList;
+import java.util.function.Consumer;
 
 public class IWRuneAbilities
 {
@@ -134,5 +135,13 @@ public class IWRuneAbilities
 		if (idx >= ABILITY_COUNT) return DEFAULT_ABILITY;
 		if (idx <= 0) return DEFAULT_ABILITY;
 		return ABILITY_LIST[idx];
+	}
+
+	public static void forEach(Consumer<AbstractRuneAbility> consumer)
+	{
+		for (int i = 1; i < ABILITY_COUNT; i++)
+		{
+			consumer.accept(ABILITY_LIST[i]);
+		}
 	}
 }

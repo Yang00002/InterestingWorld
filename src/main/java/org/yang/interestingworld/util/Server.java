@@ -7,6 +7,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
+import org.yang.interestingworld.datagen.IWDataGen;
 import org.yang.interestingworld.enchant.EnchantResourceReloader;
 import org.yang.interestingworld.enchant.resource.EnchantData;
 import org.yang.interestingworld.persistentdata.IWPersistentData;
@@ -91,6 +92,7 @@ public class Server
 		var ow = manager.getOptionalWrapper(RegistryKeys.ENCHANTMENT);
 		ow.ifPresent(enchantmentImpl -> EnchantData.initialize(server.getResourceManager(), enchantmentImpl));
 		EnchantResourceReloader.handleReload(server.getResourceManager());
+		IWDataGen.clearPools();
 	}
 
 	private static void onServerStarted(MinecraftServer server)

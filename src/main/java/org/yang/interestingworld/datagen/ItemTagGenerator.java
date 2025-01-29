@@ -24,6 +24,6 @@ public class ItemTagGenerator extends FabricTagProvider<Item>
 		getOrCreateTagBuilder(IWItemTags.CanEnchantAsPreEnchantHeart).add(IWItems.COPPER_HEART).add(IWItems.IRON_HEART)
 				.add(IWItems.GOLD_HEART).add(IWItems.DIAMOND_HEART).add(IWItems.NETHERITE_HEART)
 				.add(IWItems.ENDERITE_HEART).add(IWItems.VOIDALLOY_HEART).add(IWItems.TINKER_HEART)
-				.add(IWItems.CHERRY_HEART);
+				.add(IWItems.CHERRY_HEART).add(IWItems.BLOOD_HEART);
 	}
 }

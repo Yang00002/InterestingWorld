@@ -9,8 +9,6 @@ import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
@@ -25,8 +23,6 @@ import org.yang.interestingworld.util.IWParticleUtil;
 import org.yang.interestingworld.util.IWSoundUtil;
 import org.yang.interestingworld.util.style.Color;
 
-import java.util.List;
-
 import static org.yang.interestingworld.util.Return.FAIL;
 import static org.yang.interestingworld.util.Return.PASS;
 
@@ -40,17 +36,9 @@ public class InfiniteCurseAbility extends InfiniteAbility
 	public static final int ExplodeTick = 100;
 	public static final int ExplodeDamage = 10;
 
-	@Override
-	public void appendToolTip(List<Text> tooltip)
+	public String id()
 	{
-		super.appendToolTip(tooltip);
-		tooltip.add(Text.translatable("infinitecurse_ability_detail").withColor(getColor()));
-	}
-
-	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("infinitecurse_ability_title");
+		return "infinitecurse";
 	}
 
 	@Override
