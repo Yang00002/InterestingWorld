@@ -24,6 +24,7 @@ import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.yang.iw.IWComponents;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.rune_ability.AbstractRuneAbility;
 import org.yang.iw.rune_ability.IWRuneAbilities;
 import org.yang.iw.util.IWEnchantmentUtil;
@@ -189,7 +190,8 @@ public class EnergyToolItem extends ToolItem
 		MutableText text = Text.empty();
 		if (stack.contains(IWComponents.MAX_ENERGY))
 		{
-			text.append(Text.translatable("tooltip.energy.count").formatted(Formatting.GRAY)).append(" ");
+			text.append(Text.translatable(TranslationPool.TOOLTIP_ENERGYTOOL_COMMON_ENERGY).formatted(Formatting.GRAY))
+					.append(" ");
 			appendEneryText(text, stack);
 			tooltip.add(text);
 		}
@@ -202,13 +204,13 @@ public class EnergyToolItem extends ToolItem
 			{
 				tooltip.add(Text.empty());
 				if (EnergyToolDataFlag.getFromItemStack(stack).onlyHaveDefaultEnchantment())
-					tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(Color.GRAY_RGB));
+					tooltip.add(Text.translatable(TranslationPool.TOOLTIP_DEFAULT_ENCHANT).withColor(Color.GRAY_RGB));
 			}
 		}
 		else
 		{
 			if (EnergyToolDataFlag.getFromItemStack(stack).onlyHaveDefaultEnchantment())
-				tooltip.add(Text.translatable("tooltip.defaultenchantment").withColor(Color.GRAY_RGB));
+				tooltip.add(Text.translatable(TranslationPool.TOOLTIP_DEFAULT_ENCHANT).withColor(Color.GRAY_RGB));
 		}
 	}
 

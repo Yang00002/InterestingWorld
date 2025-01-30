@@ -1,23 +1,23 @@
 {
   "values": [
     {
-      "id": "iw:balance",
+      "id": "iw:fast_hit",
       "required": false
     },
     {
-      "id": "iw:plentiful",
+      "id": "iw:fast_hit",
       "required": false
     },
     {
-      "id": "iw:rune_boost",
+      "id": "iw:fast_hit",
       "required": false
     },
     {
-      "id": "iw:energy_efficiency",
+      "id": "iw:fast_hit",
       "required": false
     },
     {
-      "id": "iw:lucky",
+      "id": "iw:fast_hit",
       "required": false
     }
   ]

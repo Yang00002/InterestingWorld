@@ -5,11 +5,11 @@
       "required": false
     },
     {
-      "id": "iw:blood_effect",
+      "id": "iw:energe_explode",
       "required": false
     },
     {
-      "id": "iw:energe_explode",
+      "id": "iw:blood_effect",
       "required": false
     },
     {

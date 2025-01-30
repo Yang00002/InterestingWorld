@@ -13,18 +13,23 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import org.yang.iw.IWComponents;
 import org.yang.iw.IWItemGroups;
 import org.yang.iw.datagen.itemmodel.CommonItemModelProvider;
 import org.yang.iw.datagen.itemmodel.ItemModelPool;
 import org.yang.iw.datagen.itemmodel.ItemModelProvider;
+import org.yang.iw.datagen.tag.ItemTagPool;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.util.Base;
 import org.yang.iw.util.Server;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
@@ -55,6 +60,14 @@ public class EnergyToolItemBuilder
 			"base_entity_interaction_range");
 
 	private Function<Item, ItemModelProvider> modelProvider = null;
+	private String translation = null;
+	private final Set<TagKey<Item>> tags = new HashSet<>();
+
+	public EnergyToolItemBuilder addTag(TagKey<Item> tag)
+	{
+		tags.add(tag);
+		return this;
+	}
 
 	public EnergyToolItemBuilder(EnergyToolItemConstructor constructor, String id, ToolMaterial material)
 	{
@@ -91,6 +104,12 @@ public class EnergyToolItemBuilder
 	public EnergyToolItemBuilder setCommonModel(Model model)
 	{
 		modelProvider = item -> new CommonItemModelProvider(item, model);
+		return this;
+	}
+
+	public EnergyToolItemBuilder setTranslation(String str)
+	{
+		translation = str;
 		return this;
 	}
 
@@ -159,6 +178,8 @@ public class EnergyToolItemBuilder
 			}, itemGroupBelong);
 		}
 		if (modelProvider != null) ItemModelPool.addModel(modelProvider.apply(ret));
+		if (translation != null) TranslationPool.addItem(ret, translation);
+		tags.forEach(tag -> ItemTagPool.add(tag, ret));
 		return ret;
 	}
 }

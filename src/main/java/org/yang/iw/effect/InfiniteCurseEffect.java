@@ -31,7 +31,7 @@ public class InfiniteCurseEffect extends StatusEffect
 	@Override
 	public void onRemoveEffect(LivingEntity entity, int amplifier)
 	{
-		entity.damage(new DamageSource(IWDamageTypes.ENERGEE_EXPLODE_entry.get()), amplifier + 1);
+		entity.damage(new DamageSource(IWDamageTypes.ENERGEE_EXPLODE_ENTRY.get()), amplifier + 1);
 		IWParticleUtil.spawnParticleAtPos(entity.getWorld(), ParticleTypes.EXPLOSION, entity.getX(), entity.getY(),
 				entity.getZ(), 3, 0.5, 0.5, 0.5, 0);
 	}

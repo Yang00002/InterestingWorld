@@ -8,8 +8,6 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.yang.iw.IWComponents;
 import org.yang.iw.rune_upgrade.AbstractRuneUpgrade;
@@ -19,7 +17,6 @@ import org.yang.iw.util.toolflag.EnergyToolDataFlag;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Sweeping4Upgrade extends AbstractRuneUpgrade
@@ -75,21 +72,10 @@ public class Sweeping4Upgrade extends AbstractRuneUpgrade
 	}
 
 	@Override
-	public String getIdentifierString()
+	public String id()
 	{
-		return "sweeping2";
+		return "sweeping4";
 	}
 
-	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("sweeping_upgrade_title");
-	}
-
-	@Override
-	public void appendExplanation(List<Text> tooltip)
-	{
-		tooltip.add(Text.translatable("sweeping3_upgrade_detail").withColor(getColor()));
-	}
 
 }

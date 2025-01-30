@@ -7,7 +7,7 @@ import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.DamageTypeTags;
-import org.yang.iw.IWDamageTypes;
+import org.yang.iw.datagen.tag.DamageTypeTagPool;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -21,19 +21,7 @@ public class DamageTypeTagGenerator extends FabricTagProvider<DamageType>
 	@Override
 	protected void configure(RegistryWrapper.WrapperLookup wrapperLookup)
 	{
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN).addOptional(IWDamageTypes.ENERGEE_MELEE)
-				.addOptional(IWDamageTypes.BLOOD_EFFECT).addOptional(IWDamageTypes.ENERGEE_EXPLODE)
-				.addOptional(DamageTypes.ON_FIRE);
-		getOrCreateTagBuilder(DamageTypeTags.AVOIDS_GUARDIAN_THORNS).addOptional(IWDamageTypes.ENERGEE_MELEE)
-				.addOptional(IWDamageTypes.BLOOD_EFFECT).addOptional(IWDamageTypes.ENERGEE_EXPLODE);
-		getOrCreateTagBuilder(DamageTypeTags.PANIC_CAUSES).addOptional(IWDamageTypes.ENERGEE_MELEE)
-				.addOptional(IWDamageTypes.BLOOD_EFFECT).addOptional(IWDamageTypes.ENERGEE_EXPLODE);
-		getOrCreateTagBuilder(DamageTypeTags.NO_KNOCKBACK).addOptional(IWDamageTypes.BLOOD_EFFECT)
-				.addOptional(IWDamageTypes.ENERGEE_EXPLODE);
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ARMOR).addOptional(IWDamageTypes.BLOOD_EFFECT);
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_WOLF_ARMOR).addOptional(IWDamageTypes.BLOOD_EFFECT);
-		getOrCreateTagBuilder(DamageTypeTags.IS_EXPLOSION).addOptional(IWDamageTypes.ENERGEE_EXPLODE);
-		getOrCreateTagBuilder(DamageTypeTags.ALWAYS_HURTS_ENDER_DRAGONS).addOptional(IWDamageTypes.ENERGEE_MELEE)
-				.addOptional(IWDamageTypes.ENERGEE_EXPLODE);
+		DamageTypeTagPool.generatePool(this::getOrCreateTagBuilder);
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN).addOptional(DamageTypes.ON_FIRE);
 	}
 }

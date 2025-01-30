@@ -8,18 +8,14 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import org.yang.iw.IWComponents;
 import org.yang.iw.rune_upgrade.AbstractRuneUpgrade;
-import org.yang.iw.util.Base;
+import org.yang.iw.util.constants.AttributeModifierIds;
 import org.yang.iw.util.style.Color;
 import org.yang.iw.util.toolflag.EnergyToolDataFlag;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Sweeping2Upgrade extends AbstractRuneUpgrade
@@ -32,7 +28,7 @@ public class Sweeping2Upgrade extends AbstractRuneUpgrade
 	{
 		Map<Item, Integer> map = new HashMap<>();
 		map.put(Items.STICK, 16);
-		map.put(Items.IRON_INGOT, 4);
+		map.put(Items.IRON_INGOT, 16);
 		ingredientMap = Collections.unmodifiableMap(map);
 	}
 
@@ -49,8 +45,8 @@ public class Sweeping2Upgrade extends AbstractRuneUpgrade
 		toolStack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(toolStack).setCanSweep());
 		var at = toolStack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
 		at = at.with(EntityAttributes.PLAYER_SWEEPING_DAMAGE_RATIO,
-				new EntityAttributeModifier(Identifier.of(Base.MOD_ID, "ecg"), SWEEP_RATIO,
-						EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND);
+				new EntityAttributeModifier(AttributeModifierIds.SWEEPING_DAMAGE_RATIO_ADD_MAIN_HAND_UPGRADE,
+						SWEEP_RATIO, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND);
 		toolStack.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, at);
 	}
 
@@ -73,21 +69,9 @@ public class Sweeping2Upgrade extends AbstractRuneUpgrade
 	}
 
 	@Override
-	public String getIdentifierString()
+	public String id()
 	{
-		return "sweeping4";
-	}
-
-	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("sweeping_upgrade_title");
-	}
-
-	@Override
-	public void appendExplanation(List<Text> tooltip)
-	{
-		tooltip.add(Text.translatable("sweeping2_upgrade_detail").withColor(getColor()));
+		return "sweeping2";
 	}
 
 }

@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.yang.iw.IWComponents;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.util.style.Color;
 import org.yang.iw.util.style.TextStyle;
 import org.yang.iw.util.toolflag.EnergyToolDataFlag;
@@ -14,22 +15,25 @@ import java.util.Map;
 
 public abstract class AbstractRuneUpgrade
 {
+	private final MutableText tip = Text.translatable("upgrade.tip." + id()).withColor(getColor());
+	private final MutableText title = Text.translatable("upgrade.title." + id());
+
 	public abstract int getColor();
 
-	public abstract String getIdentifierString();
+	public abstract String id();
 
-	public abstract MutableText getTitleText();
+	public MutableText getTitleText()
+	{
+		return title;
+	}
 
 	public void appendToolTip(List<Text> tooltip)
 	{
 		tooltip.add(Text.empty());
-		tooltip.add(Text.literal("【").append(getTitleText()).append("】").setStyle(TextStyle.BOLD_STYLE)
-				.withColor(getColor()));
-		appendExplanation(tooltip);
+		tooltip.add(Text.literal("【").append(title).append("】").setStyle(TextStyle.BOLD_STYLE).withColor(getColor()));
+		tooltip.add(tip);
 		appendIngredientToolTip(tooltip);
 	}
-
-	public abstract void appendExplanation(List<Text> tooltip);
 
 	public abstract boolean canApplyTo(ItemStack stack);
 
@@ -53,7 +57,7 @@ public abstract class AbstractRuneUpgrade
 		if (ig != null)
 		{
 			tooltip.add(Text.empty());
-			tooltip.add(Text.translatable("upgrade.need.txet").withColor(Color.GRAY_RGB));
+			tooltip.add(Text.translatable(TranslationPool.TOOLTIP_UPGRADE_NEED_BEGIN).withColor(Color.GRAY_RGB));
 			for (var i : ig.entrySet())
 			{
 				var item = i.getKey();

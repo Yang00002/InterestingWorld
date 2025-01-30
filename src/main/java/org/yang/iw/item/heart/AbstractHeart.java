@@ -9,6 +9,7 @@ import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import org.yang.iw.IWComponents;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.persistentdata.IWPersistentData;
 import org.yang.iw.rune_ability.AbstractRuneAbility;
 import org.yang.iw.rune_ability.IWRuneAbilities;
@@ -182,7 +183,7 @@ public abstract class AbstractHeart extends Item
 	{
 		HeartFlagOnlyCheckable flagOnlyCheckable = HeartDataFlag.getFromItemStack(stack);
 		int lvl = flagOnlyCheckable.getMaterialLevel();
-		tooltip.add(Text.translatable("tooltip.heart.containerLevel").withColor(Color.GRAY_RGB)
+		tooltip.add(Text.translatable(TranslationPool.TOOLTIP_HEART_CONTAINER_LEVEL).withColor(Color.GRAY_RGB)
 				.append(Text.literal(String.valueOf(lvl)).withColor(Color.getLevelColor(lvl))));
 		switch (flagOnlyCheckable.getTypeTaking())
 		{
@@ -190,22 +191,24 @@ public abstract class AbstractHeart extends Item
 			{
 				if (supportEnchant())
 				{
-					tooltip.add(Text.translatable("tooltip.heart.canEnchant").withColor(Color.GRAY_RGB));
+					tooltip.add(Text.translatable(TranslationPool.TOOLTIP_HEART_CAN_ENCHANT).withColor(Color.GRAY_RGB));
 				}
 				if (supportAbility())
 				{
-					tooltip.add(Text.translatable("tooltip.heart.canHaveAbility").withColor(Color.GRAY_RGB));
+					tooltip.add(Text.translatable(TranslationPool.TOOLTIP_HEART_CAN_TAKE_ABILITY)
+							.withColor(Color.GRAY_RGB));
 				}
 			}
-			case PREENCHANT -> tooltip.add(Text.translatable("tooltip.heart.furtherEnchant").withColor(Color.GRAY_RGB));
+			case PREENCHANT -> tooltip.add(
+					Text.translatable(TranslationPool.TOOLTIP_HEART_NEED_FURTHER_ENCHANT).withColor(Color.GRAY_RGB));
 			case ENCHANT ->
 			{
 				int takeLvl = flagOnlyCheckable.getTakingLevel();
 				IWPersistentData data = Server.getPersistentData();
 				if (data != null && takeLvl <= data.worldEnergyLevel) tooltip.add(
-						Text.translatable("tooltip.heart.enchantLevel").withColor(Color.GRAY_RGB)
+						Text.translatable(TranslationPool.TOOLTIP_HEART_ENCHANT_LEVEL).withColor(Color.GRAY_RGB)
 								.append(Text.literal(String.valueOf(takeLvl)).withColor(Color.getLevelColor(takeLvl))));
-				else tooltip.add(Text.translatable("tooltip.heart.enchantLevel").withColor(Color.RED_RGB)
+				else tooltip.add(Text.translatable(TranslationPool.TOOLTIP_HEART_ENCHANT_LEVEL).withColor(Color.RED_RGB)
 						.append(Text.literal(String.valueOf(takeLvl)).withColor(Color.getLevelColor(takeLvl))));
 			}
 			case ABILITY ->
@@ -213,9 +216,9 @@ public abstract class AbstractHeart extends Item
 				int takeLvl = flagOnlyCheckable.getTakingLevel();
 				IWPersistentData data = Server.getPersistentData();
 				if (data != null && takeLvl <= data.worldEnergyLevel) tooltip.add(
-						Text.translatable("tooltip.heart.abilityLevel").withColor(Color.GRAY_RGB)
+						Text.translatable(TranslationPool.TOOLTIP_HEART_ABILITY_LEVEL).withColor(Color.GRAY_RGB)
 								.append(Text.literal(String.valueOf(takeLvl)).withColor(Color.getLevelColor(takeLvl))));
-				else tooltip.add(Text.translatable("tooltip.heart.abilityLevel").withColor(Color.RED_RGB)
+				else tooltip.add(Text.translatable(TranslationPool.TOOLTIP_HEART_ABILITY_LEVEL).withColor(Color.RED_RGB)
 						.append(Text.literal(String.valueOf(takeLvl)).withColor(Color.getLevelColor(takeLvl))));
 				var ab = getAbility(stack);
 				ab.appendToolTip(tooltip);

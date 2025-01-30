@@ -4,6 +4,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.persistentdata.IWPersistentData;
 import org.yang.iw.rune_upgrade.AbstractRuneUpgrade;
 import org.yang.iw.util.Server;
@@ -19,7 +20,7 @@ public class UpgradeTemplate extends Item
 	@Override
 	public Text getName(ItemStack stack)
 	{
-		return upgrade.getTitleText().append(Text.translatable("abilityrune.suffix")).withColor(upgrade.getColor());
+		return super.getName(stack).copy().withColor(upgrade.getColor());
 	}
 
 	@Override
@@ -28,9 +29,9 @@ public class UpgradeTemplate extends Item
 		int takeLvl = upgrade.level();
 		IWPersistentData data = Server.getPersistentData();
 		if (data != null && takeLvl <= data.worldEnergyLevel) tooltip.add(
-				Text.translatable("tooltip.upgradeTemplate.level").withColor(Color.GRAY_RGB)
+				Text.translatable(TranslationPool.TOOLTIP_UPGRADE_TEMPLATE_LEVEL_N).withColor(Color.GRAY_RGB)
 						.append(Text.literal(String.valueOf(takeLvl)).withColor(Color.getLevelColor(takeLvl))));
-		else tooltip.add(Text.translatable("tooltip.upgradeTemplate.level").withColor(Color.RED_RGB)
+		else tooltip.add(Text.translatable(TranslationPool.TOOLTIP_UPGRADE_TEMPLATE_LEVEL_N).withColor(Color.RED_RGB)
 				.append(Text.literal(String.valueOf(takeLvl)).withColor(Color.getLevelColor(takeLvl))));
 		upgrade.appendToolTip(tooltip);
 	}

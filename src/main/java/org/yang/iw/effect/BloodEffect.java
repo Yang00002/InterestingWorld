@@ -24,7 +24,7 @@ public class BloodEffect extends StatusEffect
 	@Override
 	public boolean applyUpdateEffect(LivingEntity entity, int amplifier)
 	{
-		entity.damage(new DamageSource(IWDamageTypes.BLOOD_EFFECT_entry.get()), amplifier + 1);
+		entity.damage(new DamageSource(IWDamageTypes.BLOOD_EFFECT_ENTRY.get()), amplifier + 1);
 		return true;
 	}
 

@@ -71,7 +71,7 @@ public class SlashingAbility extends RuneAbility
 				World world = attacker.getWorld();
 				var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
 				var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
-				var damageSource = new DamageSource(IWDamageTypes.ENERGEE_MELEE_entry.get(), attacker);
+				var damageSource = new DamageSource(IWDamageTypes.ENERGEE_MELEE_ENTRY.get(), attacker);
 				IWSoundUtil.playSoundToPlayer(player, IWSounds.DOUBLE_SWEEP, SoundCategory.PLAYERS);
 				IWLivingEntityUtil.sweepEntity(attacker, AttackMaxAngleCosine, AttackMaxLength, target,
 						(attacker1, entity, distance) -> {

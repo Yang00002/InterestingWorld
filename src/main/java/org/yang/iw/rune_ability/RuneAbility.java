@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.yang.iw.IWSounds;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.persistentdata.IWPersistentData;
 import org.yang.iw.util.Server;
@@ -15,8 +16,8 @@ import java.util.List;
 
 public class RuneAbility extends AbstractRuneAbility
 {
-	private final MutableText tip = Text.translatable(id() + "_ability_detail").withColor(getColor());
-	private final MutableText title = Text.translatable(id() + "_ability_title");
+	private final MutableText tip = Text.translatable("ability.tip." + id()).withColor(getColor());
+	private final MutableText title = Text.translatable("ability.title." + id());
 
 	@Override
 	public void appendToolTip(List<Text> tooltip)
@@ -39,7 +40,7 @@ public class RuneAbility extends AbstractRuneAbility
 		tooltip.add(Text.empty());
 		tooltip.add(Text.literal("【").append(getTitleText()).append("】").setStyle(TextStyle.BOLD_STYLE)
 				.withColor(Color.GRAY_RGB));
-		tooltip.add(Text.translatable("banedabilitydetail").withColor(Color.GRAY_RGB));
+		tooltip.add(Text.translatable(TranslationPool.TOOLTIP_BAN_ABILITY_BEGIN).withColor(Color.GRAY_RGB));
 	}
 
 	@Override

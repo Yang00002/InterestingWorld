@@ -1,6 +1,10 @@
 {
   "values": [
     {
+      "id": "iw:energe_explode",
+      "required": false
+    },
+    {
       "id": "iw:blood_effect",
       "required": false
     }

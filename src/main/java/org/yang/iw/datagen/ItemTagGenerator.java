@@ -5,8 +5,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
-import org.yang.iw.item.IWItemTags;
-import org.yang.iw.item.IWItems;
+import org.yang.iw.datagen.tag.ItemTagPool;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -21,9 +20,6 @@ public class ItemTagGenerator extends FabricTagProvider<Item>
 	@Override
 	protected void configure(RegistryWrapper.WrapperLookup wrapperLookup)
 	{
-		getOrCreateTagBuilder(IWItemTags.CanEnchantAsPreEnchantHeart).add(IWItems.COPPER_HEART).add(IWItems.IRON_HEART)
-				.add(IWItems.GOLD_HEART).add(IWItems.DIAMOND_HEART).add(IWItems.NETHERITE_HEART)
-				.add(IWItems.ENDERITE_HEART).add(IWItems.VOIDALLOY_HEART).add(IWItems.TINKER_HEART)
-				.add(IWItems.CHERRY_HEART).add(IWItems.BLOOD_HEART);
+		ItemTagPool.generatePool(this::getOrCreateTagBuilder);
 	}
 }

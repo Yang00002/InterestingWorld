@@ -16,6 +16,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.yang.iw.IWResources;
 import org.yang.iw.block.forgingblock.ForgingBlockScreenHandler;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.util.Base;
 import org.yang.iw.util.IWEnchantmentUtil;
 
@@ -130,10 +131,10 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 		int state = this.handler.getGlobalState();
 		switch (state)
 		{
-			case 0 -> drawTitle(context, Text.translatable("forgingblock.title.all"));
+			case 0 -> drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ALL_N));
 			case 1 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.rune_enchant"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_PREENCHANT_N));
 				Text t = handler.getFirstEnchantOut();
 				if (t != null)
 				{
@@ -144,18 +145,19 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 			}
 			case 2 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.rune_enchant"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_PREENCHANT_N));
 				TipDrawer drawer = new TipDrawer(context, 2, 2);
-				drawer.addText(Text.translatable("forgingblock.text.rune_enchant.2"), 4, false);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_PREENCHANT_N), 4, false);
 				drawer.draw();
 			}
 			case 3 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.enchant"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ENCHANT_N));
 				TipDrawer drawer = new TipDrawer(context, 2, 2);
 				if (!handler.isWorldLevelEnough())
 				{
-					drawer.addText(Text.translatable("forgingblock.text.level"), 4, false);
+					drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_CANNOT_USE_BECAUSE_LEVEL_N), 4,
+							false);
 				}
 				else
 				{
@@ -165,31 +167,41 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 						var player = this.client.player;
 						int xpHave = IWEnchantmentUtil.getExperienceFromLevel(player.experienceLevel,
 								player.experienceProgress);
-						drawer.addText(Text.translatable("forgingblock.text.enchant.3xpl"), 4, xpHave >= xpCost);
-						drawer.addXpTexture(getWorldLevelOfXpCost(xpCost), 0);
-						drawer.addText(Text.translatable("forgingblock.text.enchant.3xpr", xpCost, xpHave), 4,
+						drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ENCHANT_COST_L_N), 4,
 								xpHave >= xpCost);
+						drawer.addXpTexture(getWorldLevelOfXpCost(xpCost), 0);
+						drawer.addText(
+								Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ENCHANT_COST_R_N, xpCost, xpHave),
+								4, xpHave >= xpCost);
 					}
 				}
 				drawer.draw();
 			}
-			case 4, 5 ->
+			case 4 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.enchant"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ENCHANT_N));
 				TipDrawer drawer = new TipDrawer(context, 2, 2);
-				drawer.addText(Text.translatable("forgingblock.text.enchant." + state), 4, false);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ENCHANT_NO_USEFUL_N), 4, false);
+				drawer.draw();
+			}
+			case 5 ->
+			{
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ENCHANT_N));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ENCHANT_PUT_TOOL_N), 4, false);
 				drawer.draw();
 			}
 			case 6 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.repair"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_REPAIR_N));
 				TipDrawer drawer = new TipDrawer(context, 2, 2);
-				drawer.addText(Text.translatable("forgingblock.text.repair.6"), 4, false);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_REPAIR_NEED_INGREDIENT_N), 4,
+						false);
 				drawer.draw();
 			}
 			case 7 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.repair"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_REPAIR_N));
 				TipDrawer drawer = new TipDrawer(context, 2, 2);
 				int xpCost = this.handler.getExperienceCost();
 				if (this.client != null && this.client.player != null)
@@ -197,69 +209,125 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 					var player = this.client.player;
 					int xpHave = IWEnchantmentUtil.getExperienceFromLevel(player.experienceLevel,
 							player.experienceProgress);
-					drawer.addText(Text.translatable("forgingblock.text.repair.7l"), 4, xpHave >= xpCost);
+					drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_REPAIR_COST_L_N), 4,
+							xpHave >= xpCost);
 					drawer.addXpTexture(IWEnchantmentUtil.getWorldLevelOfXpCost(xpCost), 0);
-					drawer.addText(
-							Text.translatable("forgingblock.text.repair.7r", xpCost, xpHave, handler.getRepairCount()),
-							4, xpHave >= xpCost);
+					drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_REPAIR_COST_R_N, xpCost, xpHave,
+							handler.getRepairCount()), 4, xpHave >= xpCost);
 				}
 				drawer.draw();
 			}
-			case 8 -> drawTitle(context, Text.translatable("forgingblock.title.abilityadd"));
-			case 9, 10, 11 ->
+			case 8 -> drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ABILITY_ADD_N));
+			case 9 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.abilityadd"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ABILITY_ADD_N));
 				TipDrawer drawer = new TipDrawer(context, 2, 2);
-				drawer.addText(Text.translatable("forgingblock.text.abilityadd." + state), 4, false);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ABILITY_ADD_INCOMPATIBLE_N), 4,
+						false);
+				drawer.draw();
+			}
+			case 10 ->
+			{
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ABILITY_ADD_N));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ABILITY_ADD_ALREADY_HAVE_N), 4,
+						false);
+				drawer.draw();
+			}
+			case 11 ->
+			{
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ABILITY_ADD_N));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ABILITY_ADD_PUT_TOOL_N), 4, false);
 				drawer.draw();
 			}
 			case 12 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.abilityremove"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ABILITY_REMOVE_N));
 				int preBeginX = this.backgroundWidth - 10;
 				int count = handler.getRepairCount();
-				Text text = Text.translatable("forgingblock.text.abilityremove.12", count);
+				Text text = Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ABILITY_REMOVE_TOOL_BREAK_N, count);
 				int len = this.textRenderer.getWidth(text);
 				context.fill(preBeginX - len - 2, 67, this.backgroundWidth - 8, 79, 1325400064);
 				context.drawTextWithShadow(this.textRenderer, text, preBeginX - len, 69,
 						MathHelper.hsvToRgb((100 - count) / 300.0f, 1.0F, 1.0F) | 0x0FF000000);
 			}
-			case 13, 14 ->
+			case 13 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.abilityremove"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ABILITY_REMOVE_N));
 				TipDrawer drawer = new TipDrawer(context, 2, 2);
-				drawer.addText(Text.translatable("forgingblock.text.abilityremove." + state), 4, false);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ABILITY_REMOVE_NO_ABILITY_N), 4,
+						false);
+				drawer.draw();
+			}
+			case 14 ->
+			{
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ABILITY_REMOVE_N));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ABILITY_REMOVE_PUT_TOOL_N), 4,
+						false);
 				drawer.draw();
 			}
 			case 15 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.rune_enchant"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_PREENCHANT_N));
 				TipDrawer drawer = new TipDrawer(context, 2, 2);
-				drawer.addText(Text.translatable("forgingblock.text.enchant.4"), 4, false);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ENCHANT_NO_USEFUL_N), 4, false);
 				drawer.draw();
 			}
 			case 16 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.upgrade"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_UPGRADE_N));
 				if (!handler.isWorldLevelEnough())
 				{
 					TipDrawer drawer = new TipDrawer(context, 2, 2);
-					drawer.addText(Text.translatable("forgingblock.text.level"), 4, false);
+					drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_CANNOT_USE_BECAUSE_LEVEL_N), 4,
+							false);
 					drawer.draw();
 				}
 			}
-			case 17, 18, 19, 20 ->
+			case 17 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.upgrade"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_UPGRADE_N));
 				TipDrawer drawer = new TipDrawer(context, 2, 2);
-				drawer.addText(Text.translatable("forgingblock.text.upgrade." + state), 4, false);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_UPGRADE_LACK_INGREDIENT_N), 4,
+						false);
 				drawer.draw();
 			}
-			case 21, 22 ->
+			case 18 ->
 			{
-				drawTitle(context, Text.translatable("forgingblock.title.abilityremove"));
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_UPGRADE_N));
 				TipDrawer drawer = new TipDrawer(context, 2, 2);
-				drawer.addText(Text.translatable("forgingblock.text.rune_enchant." + state), 4, false);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_UPGRADE_INCOMPATIBLE_N), 4, false);
+				drawer.draw();
+			}
+			case 19 ->
+			{
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_UPGRADE_N));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_UPGRADE_REPEAT_N), 4, false);
+				drawer.draw();
+			}
+			case 20 ->
+			{
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_UPGRADE_N));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_UPGRADE_PUT_TOOL_N), 4, false);
+				drawer.draw();
+			}
+			case 21 ->
+			{
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ABILITY_REMOVE_N));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ABILITY_REMOVE_INCOMPATIBLE_N), 4,
+						false);
+				drawer.draw();
+			}
+			case 22 ->
+			{
+				drawTitle(context, Text.translatable(TranslationPool.FORGING_BLOCK_TITLE_ABILITY_REMOVE_N));
+				TipDrawer drawer = new TipDrawer(context, 2, 2);
+				drawer.addText(Text.translatable(TranslationPool.FORGING_BLOCK_TIP_ABILITY_REMOVE_LEVEL_N), 4, false);
 				drawer.draw();
 			}
 		}

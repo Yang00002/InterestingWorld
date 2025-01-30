@@ -69,19 +69,6 @@ public class HeavyUpgrade extends AbstractRuneUpgrade
 	{
 		return 0;
 	}
-
-	@Override
-	public MutableText getTitleText()
-	{
-		return Text.translatable("heavy_upgrade_title");
-	}
-
-	@Override
-	public void appendExplanation(List<Text> tooltip)
-	{
-		tooltip.add(Text.translatable("heavy_upgrade_detail").withColor(getColor()));
-	}
-
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
@@ -95,7 +82,7 @@ public class HeavyUpgrade extends AbstractRuneUpgrade
 	}
 
 	@Override
-	public String getIdentifierString()
+	public String id()
 	{
 		return "heavy";
 	}

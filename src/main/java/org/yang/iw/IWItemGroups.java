@@ -9,11 +9,14 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.yang.iw.block.IWBlocks;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.item.IWItems;
 import org.yang.iw.rune_ability.IWRuneAbilities;
+import org.yang.iw.rune_upgrade.IWRuneUpgrades;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 import static org.yang.iw.util.Base.MOD_ID;
 import static org.yang.iw.util.Base.iwlogger;
@@ -67,22 +70,43 @@ public class IWItemGroups
 				.entries(((displayContext, entries) -> applyData(groupRegistryKey, displayContext, entries))).build());
 	}
 
+	private static Map<RegistryKey<ItemGroup>, Supplier<ItemStack>> itemGroups = new LinkedHashMap<>();
 
-	public static final RegistryKey<ItemGroup> TOOLS_GROUP = RegistryKey.of(Registries.ITEM_GROUP.getKey(),
-			Identifier.of(MOD_ID, "tools_group"));
-	public static final RegistryKey<ItemGroup> RUNES_GROUP = RegistryKey.of(Registries.ITEM_GROUP.getKey(),
-			Identifier.of(MOD_ID, "runes_group"));
-	public static final RegistryKey<ItemGroup> IngredientGroup = RegistryKey.of(Registries.ITEM_GROUP.getKey(),
-			Identifier.of(MOD_ID, "ingredients"));
-	public static final RegistryKey<ItemGroup> BLOCKS_GROUP = RegistryKey.of(Registries.ITEM_GROUP.getKey(),
-			Identifier.of(MOD_ID, "blocks_group"));
+	private static RegistryKey<ItemGroup> itemGroup(String id, String translation,
+													Supplier<ItemStack> delegateItemStackGetter)
+	{
+		var r = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, id));
+		itemGroups.put(r, delegateItemStackGetter);
+		TranslationPool.addString("%s.%s".formatted(MOD_ID, id), translation);
+		return r;
+	}
+
+	/**
+	 * lambda 不能被替换为方法引用
+	 */
+	public static final RegistryKey<ItemGroup> TOOLS_GROUP = itemGroup("tools_group", "IW: 工具",
+			() -> IWItems.NETHERITE_SWORD.getDefaultStack());
+	public static final RegistryKey<ItemGroup> RUNES_GROUP = itemGroup("runes_group", "IW：能力", () -> {
+		var s = IWItems.BLOOD_HEART.getDefaultStack();
+		IWItems.BLOOD_HEART.setAbility(s, IWRuneAbilities.EVISCERATE_ABILITY);
+		return s;
+	});
+	public static final RegistryKey<ItemGroup> UPGRADE_GROUP = itemGroup("upgrades_group", "IW：升级",
+			() -> Registries.ITEM.get(
+							Identifier.of(MOD_ID, IWRuneUpgrades.getItemIdOfUpgrade(IWRuneUpgrades.SWEEPING3_UPGRADE)))
+					.getDefaultStack());
+	public static final RegistryKey<ItemGroup> INGREDIENTS_GROUP = itemGroup("ingredients_group", "IW：材料",
+			() -> IWItems.HEART.getDefaultStack());
+	public static final RegistryKey<ItemGroup> BLOCKS_GROUP = itemGroup("blocks_group", "IW：方块",
+			() -> IWBlocks.FORGING_BLOCK.asItem().getDefaultStack());
 
 	public static void initialize()
 	{
-		initializeItemGroup(BLOCKS_GROUP, IWBlocks.FORGING_BLOCK.asItem().getDefaultStack());
-		initializeItemGroup(IngredientGroup, IWItems.HEART.getDefaultStack());
-		initializeItemGroup(RUNES_GROUP, getAbilityDisplay());
-		initializeItemGroup(TOOLS_GROUP, IWItems.NETHERITE_SWORD.getDefaultStack());
+		for (var kv : itemGroups.entrySet())
+		{
+			initializeItemGroup(kv.getKey(), kv.getValue().get());
+		}
+		itemGroups = null;
 		data = Collections.unmodifiableMap(data);
 	}
 }

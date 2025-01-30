@@ -1,4 +1,4 @@
-// 1.21.1	2025-01-30T10:00:26.2286459	InterestingWorld/Model Definitions
+// 1.21.1	2025-01-30T21:56:46.1068558	InterestingWorld/Model Definitions
 2a212a8f32b62a28ea99d1ee856d93f009925ba9 assets\iw\models\item\energy_stick\slashing.json
 385ee4102ca6e6bb1300a389c7e9721d6c46f46a assets\iw\models\item\heart.json
 e5d40d4a9ea9d8d3f3cf10ccd1a29ee82ff24806 assets\iw\models\item\gold_heart.json
@@ -9,13 +9,13 @@ b7e3f2fcc9d9fa2e290f65f921c0cd029563ba81 assets\iw\models\item\enchanted\copper_
 ac6ecff1d1ac5288aa584c77e80b31ce292480e1 assets\iw\models\item\golden_sword\sweetcurse.json
 ccc140ca0245f9ae8acdc4b93f832dee63688497 assets\iw\models\item\enderite_heart.json
 0cf904392d5194cc48b995bce008e0bf393e3f5c assets\iw\models\item\diamond_heart.json
-7d289ab131c839cf3ae74da1c9c4541f44d0f5b8 assets\iw\models\item\enchanted\voidalloy_heart.json
 c3d53e0714397f9041505d67fc218728f649a521 assets\iw\models\item\tinker_heart.json
+7d289ab131c839cf3ae74da1c9c4541f44d0f5b8 assets\iw\models\item\enchanted\voidalloy_heart.json
 02d03b21c0a2d4a1f180687174624d0ad24a1e7d assets\iw\models\item\iron_sword\sweetcurse.json
 e01d538de9ee2f12215bb211c0788f5493a3d863 assets\iw\blockstates\forging_block.json
 baee7ddb9417e6a588de8f26d30fab5b56dd9ce4 assets\iw\models\item\golden_sword\infinitecurse.json
 b8ebb4a374a1251940d13e47bea1c89215e3dde9 assets\iw\models\item\enchanted\netherite_heart.json
-eb4b681af33c1519ec5e592548f84cccaae0b440 assets\iw\models\item\sweeping2_upgrade_template.json
+7ca511d785708f11b428634dc65990c62d5a75d8 assets\iw\models\item\sweeping2_upgrade_template.json
 8bca2ee3eb1aa8cbb0bca631841f6f926264673c assets\iw\models\item\golden_sword.json
 0fa4306c7ec2f5e9dd36ad6bacad276cc633ee03 assets\iw\models\item\golden_sword\slashing.json
 f26390a5d504201e89ce70043a1042437e4d846d assets\iw\models\item\diamond_sword\sweetcurse.json
@@ -26,7 +26,6 @@ dcf5c2a1d4de4a5a4fa1fe43beca026788016fd9 assets\iw\models\item\diamond_sword\inf
 7ca511d785708f11b428634dc65990c62d5a75d8 assets\iw\models\item\sweeping_upgrade_template.json
 bd4dfc924330f6960ad0a5630f6e6226f6acb469 assets\iw\models\item\enchanted\diamond_heart.json
 e2d9a169a7563ff828c76a44a5903cd9f58c2309 assets\iw\models\item\stone_sword\slashing.json
-98e1b724e24b06d0b58f7491dd400bd660b4e4c4 assets\iw\models\item\sweeping4_upgrade_template.json
 207e23371d16a4d8193aee182af28c6d0295ee0e assets\iw\models\item\netherite_heart.json
 0b20b57d48805ed4ce83a38bdc5c9681122e9d70 assets\iw\models\item\energy_stick\sweetcurse.json
 7182b722ef4bf4662fe78df3052945198d73684d assets\iw\models\item\stone_sword.json
@@ -37,8 +36,8 @@ d9d316379ce29f50575b5c37377b034add9923f9 assets\iw\models\item\iron_sword\infini
 6cd83709ebc78154f30b0421a33e5212e664e9bb assets\iw\models\item\iron_heart.json
 a7b696e855cb6d1b2853ed76f9a966eb27b84a3d assets\iw\models\item\enchanted\iron_heart.json
 61318d6de6e7514f5bca9dd1af9d93edb803896b assets\iw\models\item\diamond_sword\slashing.json
-eb453a69a75a4d940147ecd2e86c69340d053c08 assets\iw\models\item\stone_sword\sweetcurse.json
 fe72124aa7ec6baecd03d8c055ba0682141eb4a6 assets\iw\models\item\netherite_sword.json
+eb453a69a75a4d940147ecd2e86c69340d053c08 assets\iw\models\item\stone_sword\sweetcurse.json
 0613600c9ce5bc3a5c72f63223e98641c37ed7e8 assets\iw\models\item\cherry_heart.json
 5385d8080287bc4cc5dd87677e6823bf4fd67dfe assets\iw\models\item\energy_blazerod\infinitecurse.json
 dab152e8b9311e6b9cf622a35cf8fbfc92ff822c assets\iw\models\item\netherite_sword\infinitecurse.json

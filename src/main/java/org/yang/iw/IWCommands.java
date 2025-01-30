@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import org.joml.Random;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.enchant.resource.EnchantData;
 import org.yang.iw.enchant.util.RandomEnchantGenerator;
 import org.yang.iw.item.heart.base.BaseHeart;
@@ -32,15 +33,15 @@ public class IWCommands
 									pd.worldEnergyLevel = level;
 									pd.markDirty();
 								}
-								context.getSource()
-										.sendFeedback(() -> Text.translatable("iw.worldlevel_set_success", level),
-												false);
+								context.getSource().sendFeedback(
+										() -> Text.translatable(TranslationPool.COMMAND_SET_WORLD_LEVEL, level),
+										false);
 								return 1;
 							}
 							else
 							{
 								context.getSource().sendFeedback(
-										() -> Text.translatable("iw.worldlevel_set_fail", level)
+										() -> Text.translatable(TranslationPool.COMMAND_SET_WORLD_LEVEL_FAIL, level)
 												.withColor(Color.RED_RGB), false);
 								return 0;
 							}

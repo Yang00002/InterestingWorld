@@ -74,7 +74,7 @@ public class EviscerateAbility extends RuneAbility
 			var manager = player.getIWServerPlayerData();
 			if (manager.isAbilityOn() && manager.sweeping)
 			{
-				var damageSource = new DamageSource(IWDamageTypes.BLOOD_EFFECT_entry.get(), attacker);
+				var damageSource = new DamageSource(IWDamageTypes.BLOOD_EFFECT_ENTRY.get(), attacker);
 				World world = attacker.getWorld();
 				if (manager.chargeRate >= AbilityCooldown && manager.extractAutomicEnergy(stack, EnergyConsume))
 				{

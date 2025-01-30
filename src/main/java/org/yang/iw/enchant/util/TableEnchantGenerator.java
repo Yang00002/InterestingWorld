@@ -65,16 +65,16 @@ public class TableEnchantGenerator
 		List<TableEnchantEntry> enchantmentPool = new LinkedList<>();
 		ItemEnchantmentsComponent runeComponent = heartStack.getEnchantments();
 		//是否均衡
-		boolean balanced = runeComponent.getLevel(IWEnchantments.BALANCE_entry.get()) > 0;
+		boolean balanced = runeComponent.getLevel(IWEnchantments.ENTRY_BALANCE.get()) > 0;
 		boolean firstUp = true;
 		//是否强化
-		boolean boost = runeComponent.getLevel(IWEnchantments.RUNE_BOOST_entry.get()) > 0;
+		boolean boost = runeComponent.getLevel(IWEnchantments.ENTRY_RUNE_BOOST.get()) > 0;
 		//获得最大附魔数
-		int maxEnchantCount = getGeneratorEntryCount(runeComponent.getLevel(IWEnchantments.LUCKY_entry.get()),
+		int maxEnchantCount = getGeneratorEntryCount(runeComponent.getLevel(IWEnchantments.ENTRY_LUCKY.get()),
 				enchantGroupSize, random); //rd
 		//获得最大尝试次数
-		int maxTryAmount = crystalCount.getValue() + 1 + runeComponent.getLevel(IWEnchantments.PLENTIFUL_entry.get());
-		int efficiency = runeComponent.getLevel(IWEnchantments.ENERGY_EFFICIENCY_entry.get());
+		int maxTryAmount = crystalCount.getValue() + 1 + runeComponent.getLevel(IWEnchantments.ENTRY_PLENTIFUL.get());
+		int efficiency = runeComponent.getLevel(IWEnchantments.ENTRY_ENERGY_EFFICIENCY.get());
 		//获得最大消耗
 		Item heartItem = heartStack.getItem();
 		int worldGate = Server.getPersistentData().worldEnergyLevel;

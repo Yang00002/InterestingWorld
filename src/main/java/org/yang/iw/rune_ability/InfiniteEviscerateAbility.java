@@ -61,7 +61,7 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 			if (manager.isAbilityOn() && manager.sweeping)
 			{
 				World world = attacker.getWorld();
-				var damageSource = new DamageSource(IWDamageTypes.BLOOD_EFFECT_entry.get(), attacker);
+				var damageSource = new DamageSource(IWDamageTypes.BLOOD_EFFECT_ENTRY.get(), attacker);
 				if (manager.chargeRate >= AbilityCooldown)
 				{
 					manager.chargeRate = 0;

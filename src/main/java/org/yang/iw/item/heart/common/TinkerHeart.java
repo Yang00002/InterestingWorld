@@ -7,7 +7,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.ItemStack;
 import org.yang.iw.rune_ability.IWRuneAbilities;
 import org.yang.iw.util.IWAttributeModifierUtil;
-import org.yang.iw.util.ids.AttributeModifierIds;
+import org.yang.iw.util.constants.AttributeModifierIds;
 import org.yang.iw.util.style.Color;
 
 import java.util.ArrayList;

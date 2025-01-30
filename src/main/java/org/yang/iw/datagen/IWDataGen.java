@@ -4,6 +4,9 @@ import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import org.yang.iw.datagen.blockmodel.BlockModelPool;
 import org.yang.iw.datagen.itemmodel.ItemModelPool;
+import org.yang.iw.datagen.language.TranslationPool;
+import org.yang.iw.datagen.tag.DamageTypeTagPool;
+import org.yang.iw.datagen.tag.ItemTagPool;
 
 public class IWDataGen implements DataGeneratorEntrypoint
 {
@@ -25,5 +28,8 @@ public class IWDataGen implements DataGeneratorEntrypoint
 	{
 		ItemModelPool.clearPool();
 		BlockModelPool.clearPool();
+		TranslationPool.clearPool();
+		ItemTagPool.clearPool();
+		DamageTypeTagPool.clearPool();
 	}
 }

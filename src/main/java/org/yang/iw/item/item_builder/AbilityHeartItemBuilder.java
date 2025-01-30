@@ -7,17 +7,22 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import org.yang.iw.IWComponents;
 import org.yang.iw.IWItemGroups;
 import org.yang.iw.datagen.itemmodel.CommonItemModelProvider;
-import org.yang.iw.datagen.itemmodel.ItemModelProvider;
 import org.yang.iw.datagen.itemmodel.ItemModelPool;
+import org.yang.iw.datagen.itemmodel.ItemModelProvider;
+import org.yang.iw.datagen.tag.ItemTagPool;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.item.heart.common.CommonHeart;
 import org.yang.iw.rune_ability.IWRuneAbilities;
 import org.yang.iw.util.Base;
 import org.yang.iw.util.heartflag.HeartDataFlag;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 
 import static org.yang.iw.util.IWRuneAbilityUtil.getAbility;
@@ -28,10 +33,24 @@ public class AbilityHeartItemBuilder
 	private final String id;
 	private RegistryKey<ItemGroup> itemGroupBelong = null;
 	private Function<Item, ItemModelProvider> modelProvider = null;
+	private String translation = null;
+	private final Set<TagKey<Item>> tags = new HashSet<>();
+
+	public AbilityHeartItemBuilder addTag(TagKey<Item> tag)
+	{
+		tags.add(tag);
+		return this;
+	}
 
 	public AbilityHeartItemBuilder setModel(Function<Item, ItemModelProvider> provider)
 	{
 		modelProvider = provider;
+		return this;
+	}
+
+	public AbilityHeartItemBuilder setTranslation(String str)
+	{
+		translation = str;
 		return this;
 	}
 
@@ -82,6 +101,8 @@ public class AbilityHeartItemBuilder
 			}
 		}
 		if (modelProvider != null) ItemModelPool.addModel(modelProvider.apply(ret));
+		if (translation != null) TranslationPool.addItem(ret, translation);
+		tags.forEach(tag -> ItemTagPool.add(tag, ret));
 		return ret;
 	}
 }

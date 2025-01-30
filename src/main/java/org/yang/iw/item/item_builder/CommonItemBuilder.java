@@ -7,14 +7,21 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import org.yang.iw.IWItemGroups;
 import org.yang.iw.datagen.itemmodel.CommonItemModelProvider;
-import org.yang.iw.datagen.itemmodel.ItemModelProvider;
 import org.yang.iw.datagen.itemmodel.ItemModelPool;
+import org.yang.iw.datagen.itemmodel.ItemModelProvider;
+import org.yang.iw.datagen.tag.ItemTagPool;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.util.Base;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
+
+;
 
 public class CommonItemBuilder
 {
@@ -23,6 +30,8 @@ public class CommonItemBuilder
 	private final String id;
 	private RegistryKey<ItemGroup> itemGroupBelong = null;
 	private Function<Item, ItemModelProvider> modelProvider = null;
+	private String translation = null;
+	private final Set<TagKey<Item>> tags = new HashSet<>();
 
 	public CommonItemBuilder(Function<Item.Settings, Item> constructor, String id)
 	{
@@ -48,6 +57,18 @@ public class CommonItemBuilder
 		return this;
 	}
 
+	public CommonItemBuilder setTranslation(String str)
+	{
+		translation = str;
+		return this;
+	}
+
+	public CommonItemBuilder addTag(TagKey<Item> tag)
+	{
+		tags.add(tag);
+		return this;
+	}
+
 	public Item build()
 	{
 		Item.Settings settings = new Item.Settings();
@@ -62,6 +83,8 @@ public class CommonItemBuilder
 			}, itemGroupBelong);
 		}
 		if (modelProvider != null) ItemModelPool.addModel(modelProvider.apply(ret));
+		if (translation != null) TranslationPool.addItem(ret, translation);
+		tags.forEach(tag -> ItemTagPool.add(tag, ret));
 		return ret;
 	}
 }
