@@ -1,0 +1,34 @@
+{
+  "anvil_cost": 8,
+  "description": {
+    "translate": "enchantment.iw.fast_attack"
+  },
+  "weight": 1,
+  "supported_items": [],
+  "max_cost": {
+    "base": 21,
+    "per_level_above_first": 11
+  },
+  "max_level": 12,
+  "min_cost": {
+    "base": 1,
+    "per_level_above_first": 11
+  },
+  "slots": [
+    "mainhand"
+  ],
+  "effects": {
+    "minecraft:attributes": [
+      {
+        "amount": {
+          "type": "linear",
+          "base": 0.1,
+          "per_level_above_first": 0.1
+        },
+        "attribute": "generic.attack_speed",
+        "id": "iwenchant:fast_attack",
+        "operation": "add_multiplied_base"
+      }
+    ]
+  }
+}

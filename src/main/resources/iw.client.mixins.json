@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.yang.iw.client.mixin.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "MixinClientPlayerEntity",
+    "MixinDrawContext",
+    "MixinInGameHud",
+    "accessor.AccessOrderedTextTooltipComponent"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

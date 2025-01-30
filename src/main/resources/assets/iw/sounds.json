@@ -1,0 +1,14 @@
+{
+  "abilitybar_full": {
+    "subtitle": "sound.iw.abilitybar_full",
+    "sounds": [
+      "iw:abilitybar_full"
+    ]
+  },
+  "double_sweep": {
+    "subtitle": "sound.iw.double_sweep",
+    "sounds": [
+      "iw:double_sweep"
+    ]
+  }
+}

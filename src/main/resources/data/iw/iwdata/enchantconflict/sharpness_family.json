@@ -1,0 +1,12 @@
+{
+  "values": [
+    "iw:fast_attack",
+    "iw:sharpness",
+    "iw:smite",
+    "iw:bane_of_arthropods"
+  ],
+  "fatal": false,
+  "add_punish": 0,
+  "mul_punish": 0.5,
+  "weight_punish": 5
+}

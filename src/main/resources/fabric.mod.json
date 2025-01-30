@@ -1,51 +1,51 @@
 {
   "schemaVersion": 1,
-  "id": "interestingworld",
+  "id": "iw",
   "version": "${version}",
   "name": "InterestingWorld",
   "description": "",
   "authors": [],
   "contact": {},
   "license": "MIT",
-  "icon": "assets/interestingworld/icon.png",
+  "icon": "assets/iw/icon.png",
   "environment": "*",
   "entrypoints": {
     "fabric-datagen": [
-      "org.yang.interestingworld.datagen.IWDataGen"
+      "org.yang.iw.datagen.IWDataGen"
     ],
     "client": [
-      "org.yang.interestingworld.client.InterestingworldClient"
+      "org.yang.iw.client.IWClient"
     ],
     "main": [
-      "org.yang.interestingworld.Interestingworld"
+      "org.yang.iw.IWMain"
     ]
   },
   "mixins": [
-    "interestingworld.mixins.json",
+    "iw.mixins.json",
     {
-      "config": "interestingworld.client.mixins.json",
+      "config": "iw.client.mixins.json",
       "environment": "client"
     }
   ],
   "custom": {
     "loom:injected_interfaces": {
       "net/minecraft/entity/LivingEntity": [
-        "org/yang/interestingworld/mixin/mixin_interface/InterfaceLivingEntity"
+        "org/yang/iw/mixin/mixin_interface/InterfaceLivingEntity"
       ],
       "net/minecraft/entity/effect/StatusEffect": [
-        "org/yang/interestingworld/mixin/mixin_interface/InterfaceStatusEffect"
+        "org/yang/iw/mixin/mixin_interface/InterfaceStatusEffect"
       ],
       "net/minecraft/entity/effect/StatusEffectInstance": [
-        "org/yang/interestingworld/mixin/mixin_interface/InterfaceStatusEffectInstance"
+        "org/yang/iw/mixin/mixin_interface/InterfaceStatusEffectInstance"
       ],
       "net/minecraft/server/network/ServerPlayerEntity": [
-        "org/yang/interestingworld/mixin/mixin_interface/InterfaceServerPlayerEntity"
+        "org/yang/iw/mixin/mixin_interface/InterfaceServerPlayerEntity"
       ],
       "net/minecraft/client/network/ClientPlayerEntity": [
-        "org/yang/interestingworld/mixin/mixin_interface/InterfaceClientPlayerEntity"
+        "org/yang/iw/mixin/mixin_interface/InterfaceClientPlayerEntity"
       ],
       "net/minecraft/data/client/Model": [
-        "org/yang/interestingworld/mixin/mixin_interface/InterfaceModel"
+        "org/yang/iw/mixin/mixin_interface/InterfaceModel"
       ]
     }
   },

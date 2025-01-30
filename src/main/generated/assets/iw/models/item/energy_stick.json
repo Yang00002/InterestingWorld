@@ -1,0 +1,26 @@
+{
+  "parent": "minecraft:item/handheld",
+  "overrides": [
+    {
+      "model": "iw:item/energy_stick/slashing",
+      "predicate": {
+        "custom_model_data": 1
+      }
+    },
+    {
+      "model": "iw:item/energy_stick/sweetcurse",
+      "predicate": {
+        "custom_model_data": 2
+      }
+    },
+    {
+      "model": "iw:item/energy_stick/infinitecurse",
+      "predicate": {
+        "custom_model_data": 3
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "minecraft:item/stick"
+  }
+}

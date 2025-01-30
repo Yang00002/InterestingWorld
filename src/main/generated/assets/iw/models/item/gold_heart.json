@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/generated",
+  "overrides": [
+    {
+      "model": "iw:item/enchanted/gold_heart",
+      "predicate": {
+        "custom_model_data": 1
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "iw:item/baseheart/gold_heart"
+  }
+}

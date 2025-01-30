@@ -1,11 +1,11 @@
 {
   "values": [
     {
-      "id": "interestingworld:blood_effect",
+      "id": "iw:blood_effect",
       "required": false
     },
     {
-      "id": "interestingworld:energe_explode",
+      "id": "iw:energe_explode",
       "required": false
     }
   ]

@@ -1,0 +1,26 @@
+{
+  "items": [
+    "iw:stone_sword",
+    "iw:iron_sword",
+    "iw:golden_sword",
+    "iw:diamond_sword",
+    "iw:netherite_sword"
+  ],
+  "allows": [
+    "iw:sharpness",
+    "iw:fast_hit",
+    "iw:fast_attack",
+    "minecraft:fire_aspect",
+    "minecraft:unbreaking",
+    "minecraft:looting",
+    "minecraft:mending",
+    "iw:smite",
+    "iw:bane_of_arthropods"
+  ],
+  "groups": [
+    {
+      "weight": 1,
+      "group": "forsword"
+    }
+  ]
+}

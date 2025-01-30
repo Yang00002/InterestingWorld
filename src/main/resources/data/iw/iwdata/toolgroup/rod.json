@@ -1,0 +1,22 @@
+{
+  "items": [
+    "iw:energy_stick",
+    "iw:energy_blazerod"
+  ],
+  "allows": [
+    "iw:fast_hit",
+    "iw:fast_attack",
+    "minecraft:unbreaking",
+    "minecraft:fire_aspect",
+    "minecraft:looting",
+    "minecraft:mending",
+    "iw:smite",
+    "iw:bane_of_arthropods"
+  ],
+  "groups": [
+    {
+      "weight": 1,
+      "group": "forrod"
+    }
+  ]
+}

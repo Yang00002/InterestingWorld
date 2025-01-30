@@ -1,11 +1,11 @@
 {
   "values": [
     {
-      "id": "interestingworld:energe_melee",
+      "id": "iw:energe_melee",
       "required": false
     },
     {
-      "id": "interestingworld:energe_explode",
+      "id": "iw:energe_explode",
       "required": false
     }
   ]
