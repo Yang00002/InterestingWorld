@@ -1,26 +1,17 @@
 package org.yang.iw.item.heart.common;
 
 import net.minecraft.item.ItemStack;
-import org.yang.iw.IWComponents;
 import org.yang.iw.item.heart.AbstractHeart;
-import org.yang.iw.util.heartflag.HeartDataFlag;
+
+import java.util.function.Function;
 
 public abstract class CommonHeart extends AbstractHeart
 {
-	@Override
-	public int getEnchantability()
-	{
-		return 1;
-	}
 
-	public CommonHeart(Settings settings)
-	{
-		super(settings.component(IWComponents.HEART_FLAG, HeartDataFlag.copyEmpty().setMaterialLevel(8)));
-	}
 
-	public boolean supportEnchant()
+	public CommonHeart(Settings settings, Function<Integer, Integer> enchantAbility)
 	{
-		return true;
+		super(settings, enchantAbility, 8);
 	}
 
 	public boolean supportAbility()

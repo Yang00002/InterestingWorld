@@ -44,7 +44,7 @@
       "net/minecraft/client/network/ClientPlayerEntity": [
         "org/yang/iw/mixin/mixin_interface/InterfaceClientPlayerEntity"
       ],
-      "net/minecraft/data/client/Model": [
+      "net/minecraft/client/data/Model": [
         "org/yang/iw/mixin/mixin_interface/InterfaceModel"
       ]
     }

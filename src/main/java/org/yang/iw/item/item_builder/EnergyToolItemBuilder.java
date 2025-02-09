@@ -1,27 +1,28 @@
 package org.yang.iw.item.item_builder;
 
+import net.minecraft.client.data.Model;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
-import net.minecraft.data.client.Model;
+import net.minecraft.component.type.ToolComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ToolMaterial;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import org.yang.iw.IWComponents;
 import org.yang.iw.IWItemGroups;
-import org.yang.iw.datagen.itemmodel.CommonItemModelProvider;
 import org.yang.iw.datagen.itemmodel.ItemModelPool;
 import org.yang.iw.datagen.itemmodel.ItemModelProvider;
-import org.yang.iw.datagen.tag.ItemTagPool;
+import org.yang.iw.datagen.itemmodel.SimpleItemModelProvider;
+import org.yang.iw.datagen.itemmodel.server.ModelParents;
 import org.yang.iw.datagen.language.TranslationPool;
+import org.yang.iw.datagen.tag.ItemTagPool;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.util.Base;
 import org.yang.iw.util.Server;
@@ -35,28 +36,30 @@ import java.util.function.Function;
 import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
 import static net.minecraft.item.Item.BASE_ATTACK_SPEED_MODIFIER_ID;
 import static org.yang.iw.IWItemGroups.TOOLS_GROUP;
+import static org.yang.iw.util.Base.iwlogger;
 
 public class EnergyToolItemBuilder
 {
 	public interface EnergyToolItemConstructor
 	{
-		EnergyToolItem apply(ToolMaterial material, Item.Settings settings,
+		EnergyToolItem apply(Item.Settings settings,
 							 Map<Server.LoadOnceRegistryEntry<Enchantment>, Integer> defaultEnchantments);
 	}
 
 	private final EnergyToolItemConstructor constructor;
 	private final String id;
-	private final ToolMaterial material;
 	private float maxEnergy = 0;
 	private float regenRate = 0;
 	private double attackDamageAdding = 0;
+	private final int durability;
+	private ToolComponent toolComponent = null;
 	private double attackSpeedAdding = 0;
 	private double entityInteractionRangeAdding = 0;
 	private boolean fireresistence = false;
 	private RegistryKey<ItemGroup> itemGroupBelong = TOOLS_GROUP;
 	private Map<Server.LoadOnceRegistryEntry<Enchantment>, Integer> defaultEnchantments = null;
 
-	private final Identifier BASE_ENTITY_INTERACTION_RANGE = Identifier.of(Base.MOD_ID,
+	private static final Identifier BASE_ENTITY_INTERACTION_RANGE = Identifier.of(Base.MOD_ID,
 			"base_entity_interaction_range");
 
 	private Function<Item, ItemModelProvider> modelProvider = null;
@@ -69,11 +72,17 @@ public class EnergyToolItemBuilder
 		return this;
 	}
 
-	public EnergyToolItemBuilder(EnergyToolItemConstructor constructor, String id, ToolMaterial material)
+	public EnergyToolItemBuilder setToolComponent(ToolComponent component)
+	{
+		toolComponent = component;
+		return this;
+	}
+
+	public EnergyToolItemBuilder(EnergyToolItemConstructor constructor, String id, int durability)
 	{
 		this.constructor = constructor;
 		this.id = id;
-		this.material = material;
+		this.durability = durability;
 	}
 
 	public EnergyToolItemBuilder setEnergy(float max)
@@ -101,9 +110,9 @@ public class EnergyToolItemBuilder
 		return this;
 	}
 
-	public EnergyToolItemBuilder setCommonModel(Model model)
+	public EnergyToolItemBuilder setCommonModel(ModelParents model)
 	{
-		modelProvider = item -> new CommonItemModelProvider(item, model);
+		modelProvider = item -> new SimpleItemModelProvider(item, model);
 		return this;
 	}
 
@@ -147,33 +156,30 @@ public class EnergyToolItemBuilder
 	{
 		Item.Settings settings = new Item.Settings();
 		if (maxEnergy > 0)
-		{
-			settings = settings.component(IWComponents.MAX_ENERGY, maxEnergy)
-					.component(IWComponents.CURRENT_ENERGY, maxEnergy);
-		}
-		if (regenRate > 0)
-		{
-			settings = settings.component(IWComponents.ENERGY_REGEN_RATE, regenRate);
-		}
-		if (fireresistence) settings = settings.fireproof();
+			settings.component(IWComponents.MAX_ENERGY, maxEnergy).component(IWComponents.CURRENT_ENERGY, maxEnergy);
+		if (regenRate > 0) settings.component(IWComponents.ENERGY_REGEN_RATE, regenRate);
+		if (fireresistence) settings.fireproof();
+		if (durability > 0) settings.maxDamage(durability);
+		if (toolComponent != null) settings.component(DataComponentTypes.TOOL, toolComponent);
 		var builder = AttributeModifiersComponent.builder();
-		builder = builder.add(EntityAttributes.GENERIC_ATTACK_DAMAGE,
+		builder.add(EntityAttributes.ATTACK_DAMAGE,
 				new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, attackDamageAdding,
 						EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND);
-		builder = builder.add(EntityAttributes.GENERIC_ATTACK_SPEED,
+		builder.add(EntityAttributes.ATTACK_SPEED,
 				new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, attackSpeedAdding,
 						EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND);
-		if (entityInteractionRangeAdding != 0) builder = builder.add(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE,
+		if (entityInteractionRangeAdding != 0) builder.add(EntityAttributes.ENTITY_INTERACTION_RANGE,
 				new EntityAttributeModifier(BASE_ENTITY_INTERACTION_RANGE, entityInteractionRangeAdding,
 						EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND);
-		settings = settings.attributeModifiers(builder.build());
-		EnergyToolItem ret = constructor.apply(material, settings, defaultEnchantments);
+		settings.attributeModifiers(builder.build());
 		Identifier itemID = Identifier.of(Base.MOD_ID, id);
-		Registry.register(Registries.ITEM, itemID, ret);
+		RegistryKey<Item> registryKey = RegistryKey.of(RegistryKeys.ITEM, itemID);
+		EnergyToolItem ret = (EnergyToolItem) Items.register(registryKey,
+				i -> constructor.apply(i, defaultEnchantments), settings);
 		if (itemGroupBelong != null)
 		{
 			IWItemGroups.addItemToGroup((context, entries) -> {
-				var wrapperOp = context.lookup().getOptionalWrapper(RegistryKeys.ENCHANTMENT);
+				var wrapperOp = context.lookup().getOptional(RegistryKeys.ENCHANTMENT);
 				wrapperOp.ifPresent(wrapper -> entries.add(ret.getEnchantedDefaultItemStackFromClient(wrapper)));
 			}, itemGroupBelong);
 		}

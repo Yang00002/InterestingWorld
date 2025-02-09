@@ -1,10 +1,12 @@
 package org.yang.iw.rune_upgrade;
 
-import net.minecraft.data.client.Models;
-import net.minecraft.registry.Registries;
+import net.minecraft.client.data.Models;
 import net.minecraft.util.Identifier;
 import org.yang.iw.IWItemGroups;
-import org.yang.iw.datagen.itemmodel.LocatedItemModelProvider;
+import org.yang.iw.datagen.itemmodel.CustomItemModelDefinitionProvider;
+import org.yang.iw.datagen.itemmodel.server.ItemModelDefinition;
+import org.yang.iw.datagen.itemmodel.server.ModelParents;
+import org.yang.iw.datagen.itemmodel.server.RawItemModel;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.item.item_builder.CommonItemBuilder;
 import org.yang.iw.item.upgrade.UpgradeTemplate;
@@ -29,7 +31,7 @@ public class IWRuneUpgrades
 	private static AbstractRuneUpgrade register(String upgradeName, String upgradeDetail, AbstractRuneUpgrade upgrade)
 	{
 		new CommonItemBuilder(settings -> new UpgradeTemplate(settings, upgrade),
-				getItemIdOfUpgrade(upgrade)).setCommonModel(Models.GENERATED)
+				getItemIdOfUpgrade(upgrade)).setCommonModel(ModelParents.GENERATED)
 				.setTranslation(upgradeName + Strings.UPGRADE_TEMPLATE_SUFFIX_NAME)
 				.addToItemGroup(IWItemGroups.UPGRADE_GROUP).build();
 		TranslationPool.addString("upgrade.title." + upgrade.id(), upgradeName);
@@ -41,7 +43,7 @@ public class IWRuneUpgrades
 												AbstractRuneUpgrade upgrade)
 	{
 		new CommonItemBuilder(settings -> new UpgradeTemplate(settings, upgrade),
-				getItemIdOfUpgrade(upgrade)).setCommonModel(Models.GENERATED)
+				getItemIdOfUpgrade(upgrade)).setCommonModel(ModelParents.GENERATED)
 				.setTranslation(templateNamePrefix + Strings.UPGRADE_TEMPLATE_SUFFIX_NAME)
 				.addToItemGroup(IWItemGroups.UPGRADE_GROUP).build();
 		TranslationPool.addString("upgrade.title." + upgrade.id(), upgradeName);
@@ -53,7 +55,7 @@ public class IWRuneUpgrades
 												Consumer<CommonItemBuilder> customProcessor)
 	{
 		var builder = new CommonItemBuilder(settings -> new UpgradeTemplate(settings, upgrade),
-				getItemIdOfUpgrade(upgrade)).setCommonModel(Models.GENERATED)
+				getItemIdOfUpgrade(upgrade)).setCommonModel(ModelParents.GENERATED)
 				.setTranslation(upgradeName + Strings.UPGRADE_TEMPLATE_SUFFIX_NAME)
 				.addToItemGroup(IWItemGroups.UPGRADE_GROUP);
 		customProcessor.accept(builder);
@@ -68,7 +70,7 @@ public class IWRuneUpgrades
 												Consumer<CommonItemBuilder> customProcessor)
 	{
 		var builder = new CommonItemBuilder(settings -> new UpgradeTemplate(settings, upgrade),
-				getItemIdOfUpgrade(upgrade)).setCommonModel(Models.GENERATED)
+				getItemIdOfUpgrade(upgrade)).setCommonModel(ModelParents.GENERATED)
 				.setTranslation(templateNamePrefix + Strings.UPGRADE_TEMPLATE_SUFFIX_NAME)
 				.addToItemGroup(IWItemGroups.UPGRADE_GROUP);
 		customProcessor.accept(builder);
@@ -83,8 +85,8 @@ public class IWRuneUpgrades
 	public static AbstractRuneUpgrade SWEEPING2_UPGRADE = register("横扫",
 			"使武器可以横扫，并增加" + numberToString(Sweeping2Upgrade.SWEEP_RATIO) + "横扫伤害比率。",
 			new Sweeping2Upgrade(), commonItemBuilder -> commonItemBuilder.setModel(
-					item -> new LocatedItemModelProvider(item, Models.GENERATED).setTextureAItemTexture(
-							Registries.ITEM.get(Identifier.of(Base.MOD_ID, getItemIdOfUpgrade(SWEEPING_UPGRADE))))));
+					item -> new CustomItemModelDefinitionProvider(item, ItemModelDefinition.of(
+							RawItemModel.of(Identifier.of(Base.MOD_ID, getItemIdOfUpgrade(SWEEPING_UPGRADE)))))));
 	public static AbstractRuneUpgrade SWEEPING3_UPGRADE = register("横扫",
 			"使武器可以横扫，并增加" + numberToString(Sweeping3Upgrade.SWEEP_RATIO) + "横扫伤害比率。",
 			new Sweeping3Upgrade());

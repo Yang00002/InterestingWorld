@@ -7,8 +7,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import org.yang.iw.item.IWItems;
 import org.yang.iw.item.heart.AbstractHeart;
+import org.yang.iw.util.IWUtil;
 import org.yang.iw.util.heartflag.HeartDataFlag;
 import org.yang.iw.util.heartflag.HeartFlagOnlyCheckable;
+
+import java.util.function.Function;
 
 public abstract class BaseHeart extends AbstractHeart
 {
@@ -19,16 +22,17 @@ public abstract class BaseHeart extends AbstractHeart
 		return type != HeartFlagOnlyCheckable.HeartTypeTaking.NULL;
 	}
 
-	private static final CustomModelDataComponent ENCHANTED_MODEL_INDEX = new CustomModelDataComponent(1);
+	private static final CustomModelDataComponent ENCHANTED_MODEL_INDEX = IWUtil.getModelComponent(1);
 
 	public int getMaxSupportLevel()
 	{
 		return HeartDataFlag.getFromItem(this).getMaterialLevel();
 	}
 
-	public BaseHeart(Settings settings)
+	public BaseHeart(Settings settings, Function<Integer, Integer> enchantAbility, int lvl)
 	{
-		super(settings.component(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT));
+		super(settings.component(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT),
+				enchantAbility, lvl);
 	}
 
 	@Override
@@ -61,21 +65,9 @@ public abstract class BaseHeart extends AbstractHeart
 	}
 
 	@Override
-	public boolean supportEnchant()
-	{
-		return true;
-	}
-
-	@Override
 	public boolean supportAbility()
 	{
 		return false;
-	}
-
-	@Override
-	public int getEnchantability()
-	{
-		return 1;
 	}
 
 	public static BaseHeart baseHeartSupportLevel(int lvl)

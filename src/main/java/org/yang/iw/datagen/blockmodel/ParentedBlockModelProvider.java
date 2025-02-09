@@ -1,7 +1,9 @@
 package org.yang.iw.datagen.blockmodel;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
-import net.minecraft.data.client.*;
+import net.minecraft.client.data.*;
 import net.minecraft.util.Identifier;
 
 public class ParentedBlockModelProvider implements BlockModelProvider
@@ -16,6 +18,7 @@ public class ParentedBlockModelProvider implements BlockModelProvider
 		this.parent = parent;
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void use(BlockStateModelGenerator generator)
 	{
@@ -30,6 +33,7 @@ public class ParentedBlockModelProvider implements BlockModelProvider
 		return this;
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void useForItem(BlockStateModelGenerator generator)
 	{

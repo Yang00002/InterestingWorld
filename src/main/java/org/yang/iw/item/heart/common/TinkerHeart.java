@@ -17,7 +17,7 @@ public class TinkerHeart extends CommonHeart
 {
 	public TinkerHeart(Settings settings)
 	{
-		super(settings);
+		super(settings, i -> 14);
 	}
 
 	@Override
@@ -26,11 +26,6 @@ public class TinkerHeart extends CommonHeart
 		return Color.WHITE_RGB;
 	}
 
-	@Override
-	public int getEnchantability()
-	{
-		return 14;
-	}
 
 	private static final List<Short> abilitiesSupport = new ArrayList<>();
 
@@ -52,13 +47,13 @@ public class TinkerHeart extends CommonHeart
 	public ItemStack boostStackByLevel(int lvl, ItemStack stack)
 	{
 		AttributeModifiersComponent.Builder builder = IWAttributeModifierUtil.getModifiersFromItemStack(stack);
-		IWAttributeModifierUtil.addModifier(builder, EntityAttributes.GENERIC_ATTACK_DAMAGE,
+		IWAttributeModifierUtil.addModifier(builder, EntityAttributes.ATTACK_DAMAGE,
 				AttributeModifierIds.ATTACK_DAMAGE_MULADD_OFF_HAND, lvl * 0.02 + 0.01,
 				EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE, AttributeModifierSlot.OFFHAND);
-		IWAttributeModifierUtil.addModifier(builder, EntityAttributes.GENERIC_ATTACK_SPEED,
+		IWAttributeModifierUtil.addModifier(builder, EntityAttributes.ATTACK_SPEED,
 				AttributeModifierIds.ATTACK_SPEED_MULADD_OFF_HAND, lvl * 0.02 + 0.01,
 				EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE, AttributeModifierSlot.OFFHAND);
-		IWAttributeModifierUtil.addModifier(builder, EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE,
+		IWAttributeModifierUtil.addModifier(builder, EntityAttributes.ENTITY_INTERACTION_RANGE,
 				AttributeModifierIds.INTERACTION_RANGE_ADD_OFF_HAND, lvl * 0.04 + 0.05,
 				EntityAttributeModifier.Operation.ADD_VALUE, AttributeModifierSlot.OFFHAND);
 		IWAttributeModifierUtil.applyAttributeModifierToItemStack(builder, stack);

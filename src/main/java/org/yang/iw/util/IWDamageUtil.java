@@ -20,10 +20,10 @@ public class IWDamageUtil
 				var am = st.getAmplifier() + 1;
 				if (am != 1) mul = (1 + am / 10.0f);
 				amount = DamageUtil.getDamageLeft(entity, amount * mul, source, (float) entity.getArmor(),
-						(float) entity.getAttributeValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS)) / mul;
+						(float) entity.getAttributeValue(EntityAttributes.ARMOR_TOUGHNESS)) / mul;
 			}
 			else amount = DamageUtil.getDamageLeft(entity, amount, source, (float) entity.getArmor(),
-					(float) entity.getAttributeValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS));
+					(float) entity.getAttributeValue(EntityAttributes.ARMOR_TOUGHNESS));
 		}
 		return amount;
 	}

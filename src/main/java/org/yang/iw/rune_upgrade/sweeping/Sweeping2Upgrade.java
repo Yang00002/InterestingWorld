@@ -44,7 +44,7 @@ public class Sweeping2Upgrade extends AbstractRuneUpgrade
 	{
 		toolStack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(toolStack).setCanSweep());
 		var at = toolStack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
-		at = at.with(EntityAttributes.PLAYER_SWEEPING_DAMAGE_RATIO,
+		at = at.with(EntityAttributes.SWEEPING_DAMAGE_RATIO,
 				new EntityAttributeModifier(AttributeModifierIds.SWEEPING_DAMAGE_RATIO_ADD_MAIN_HAND_UPGRADE,
 						SWEEP_RATIO, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND);
 		toolStack.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, at);

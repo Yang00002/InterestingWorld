@@ -37,13 +37,15 @@ public class CommonBlockItemBuilder
 	{
 		Block block = blockBuilder.build();
 		Item.Settings settings = new Item.Settings();
-		Item item = constructor.apply(block, settings);
 		Identifier itemID = Identifier.of(Base.MOD_ID, id);
-		Registry.register(Registries.ITEM, itemID, item);
+		var key = RegistryKey.of(RegistryKeys.ITEM, itemID);
+		settings.registryKey(key);
+		Item item = constructor.apply(block, settings);
+		Registry.register(Registries.ITEM, key, item);
 		if (itemGroupBelong != null)
 		{
 			IWItemGroups.addItemToGroup((context, entries) -> {
-				var wrapperOp = context.lookup().getOptionalWrapper(RegistryKeys.ENCHANTMENT);
+				var wrapperOp = context.lookup().getOptional(RegistryKeys.ENCHANTMENT);
 				wrapperOp.ifPresent(wrapper -> entries.add(item));
 			}, itemGroupBelong);
 		}

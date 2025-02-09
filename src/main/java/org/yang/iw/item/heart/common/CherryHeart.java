@@ -17,7 +17,7 @@ public class CherryHeart extends CommonHeart
 {
 	public CherryHeart(Settings settings)
 	{
-		super(settings);
+		super(settings, i -> 28);
 	}
 
 	@Override
@@ -26,11 +26,6 @@ public class CherryHeart extends CommonHeart
 		return Color.PINK_RGB;
 	}
 
-	@Override
-	public int getEnchantability()
-	{
-		return 28;
-	}
 
 	private static final List<Short> abilitiesSupport = new ArrayList<>();
 
@@ -50,9 +45,8 @@ public class CherryHeart extends CommonHeart
 	public ItemStack boostStackByLevel(int lvl, ItemStack stack)
 	{
 		AttributeModifiersComponent.Builder builder = IWAttributeModifierUtil.getModifiersFromItemStack(stack);
-		IWAttributeModifierUtil.addModifier(builder, EntityAttributes.GENERIC_LUCK,
-				AttributeModifierIds.LUCK_ADD_OFF_HAND, lvl * 0.25 + 0.5, EntityAttributeModifier.Operation.ADD_VALUE,
-				AttributeModifierSlot.OFFHAND);
+		IWAttributeModifierUtil.addModifier(builder, EntityAttributes.LUCK, AttributeModifierIds.LUCK_ADD_OFF_HAND,
+				lvl * 0.25 + 0.5, EntityAttributeModifier.Operation.ADD_VALUE, AttributeModifierSlot.OFFHAND);
 		IWAttributeModifierUtil.applyAttributeModifierToItemStack(builder, stack);
 		return stack;
 	}

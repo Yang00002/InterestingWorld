@@ -8,9 +8,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
 import org.yang.iw.effect.IWEffects;
@@ -75,7 +75,7 @@ public class EviscerateAbility extends RuneAbility
 			if (manager.isAbilityOn() && manager.sweeping)
 			{
 				var damageSource = new DamageSource(IWDamageTypes.BLOOD_EFFECT_ENTRY.get(), attacker);
-				World world = attacker.getWorld();
+				ServerWorld world = (ServerWorld) player.getWorld();
 				if (manager.chargeRate >= AbilityCooldown && manager.extractAutomicEnergy(stack, EnergyConsume))
 				{
 					manager.chargeRate = 0;
@@ -91,7 +91,7 @@ public class EviscerateAbility extends RuneAbility
 								if (preEffect != null)
 								{
 									amplifier = Math.min(preEffect.getAmplifier() + 1, LevelCap - 1);
-									entity.damage(damageSource, amplifier * PerLevelAbilityDamage);
+									entity.damage(world, damageSource, amplifier * PerLevelAbilityDamage);
 								}
 								IWStatusEffectUtil.addHiddenStatusEffectWithConsistence(entity, IWEffects.BLOOD,
 										EffectDuration, amplifier, 20);
@@ -106,7 +106,7 @@ public class EviscerateAbility extends RuneAbility
 				{
 					var targetEffect = target.getStatusEffect(IWEffects.BLOOD);
 					if (targetEffect != null)
-						target.damage(damageSource, (targetEffect.getAmplifier() + 1) * PerLevelAbilityDamage);
+						target.damage(world, damageSource, (targetEffect.getAmplifier() + 1) * PerLevelAbilityDamage);
 				}
 			}
 		}

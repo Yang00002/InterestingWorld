@@ -20,10 +20,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.yang.iw.effect.IWEffects;
 import org.yang.iw.enchant.IWEnchantments;
 import org.yang.iw.mixin.mixin_interface.InterfaceLivingEntity;
 
+import java.util.Collection;
 import java.util.Map;
 
 
@@ -63,8 +65,9 @@ public abstract class MixinLivingEntity extends Entity implements Attackable, In
 	@Unique
 	private int hurtGate = 20;
 
-	@Redirect(method = "damage(Lnet/minecraft/entity/damage/DamageSource;F)Z", at = @At(value = "FIELD", target =
-			"Lnet/minecraft/entity/LivingEntity;lastDamageTaken:F", opcode = Opcodes.PUTFIELD, ordinal = 1))
+	@Redirect(method = "damage", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;" +
+																	"lastDamageTaken:F", opcode = Opcodes.PUTFIELD,
+			ordinal = 1))
 	private void mixinDamage(LivingEntity instance, float value, @Local(argsOnly = true) DamageSource source)
 	{
 		if (!source.isIn(DamageTypeTags.BYPASSES_COOLDOWN))
@@ -73,7 +76,7 @@ public abstract class MixinLivingEntity extends Entity implements Attackable, In
 		}
 	}
 
-	@ModifyVariable(method = "damage(Lnet/minecraft/entity/damage/DamageSource;F)Z", at = @At("HEAD"), argsOnly = true)
+	@ModifyVariable(method = "damage", at = @At("HEAD"), argsOnly = true)
 	private float mixinDamage2(float y)
 	{
 		var st = getStatusEffect(IWEffects.HURTING);
@@ -85,8 +88,7 @@ public abstract class MixinLivingEntity extends Entity implements Attackable, In
 		return y;
 	}
 
-	@ModifyConstant(method = "damage(Lnet/minecraft/entity/damage/DamageSource;F)Z", constant = @Constant(intValue =
-			20))
+	@ModifyConstant(method = "damage", constant = @Constant(intValue = 20))
 	private int mixinDamage3(int cooldown, @Local(argsOnly = true) DamageSource source)
 	{
 		if (source.isIn(DamageTypeTags.BYPASSES_COOLDOWN)) return timeUntilRegen;
@@ -96,8 +98,7 @@ public abstract class MixinLivingEntity extends Entity implements Attackable, In
 		return Math.max(19 - ins.getAmplifier(), hurtGate + 1);
 	}
 
-	@ModifyConstant(method = "damage(Lnet/minecraft/entity/damage/DamageSource;F)Z", constant = @Constant(floatValue =
-			10.0f, ordinal = 0))
+	@ModifyConstant(method = "damage", constant = @Constant(floatValue = 10.0f, ordinal = 0))
 	private float mixinDamage4(float cooldownGate, @Local(argsOnly = true) DamageSource source)
 	{
 		if (source.isIn(DamageTypeTags.BYPASSES_COOLDOWN))
@@ -116,12 +117,14 @@ public abstract class MixinLivingEntity extends Entity implements Attackable, In
 		return hurtGate;
 	}
 
-	@Inject(method = "onStatusEffectRemoved", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/effect" +
-																				  "/StatusEffectInstance;" +
-																				  "getEffectType" +
-																				  "()Lnet/minecraft/registry/entry" +
-																				  "/RegistryEntry;"))
-	private void MixinOnStatusEffectRemoved(StatusEffectInstance effect, CallbackInfo ci)
+	@Inject(method = "onStatusEffectsRemoved", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/effect" +
+																				   "/StatusEffectInstance;" +
+																				   "getEffectType" +
+																				   "()Lnet/minecraft/registry/entry" +
+																				   "/RegistryEntry;"), locals =
+			LocalCapture.CAPTURE_FAILSOFT)
+	private void MixinOnStatusEffectRemoved(Collection<StatusEffectInstance> effects, CallbackInfo ci, @Local(ordinal
+			= 0) StatusEffectInstance effect)
 	{
 		effect.getEffectType().value().onRemoveEffect((LivingEntity) (Object) this, effect.getAmplifier());
 	}
@@ -149,7 +152,6 @@ public abstract class MixinLivingEntity extends Entity implements Attackable, In
 		if (!this.getWorld().isClient)
 		{
 			effect.getEffectType().value().onRemoved(getAttributes());
-			updateAttributes();
 
 			for (Entity entity : this.getPassengerList())
 			{
@@ -159,6 +161,7 @@ public abstract class MixinLivingEntity extends Entity implements Attackable, In
 							new RemoveEntityStatusEffectS2CPacket(this.getId(), effect.getEffectType()));
 				}
 			}
+			updateAttributes();
 		}
 	}
 }

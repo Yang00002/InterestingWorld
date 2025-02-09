@@ -8,9 +8,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
 import org.yang.iw.entity.player.IWClientPlayerData;
@@ -50,6 +50,7 @@ public class RepeatSlashingAbility extends RuneAbility
 	{
 		return Color.RED_RGB;
 	}
+
 	public String id()
 	{
 		return "repeatslashing";
@@ -144,7 +145,7 @@ public class RepeatSlashingAbility extends RuneAbility
 					}
 				}
 				manager.shouldSync = true;
-				World world = attacker.getWorld();
+				ServerWorld world = (ServerWorld) player.getWorld();
 				var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
 				var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
 				var damageSource = new DamageSource(IWDamageTypes.ENERGEE_MELEE_ENTRY.get(), attacker);
@@ -152,7 +153,7 @@ public class RepeatSlashingAbility extends RuneAbility
 				IWSoundUtil.playSoundToPlayer(player, IWSounds.DOUBLE_SWEEP, SoundCategory.PLAYERS);
 				IWLivingEntityUtil.sweepEntity(attacker, angle, range, target, (attacker1, entity, distance) -> {
 					if (step > 2) entity.takeKnockback(ThirdAttackKnockback, knox, knoz);
-					entity.damage(damageSource, damage);
+					entity.damage(world, damageSource, damage);
 					double x = entity.getX();
 					double y = entity.getBodyY(0.5);
 					double z = entity.getZ();

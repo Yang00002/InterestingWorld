@@ -7,7 +7,7 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.yang.iw.IWComponents;
-import org.yang.iw.IWUtil;
+import org.yang.iw.util.IWUtil;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.network.payload.S2CAbilityDataPayload;
 import org.yang.iw.network.payload.S2CPlayerEnergyDataPayload;

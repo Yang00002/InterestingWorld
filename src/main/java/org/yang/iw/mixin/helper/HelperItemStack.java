@@ -95,12 +95,12 @@ public class HelperItemStack
 	{
 		if (player != null && (slot == AttributeModifierSlot.HAND || slot == AttributeModifierSlot.MAINHAND))
 		{
-			if (attributeMap.containsKey(EntityAttributes.GENERIC_ATTACK_DAMAGE))
-				appendBasicToolTip(textConsumer, player, attributeMap.get(EntityAttributes.GENERIC_ATTACK_DAMAGE),
-						EntityAttributes.GENERIC_ATTACK_DAMAGE);
-			if (attributeMap.containsKey(EntityAttributes.GENERIC_ATTACK_SPEED))
-				appendBasicToolTip(textConsumer, player, attributeMap.get(EntityAttributes.GENERIC_ATTACK_SPEED),
-						EntityAttributes.GENERIC_ATTACK_SPEED);
+			if (attributeMap.containsKey(EntityAttributes.ATTACK_DAMAGE))
+				appendBasicToolTip(textConsumer, player, attributeMap.get(EntityAttributes.ATTACK_DAMAGE),
+						EntityAttributes.ATTACK_DAMAGE);
+			if (attributeMap.containsKey(EntityAttributes.ATTACK_SPEED))
+				appendBasicToolTip(textConsumer, player, attributeMap.get(EntityAttributes.ATTACK_SPEED),
+						EntityAttributes.ATTACK_SPEED);
 		}
 		for (var entry : attributeMap.entrySet())
 		{

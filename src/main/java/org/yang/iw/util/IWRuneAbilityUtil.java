@@ -1,7 +1,5 @@
 package org.yang.iw.util;
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.yang.iw.IWComponents;
@@ -14,10 +12,6 @@ import org.yang.iw.util.toolflag.EnergyToolDataFlag;
 
 public class IWRuneAbilityUtil
 {
-	static CustomModelDataComponent getModelComponent(int id)
-	{
-		return new CustomModelDataComponent(id);
-	}
 
 	public static void setAbility(ItemStack stack, AbstractRuneAbility ability)
 	{
@@ -29,13 +23,13 @@ public class IWRuneAbilityUtil
 			stack.set(IWComponents.ABILITY_COLOR_RGB, ability.getColor());
 			if (item instanceof EnergyToolItem)
 			{
-				stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
+				//stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
 				stack.set(IWComponents.TOOL_FLAG,
 						EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 				origin.onRemoveAbility(stack);
 				ability.onSetAbility(stack);
 			}
-			else stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.runeIndex));
+			//else stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.runeIndex));
 		}
 	}
 
@@ -50,13 +44,13 @@ public class IWRuneAbilityUtil
 			stack.set(IWComponents.ABILITY_COLOR_RGB, ability.getColor());
 			if (item instanceof EnergyToolItem)
 			{
-				stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
+				//stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
 				stack.set(IWComponents.TOOL_FLAG,
 						EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 				origin.onRemoveAbility(stack);
 				ability.onSetAbility(stack);
 			}
-			else stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.runeIndex));
+			//else stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.runeIndex));
 		}
 	}
 
@@ -85,19 +79,18 @@ public class IWRuneAbilityUtil
 	{
 		AbstractRuneAbility ability = getAbility(stack);
 		stack.remove(IWComponents.ABILITY_INDEX);
-		stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
+		//stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 		stack.set(IWComponents.ABILITY_COLOR_RGB, IWRuneAbilities.DEFAULT_ABILITY.getColor());
-		stack.set(IWComponents.TOOL_FLAG,
-				EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
+		stack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 		ability.onRemoveAbility(stack);
 	}
+
 	private static void removeToolAbility(ItemStack stack, AbstractRuneAbility ability)
 	{
 		stack.remove(IWComponents.ABILITY_INDEX);
-		stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
+		//stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 		stack.set(IWComponents.ABILITY_COLOR_RGB, IWRuneAbilities.DEFAULT_ABILITY.getColor());
-		stack.set(IWComponents.TOOL_FLAG,
-				EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
+		stack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
 		ability.onRemoveAbility(stack);
 	}
 }

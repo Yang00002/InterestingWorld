@@ -25,7 +25,7 @@
           "base": 0.1,
           "per_level_above_first": 0.1
         },
-        "attribute": "generic.attack_speed",
+        "attribute": "attack_speed",
         "id": "iwenchant:fast_attack",
         "operation": "add_multiplied_base"
       }

@@ -4,7 +4,7 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import org.yang.iw.entity.dummy.DummyEntity;
 
-public class DummyEntityModel extends PlayerEntityModel<DummyEntity>
+public class DummyEntityModel extends PlayerEntityModel
 {
 
 	public DummyEntityModel(ModelPart root)

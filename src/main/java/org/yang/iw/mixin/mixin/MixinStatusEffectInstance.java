@@ -5,6 +5,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,9 +26,11 @@ public class MixinStatusEffectInstance implements InterfaceStatusEffectInstance
 	private int duration;
 
 	@Inject(method = "onEntityDamage", at = @At(value = "INVOKE", target =
-			"Lnet/minecraft/entity/effect/StatusEffect;" + "onEntityDamage" + "(Lnet/minecraft/entity/LivingEntity;" +
-			"ILnet/minecraft/entity/damage" + "/DamageSource;F)V", shift = At.Shift.AFTER))
-	public void mixinOnEntityDamage(LivingEntity entity, DamageSource source, float amount, CallbackInfo ci)
+			"Lnet/minecraft/entity/effect/StatusEffect;" + "onEntityDamage(Lnet/minecraft/server/world" +
+			"/ServerWorld;Lnet/minecraft/entity" + "/LivingEntity;" + "ILnet/minecraft/entity/damage" +
+			"/DamageSource;F)V", shift = At.Shift.AFTER))
+	public void mixinOnEntityDamage(ServerWorld world, LivingEntity entity, DamageSource source, float amount,
+									CallbackInfo ci)
 	{
 		type.value().updateOnEntityDamage(entity, source, amount, (StatusEffectInstance) (Object) this);
 	}

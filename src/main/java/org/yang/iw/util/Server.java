@@ -40,7 +40,7 @@ public class Server
 
 		void push(DynamicRegistryManager manager)
 		{
-			var wrapperOp = manager.getOptionalWrapper(wrapperType);
+			var wrapperOp = manager.getOptional(wrapperType);
 			if (wrapperOp.isPresent())
 			{
 				var wrapper = wrapperOp.get();
@@ -89,7 +89,7 @@ public class Server
 		{
 			entry.push(manager);
 		}
-		var ow = manager.getOptionalWrapper(RegistryKeys.ENCHANTMENT);
+		var ow = manager.getOptional(RegistryKeys.ENCHANTMENT);
 		ow.ifPresent(enchantmentImpl -> EnchantData.initialize(server.getResourceManager(), enchantmentImpl));
 		EnchantResourceReloader.handleReload(server.getResourceManager());
 		IWDataGen.clearPools();

@@ -8,7 +8,7 @@ public class EnderiteHeartItem extends BaseHeart
 {
 	public EnderiteHeartItem(Settings settings)
 	{
-		super(settings.component(IWComponents.HEART_FLAG, HeartDataFlag.copyEmpty().setMaterialLevel(6)));
+		super(settings, i -> 5, 6);
 	}
 
 	@Override
@@ -17,10 +17,5 @@ public class EnderiteHeartItem extends BaseHeart
 		return Color.EnderiteColorRGB;
 	}
 
-	@Override
-	public int getEnchantability()
-	{
-		return 5;
-	}
 
 }

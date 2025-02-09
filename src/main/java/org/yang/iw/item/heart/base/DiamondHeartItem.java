@@ -8,7 +8,7 @@ public class DiamondHeartItem extends BaseHeart
 {
 	public DiamondHeartItem(Settings settings)
 	{
-		super(settings.component(IWComponents.HEART_FLAG, HeartDataFlag.copyEmpty().setMaterialLevel(4)));
+		super(settings, i -> 10, 4);
 	}
 
 	@Override
@@ -17,10 +17,5 @@ public class DiamondHeartItem extends BaseHeart
 		return Color.DiamondColorRGB;
 	}
 
-	@Override
-	public int getEnchantability()
-	{
-		return 10;
-	}
 
 }

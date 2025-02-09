@@ -4,16 +4,15 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
-import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import org.joml.Vector3f;
 import org.yang.iw.effect.IWEffects;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.entity.player.IWServerPlayerData;
@@ -55,8 +54,8 @@ public class InfiniteCurseAbility extends InfiniteAbility
 			double y = user.getY();
 			double z = user.getZ();
 			IWParticleUtil.spawnParticleAtPos(world, IWParticleTypes.INFINITECURSE_CYCLE, x, y + 0.001, z);
-			IWParticleUtil.spawnParticleAtPos(world, new DustParticleEffect(new Vector3f(0.2f, 0.2f, 0.2f), 1.0f), x,
-					y + 0.5, z, 48, 2.8, 2.3, 2.8, 0);
+			IWParticleUtil.spawnParticleAtPos(world, new DustParticleEffect(0X323232, 1.0f), x, y + 0.5, z, 48, 2.8,
+					2.3, 2.8, 0);
 			data.chargeRate = 0;
 			data.shouldSync = true;
 			var atx = user.getX();

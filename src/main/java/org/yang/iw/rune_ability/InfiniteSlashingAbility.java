@@ -8,9 +8,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
 import org.yang.iw.effect.IWEffects;
@@ -29,10 +29,12 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	public static final double AttackMaxAngleCosine = 0.3;
 	public static final double AttackMaxLength = 5;
 	public static final double KnockbackDistance = 0.8;
+
 	public String id()
 	{
 		return "infiniteslashing";
 	}
+
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
@@ -59,7 +61,7 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 			{
 				manager.chargeRate = 0;
 				manager.shouldSync = true;
-				World world = attacker.getWorld();
+				ServerWorld world = (ServerWorld) player.getWorld();
 				var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
 				var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
 				var damageSource = new DamageSource(IWDamageTypes.ENERGEE_MELEE_ENTRY.get(), attacker);
@@ -67,7 +69,7 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 				IWLivingEntityUtil.sweepEntity(attacker, AttackMaxAngleCosine, AttackMaxLength, target,
 						(attacker1, entity, distance) -> {
 							entity.takeKnockback(KnockbackDistance, knox, knoz);
-							entity.damage(damageSource, AbilityDamage);
+							entity.damage(world, damageSource, AbilityDamage);
 							IWStatusEffectUtil.addHiddenStatusEffectWithConsistence(entity, IWEffects.BLOOD,
 									(int) (IWDamageUtil.getArmoredDamage(entity, damageSource, AbilityDamage) *
 										   EffectDuration / AbilityDamage), 20);

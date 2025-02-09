@@ -2,9 +2,10 @@ package org.yang.iw.block.block_builder;
 
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItem;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import org.yang.iw.datagen.blockmodel.BlockModelPool;
 import org.yang.iw.datagen.blockmodel.BlockModelProvider;
 import org.yang.iw.datagen.blockmodel.ParentedBlockModelProvider;
@@ -54,9 +55,10 @@ public class CommonBlockBuilder implements BlockBuilder
 
 	public Block build()
 	{
+		var identifier = Base.getIWIdentifier(id);
 		if (settings == null) settings = AbstractBlock.Settings.create();
-		Block block = constructer.apply(settings);
-		Registry.register(Registries.BLOCK, Base.getIWIdentifier(id), block);
+		RegistryKey<Block> key = RegistryKey.of(RegistryKeys.BLOCK, identifier);
+		Block block = Blocks.register(key, constructer, settings);
 		if (modelProvider != null) BlockModelPool.addModel(modelProvider.apply(block));
 		if (translation != null) TranslationPool.addBlock(block, translation);
 		return block;

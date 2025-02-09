@@ -10,17 +10,14 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ToolItem;
-import net.minecraft.item.ToolMaterial;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.yang.iw.IWComponents;
@@ -36,23 +33,17 @@ import org.yang.iw.util.toolflag.EnergyToolDataFlag;
 import java.util.List;
 import java.util.Map;
 
-import static org.yang.iw.IWUtil.Components.currentEnergy;
-import static org.yang.iw.IWUtil.Components.maxEnergy;
+import static org.yang.iw.util.Base.iwlogger;
 import static org.yang.iw.util.IWRuneAbilityUtil.getAbility;
 import static org.yang.iw.util.IWRuneAbilityUtil.getColor;
+import static org.yang.iw.util.IWUtil.Components.currentEnergy;
+import static org.yang.iw.util.IWUtil.Components.maxEnergy;
 import static org.yang.iw.util.Return.*;
 
 
-public class EnergyToolItem extends ToolItem
+public class EnergyToolItem extends Item
 {
 	public final Map<Server.LoadOnceRegistryEntry<Enchantment>, Integer> defaultEnchantments;
-	private RegistryEntry.Reference<Enchantment> entry;
-
-	@Override
-	public boolean isEnchantable(ItemStack stack)
-	{
-		return false;
-	}
 
 	@Override
 	public boolean allowComponentsUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack,
@@ -84,7 +75,7 @@ public class EnergyToolItem extends ToolItem
 	 * TwoSide
 	 */
 	@Override
-	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
+	public ActionResult use(World world, PlayerEntity user, Hand hand)
 	{
 		ItemStack stack = user.getStackInHand(hand);
 		AbstractRuneAbility ab = getAbility(stack);
@@ -95,24 +86,24 @@ public class EnergyToolItem extends ToolItem
 			{
 				case PASS, IGNORE ->
 				{
-					return TypedActionResult.pass(stack);
+					return ActionResult.PASS;
 				}
 				case SUCCESS ->
 				{
-					return TypedActionResult.success(stack);
+					return ActionResult.SUCCESS;
 				}
 				case FAIL ->
 				{
-					return TypedActionResult.fail(stack);
+					return ActionResult.FAIL;
 				}
 				case CONSUME ->
 				{
 					user.setCurrentHand(hand);
-					return TypedActionResult.consume(stack);
+					return ActionResult.CONSUME;
 				}
 			}
 		}
-		return TypedActionResult.pass(stack);
+		return ActionResult.PASS;
 	}
 
 	@Override
@@ -136,10 +127,10 @@ public class EnergyToolItem extends ToolItem
 		}
 	}
 
-	public EnergyToolItem(ToolMaterial material, Item.Settings settings, Map<Server.LoadOnceRegistryEntry<Enchantment>
-			, Integer> defaultEnchantments)
+	public EnergyToolItem(Item.Settings settings,
+						  Map<Server.LoadOnceRegistryEntry<Enchantment>, Integer> defaultEnchantments)
 	{
-		super(material, settings.maxCount(1));
+		super(settings.maxCount(1));
 		this.defaultEnchantments = defaultEnchantments;
 	}
 
@@ -148,10 +139,11 @@ public class EnergyToolItem extends ToolItem
 	 *
 	 * @param remainingUseTicks (-INF, getMaxUseTime]
 	 */
-	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
+	public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
 	{
 		AbstractRuneAbility ab = getAbility(stack);
 		if (ab.canWork()) ab.onStoppedUsing(stack, world, user, remainingUseTicks);
+		return true;
 	}
 
 	/**
@@ -222,19 +214,19 @@ public class EnergyToolItem extends ToolItem
 		if (ut == null)
 		{
 			if (ab == IWRuneAbilities.DEFAULT_ABILITY)
-				return Text.translatable(this.getTranslationKey(stack)).setStyle(TextStyle.BOLD_STYLE)
+				return Text.translatable(this.getTranslationKey()).setStyle(TextStyle.BOLD_STYLE)
 						.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor());
-			else return Text.translatable(this.getTranslationKey(stack)).setStyle(TextStyle.BOLD_STYLE)
+			else return Text.translatable(this.getTranslationKey()).setStyle(TextStyle.BOLD_STYLE)
 					.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor()).append(" ")
 					.append(ab.getTitleText().setStyle(TextStyle.BOLD_STYLE).withColor(getColor(stack)));
 		}
 		else
 		{
 			if (ab == IWRuneAbilities.DEFAULT_ABILITY) return ut.copy().append(" ")
-					.append(Text.translatable(this.getTranslationKey(stack)).setStyle(TextStyle.BOLD_STYLE)
+					.append(Text.translatable(this.getTranslationKey()).setStyle(TextStyle.BOLD_STYLE)
 							.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor()));
 			else return ut.copy().append(" ")
-					.append(Text.translatable(this.getTranslationKey(stack)).setStyle(TextStyle.BOLD_STYLE)
+					.append(Text.translatable(this.getTranslationKey()).setStyle(TextStyle.BOLD_STYLE)
 							.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor())).append(" ")
 					.append(ab.getTitleText().setStyle(TextStyle.BOLD_STYLE).withColor(getColor(stack)));
 		}

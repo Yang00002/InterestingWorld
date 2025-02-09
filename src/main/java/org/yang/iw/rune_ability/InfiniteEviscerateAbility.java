@@ -8,9 +8,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
 import org.yang.iw.effect.IWEffects;
@@ -32,10 +32,12 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 	public static final double AttackMaxLength = 5;
 	public static final int LevelCap = 10;
 	public static final float Knockback = 0.4f;
+
 	public String id()
 	{
 		return "infiniteeviscerate";
 	}
+
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
@@ -60,7 +62,7 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 			var manager = player.getIWServerPlayerData();
 			if (manager.isAbilityOn() && manager.sweeping)
 			{
-				World world = attacker.getWorld();
+				ServerWorld world = (ServerWorld) player.getWorld();
 				var damageSource = new DamageSource(IWDamageTypes.BLOOD_EFFECT_ENTRY.get(), attacker);
 				if (manager.chargeRate >= AbilityCooldown)
 				{
@@ -77,7 +79,7 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 								if (preEffect != null)
 								{
 									amplifier = Math.min(preEffect.getAmplifier() + 1, LevelCap - 1);
-									entity.damage(damageSource, amplifier * PerLevelAbilityDamage);
+									entity.damage(world, damageSource, amplifier * PerLevelAbilityDamage);
 								}
 								IWStatusEffectUtil.addHiddenStatusEffectWithConsistence(entity, IWEffects.BLOOD,
 										EffectDuration, amplifier, 20);
@@ -92,7 +94,7 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 				{
 					var targetEffect = target.getStatusEffect(IWEffects.BLOOD);
 					if (targetEffect != null)
-						target.damage(damageSource, (targetEffect.getAmplifier() + 1) * PerLevelAbilityDamage);
+						target.damage(world, damageSource, (targetEffect.getAmplifier() + 1) * PerLevelAbilityDamage);
 				}
 			}
 		}

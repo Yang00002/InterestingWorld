@@ -8,7 +8,7 @@ public class GoldHeartItem extends BaseHeart
 {
 	public GoldHeartItem(Settings settings)
 	{
-		super(settings.component(IWComponents.HEART_FLAG, HeartDataFlag.copyEmpty().setMaterialLevel(3)));
+		super(settings, i -> 22, 3);
 	}
 
 	@Override
@@ -17,11 +17,6 @@ public class GoldHeartItem extends BaseHeart
 		return Color.GoldColorRGB;
 	}
 
-	@Override
-	public int getEnchantability()
-	{
-		return 22;
-	}
 
 
 }

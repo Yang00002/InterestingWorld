@@ -2,6 +2,7 @@ package org.yang.iw.block.forgingblock;
 
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
+import net.minecraft.component.type.RepairableComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -10,7 +11,6 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
 import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
@@ -38,7 +38,6 @@ import org.yang.iw.util.toolflag.EnergyToolDataFlag;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import static org.yang.iw.util.IWEnchantmentUtil.applyEnchant;
 import static org.yang.iw.util.IWEnchantmentUtil.getExperienceFromLevel;
@@ -61,7 +60,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 
 	private final Property globalState;
 	private final Property experienceCost;
-	private Ingredient repairIngredient;
+	private RepairableComponent repairIngredient;
 	private final Property repairCount;
 	private final Rand rand = new Rand();
 
@@ -288,12 +287,12 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	}
 
 	@Nullable
-	public Ingredient getRepairIngredient()
+	public RepairableComponent getRepairIngredient()
 	{
 		ItemStack stack = inventoryUp.getStack(0);
-		if (stack.getItem() instanceof EnergyToolItem eti)
+		if (stack.getItem() instanceof EnergyToolItem)
 		{
-			return eti.getMaterial().getRepairIngredient();
+			return stack.getOrDefault(DataComponentTypes.REPAIRABLE, null);
 		}
 		return null;
 	}
@@ -598,11 +597,11 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		if ((!durabilityEnough) || (!durabilityFull && stackDown.isEmpty()))
 		{
 			int haveCount = 0;
-			repairIngredient = itemUp.getMaterial().getRepairIngredient();
-			for (int i = 0; i < 9; i++)
+			repairIngredient = stackUp.getOrDefault(DataComponentTypes.REPAIRABLE, null);
+			if (repairIngredient != null) for (int i = 0; i < 9; i++)
 			{
 				ItemStack cstack = inventoryIngredient.getStack(i);
-				if (repairIngredient.test(cstack))
+				if (repairIngredient.matches(cstack))
 				{
 					haveCount += cstack.getCount();
 					if (haveCount > 3) break;
@@ -643,7 +642,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				for (int i = 0; i < 9; i++)
 				{
 					ItemStack cstack = inventoryIngredient.getStack(i);
-					if (repairIngredient.test(cstack))
+					if (repairIngredient.matches(cstack))
 					{
 						haveCount += cstack.getCount();
 						if (haveCount > 3) break;
@@ -670,7 +669,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				for (int i = 0; i < 9; i++)
 				{
 					ItemStack cstack = inventoryIngredient.getStack(i);
-					if (repairIngredient.test(cstack))
+					if (repairIngredient.matches(cstack))
 					{
 						haveCount += cstack.getCount();
 						if (haveCount > 3) break;
@@ -907,12 +906,12 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		}
 	}
 
-	private void extractIngredient(Predicate<ItemStack> predicate, int count)
+	private void extractIngredient(RepairableComponent predicate, int count)
 	{
 		for (int i = 0; i < 9; i++)
 		{
 			ItemStack s = inventoryIngredient.getStack(i);
-			if (predicate.test(s))
+			if (predicate.matches(s))
 			{
 				int c = s.getCount();
 				if (c > count)

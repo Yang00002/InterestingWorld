@@ -1,21 +1,21 @@
 package org.yang.iw.item.item_builder;
 
-import net.minecraft.data.client.Model;
+import net.minecraft.client.data.Model;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import org.yang.iw.IWComponents;
 import org.yang.iw.IWItemGroups;
-import org.yang.iw.datagen.itemmodel.CommonItemModelProvider;
 import org.yang.iw.datagen.itemmodel.ItemModelPool;
 import org.yang.iw.datagen.itemmodel.ItemModelProvider;
-import org.yang.iw.datagen.tag.ItemTagPool;
+import org.yang.iw.datagen.itemmodel.SimpleItemModelProvider;
+import org.yang.iw.datagen.itemmodel.server.ModelParents;
 import org.yang.iw.datagen.language.TranslationPool;
+import org.yang.iw.datagen.tag.ItemTagPool;
 import org.yang.iw.item.heart.common.CommonHeart;
 import org.yang.iw.rune_ability.IWRuneAbilities;
 import org.yang.iw.util.Base;
@@ -54,9 +54,9 @@ public class AbilityHeartItemBuilder
 		return this;
 	}
 
-	public AbilityHeartItemBuilder setCommonModel(Model model)
+	public AbilityHeartItemBuilder setCommonModel(ModelParents model)
 	{
-		modelProvider = item -> new CommonItemModelProvider(item, model);
+		modelProvider = item -> new SimpleItemModelProvider(item, model);
 		return this;
 	}
 
@@ -75,9 +75,9 @@ public class AbilityHeartItemBuilder
 	public CommonHeart build()
 	{
 		Item.Settings settings = new Item.Settings();
-		CommonHeart ret = constructor.apply(settings);
 		Identifier itemID = Identifier.of(Base.MOD_ID, id);
-		Registry.register(Registries.ITEM, itemID, ret);
+		RegistryKey<Item> registryKey = RegistryKey.of(RegistryKeys.ITEM, itemID);
+		CommonHeart ret = (CommonHeart) Items.register(registryKey, constructor::apply, settings);
 		if (itemGroupBelong != null)
 		{
 			for (var idx : ret.getAbilitiesSupport())
@@ -86,7 +86,7 @@ public class AbilityHeartItemBuilder
 				if (ability != IWRuneAbilities.DEFAULT_ABILITY)
 				{
 					IWItemGroups.addItemToGroup((context, entries) -> {
-						var wrapperOp = context.lookup().getOptionalWrapper(RegistryKeys.ENCHANTMENT);
+						var wrapperOp = context.lookup().getOptional(RegistryKeys.ENCHANTMENT);
 						wrapperOp.ifPresent(wrapper -> {
 							var stack = ret.getDefaultStack(ability.level());
 							if (ret.setAbility(stack, ability))

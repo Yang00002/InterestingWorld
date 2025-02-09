@@ -8,9 +8,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
 import org.yang.iw.effect.IWEffects;
@@ -29,15 +29,16 @@ public class SlashingAbility extends RuneAbility
 	public static final double AttackMaxLength = 3.5;
 	public static final float EnergyCosume = 10;
 	public static final double KnockbackDistance = 0.4;
+
 	public String id()
 	{
 		return "slashing";
 	}
+
 	public int getColor()
 	{
 		return Color.RED_RGB;
 	}
-
 
 
 	@Override
@@ -68,7 +69,7 @@ public class SlashingAbility extends RuneAbility
 			{
 				manager.chargeRate = 0;
 				manager.shouldSync = true;
-				World world = attacker.getWorld();
+				ServerWorld world = (ServerWorld) player.getWorld();
 				var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
 				var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
 				var damageSource = new DamageSource(IWDamageTypes.ENERGEE_MELEE_ENTRY.get(), attacker);
@@ -76,7 +77,7 @@ public class SlashingAbility extends RuneAbility
 				IWLivingEntityUtil.sweepEntity(attacker, AttackMaxAngleCosine, AttackMaxLength, target,
 						(attacker1, entity, distance) -> {
 							entity.takeKnockback(KnockbackDistance, knox, knoz);
-							entity.damage(damageSource, AbilityDamage);
+							entity.damage(world, damageSource, AbilityDamage);
 							IWStatusEffectUtil.addHiddenStatusEffectWithConsistence(entity, IWEffects.BLOOD,
 									(int) (IWDamageUtil.getArmoredDamage(entity, damageSource, AbilityDamage) *
 										   EffectDuration / AbilityDamage), 20);

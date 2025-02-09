@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.yang.iw.IWUtil;
+import org.yang.iw.util.IWUtil;
 import org.yang.iw.mixin.mixin_interface.InterfaceServerPlayerEntity;
 import org.yang.iw.rune_ability.AbstractRuneAbility;
 import org.yang.iw.util.toolflag.EnergyToolDataFlag;
@@ -83,7 +83,7 @@ public abstract class MixinPlayerEntity extends LivingEntity implements Interfac
 	{
 		if (g <= 0.0F)
 		{
-			var at = getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+			var at = getAttributeInstance(EntityAttributes.ATTACK_DAMAGE);
 			if (at != null && at.getModifiers().stream()
 					.anyMatch(IWUtil.Components.MutableAttributeContainer::modifierAddByEnchantment))
 			{

@@ -8,7 +8,7 @@ public class IronHeartItem extends BaseHeart
 {
 	public IronHeartItem(Settings settings)
 	{
-		super(settings.component(IWComponents.HEART_FLAG, HeartDataFlag.copyEmpty().setMaterialLevel(2)));
+		super(settings, i -> 14, 2);
 	}
 
 	@Override
@@ -18,11 +18,6 @@ public class IronHeartItem extends BaseHeart
 	}
 
 
-	@Override
-	public int getEnchantability()
-	{
-		return 14;
-	}
 
 
 }

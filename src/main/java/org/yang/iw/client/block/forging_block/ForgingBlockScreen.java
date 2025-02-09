@@ -109,7 +109,7 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 					begin += space;
 					int idx = size % 4 * 10;
 					int idy = size / 4 * 10;
-					context.drawTexture(EXPERIENCE, begin, 68, idx, idy, 10, 10, 40, 40);
+					context.drawTexture(RenderLayer::getGuiTextured, EXPERIENCE, begin, 68, idx, idy, 10, 10, 40, 40);
 					begin += 10;
 				}
 				else
@@ -359,7 +359,7 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 			case 7 ->
 			{
 				var ig = handler.getRepairIngredient();
-				if (ig != null) this.drawIngredientOverlay(context, ig);
+				if (ig != null) this.drawIngredientOverlay(context, ig::matches);
 			}
 			case 12 -> this.drawIngredientOverlay(context,
 					stack -> IWResources.RuneItemValue.RuneItemValue.containsKey(stack.getItem()));
@@ -379,6 +379,7 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 	{
 		context.fill(RenderLayer.getGuiOverlay(), x, y, x + 16, y + 16, 1073807104);
 	}
+
 
 	public void drawIngredientOverlay(DrawContext context, Predicate<ItemStack> overLayCond)
 	{
@@ -417,7 +418,8 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 	@Override
 	protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY)
 	{
-		context.drawTexture(TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight, 176, 202);
+		context.drawTexture(RenderLayer::getGuiTextured, TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth,
+				this.backgroundHeight, 176, 202);
 	}
 
 	public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack)

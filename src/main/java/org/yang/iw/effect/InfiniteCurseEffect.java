@@ -6,6 +6,7 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.rune_ability.InfiniteCurseAbility;
 import org.yang.iw.util.IWParticleUtil;
@@ -31,7 +32,8 @@ public class InfiniteCurseEffect extends StatusEffect
 	@Override
 	public void onRemoveEffect(LivingEntity entity, int amplifier)
 	{
-		entity.damage(new DamageSource(IWDamageTypes.ENERGEE_EXPLODE_ENTRY.get()), amplifier + 1);
+		entity.damage((ServerWorld) entity.getWorld(), new DamageSource(IWDamageTypes.ENERGEE_EXPLODE_ENTRY.get()),
+				amplifier + 1);
 		IWParticleUtil.spawnParticleAtPos(entity.getWorld(), ParticleTypes.EXPLOSION, entity.getX(), entity.getY(),
 				entity.getZ(), 3, 0.5, 0.5, 0.5, 0);
 	}

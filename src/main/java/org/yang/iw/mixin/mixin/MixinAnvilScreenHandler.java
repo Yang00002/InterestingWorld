@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.*;
+import net.minecraft.screen.slot.ForgingSlotsManager;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.StringHelper;
@@ -44,16 +45,16 @@ public abstract class MixinAnvilScreenHandler extends ForgingScreenHandler
 	@Shadow
 	private int repairItemUsage;
 
+	public MixinAnvilScreenHandler(@Nullable ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory,
+								   ScreenHandlerContext context, ForgingSlotsManager forgingSlotsManager)
+	{
+		super(type, syncId, playerInventory, context, forgingSlotsManager);
+	}
+
 	@Shadow
 	public static int getNextCost(int cost)
 	{
 		return (int) Math.min((long) cost * 2L + 1L, 2147483647L);
-	}
-
-	public MixinAnvilScreenHandler(@Nullable ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory,
-								   ScreenHandlerContext context)
-	{
-		super(type, syncId, playerInventory, context);
 	}
 
 	@Accessor("newItemName")

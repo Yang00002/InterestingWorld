@@ -7,6 +7,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.entity.dummy.DummyEntity;
@@ -19,8 +21,9 @@ public class IWEntities
 
 	public static <T extends Entity> EntityType<T> register(String id, String name, EntityType.Builder<T> entity)
 	{
-		var e = entity.build(id);
-		Registry.register(Registries.ENTITY_TYPE, Identifier.of(Base.MOD_ID, id), e);
+		var idt = Identifier.of(Base.MOD_ID, id);
+		var e = entity.build(RegistryKey.of(RegistryKeys.ENTITY_TYPE, idt));
+		Registry.register(Registries.ENTITY_TYPE, idt, e);
 		TranslationPool.addEntity(e, name);
 		return e;
 	}

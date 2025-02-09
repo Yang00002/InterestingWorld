@@ -40,13 +40,13 @@ public class HeavyUpgrade extends AbstractRuneUpgrade
 			var op = modifier.operation();
 			if (op == EntityAttributeModifier.Operation.ADD_VALUE)
 			{
-				if (md.matches(EntityAttributes.GENERIC_ATTACK_DAMAGE, Item.BASE_ATTACK_DAMAGE_MODIFIER_ID))
+				if (md.matches(EntityAttributes.ATTACK_DAMAGE, Item.BASE_ATTACK_DAMAGE_MODIFIER_ID))
 				{
 					builder.add(md.attribute(), new EntityAttributeModifier(modifier.id(),
 							(modifier.value() + 1.0) * (1.0 + BASIC_DAMAGE_ADD) - 1.0, op), md.slot());
 					continue;
 				}
-				else if (md.matches(EntityAttributes.GENERIC_ATTACK_SPEED, Item.BASE_ATTACK_SPEED_MODIFIER_ID))
+				else if (md.matches(EntityAttributes.ATTACK_SPEED, Item.BASE_ATTACK_SPEED_MODIFIER_ID))
 				{
 					builder.add(md.attribute(), new EntityAttributeModifier(modifier.id(),
 							(4.0 + modifier.value()) * (1.0 - BASIC_SPEED_DOWN) - 4.0, op), md.slot());

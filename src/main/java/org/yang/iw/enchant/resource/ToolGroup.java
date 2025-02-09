@@ -35,7 +35,7 @@ public class ToolGroup
 		for (var arrayObject : array)
 		{
 			String value = arrayObject.getAsString();
-			Optional<Item> it = Registries.ITEM.getOrEmpty(Identifier.of(value));
+			Optional<Item> it = Registries.ITEM.getOptionalValue(Identifier.of(value));
 			it.ifPresent(itemSet::add);
 		}
 		if (itemSet.isEmpty()) return;

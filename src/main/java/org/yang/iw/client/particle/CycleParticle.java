@@ -19,7 +19,7 @@ public class CycleParticle extends SpriteBillboardParticle
 	}
 
 	@Override
-	public void buildGeometry(VertexConsumer vertexConsumer, Camera camera, float tickDelta)
+	public void render(VertexConsumer vertexConsumer, Camera camera, float tickDelta)
 	{
 		this.alpha = Math.clamp(((float) (this.maxAge - this.age)) / this.maxAge, 0.0f, 1.0f);
 		if (camera.getPos().y < this.y)

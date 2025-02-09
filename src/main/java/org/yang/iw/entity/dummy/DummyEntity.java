@@ -14,6 +14,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -182,7 +183,7 @@ public class DummyEntity extends LivingEntity
 		{
 			if (!itemStack.isEmpty())
 			{
-				nbtList.add(itemStack.encode(this.getRegistryManager()));
+				nbtList.add(itemStack.toNbt(this.getRegistryManager()));
 			}
 			else
 			{
@@ -197,7 +198,7 @@ public class DummyEntity extends LivingEntity
 		{
 			if (!itemStack2.isEmpty())
 			{
-				nbtList3.add(itemStack2.encode(this.getRegistryManager()));
+				nbtList3.add(itemStack2.toNbt(this.getRegistryManager()));
 			}
 			else
 			{
@@ -235,13 +236,13 @@ public class DummyEntity extends LivingEntity
 			if (getEquippedStack(EquipmentSlot.OFFHAND).getItem() == Items.SHIELD)
 			{
 				var at = this.getAttributes();
-				var kn = at.getCustomInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE);
+				var kn = at.getCustomInstance(EntityAttributes.KNOCKBACK_RESISTANCE);
 				if (kn != null) kn.setBaseValue(0.0);
 				equipStack(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
 				return ActionResult.SUCCESS;
 			}
 			var at = this.getAttributes();
-			var kn = at.getCustomInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE);
+			var kn = at.getCustomInstance(EntityAttributes.KNOCKBACK_RESISTANCE);
 			if (kn != null) kn.setBaseValue(1.0);
 			equipStack(EquipmentSlot.OFFHAND, Items.SHIELD.getDefaultStack());
 			return ActionResult.SUCCESS;
@@ -295,9 +296,9 @@ public class DummyEntity extends LivingEntity
 	}
 
 	@Override
-	protected void applyDamage(DamageSource source, float amount)
+	protected void applyDamage(ServerWorld world, DamageSource source, float amount)
 	{
-		if (!this.isInvulnerableTo(source))
+		if (!this.isInvulnerableTo(world, source))
 		{
 			amount = this.applyArmorToDamage(source, amount);
 			amount = this.modifyAppliedDamage(source, amount);

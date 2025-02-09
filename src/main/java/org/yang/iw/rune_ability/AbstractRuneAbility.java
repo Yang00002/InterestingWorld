@@ -10,7 +10,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
-import net.minecraft.util.UseAction;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.yang.iw.entity.player.IWClientPlayerData;

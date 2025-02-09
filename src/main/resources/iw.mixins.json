@@ -9,7 +9,6 @@
     "MixinItemGroups",
     "MixinItemStack",
     "MixinLivingEntity",
-    "MixinModel",
     "MixinPlayerEntity",
     "MixinServerPlayerEntity",
     "MixinStatusEffect",

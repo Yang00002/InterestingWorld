@@ -8,7 +8,7 @@ public class NetheriteHeartItem extends BaseHeart
 {
 	public NetheriteHeartItem(Settings settings)
 	{
-		super(settings.component(IWComponents.HEART_FLAG, HeartDataFlag.copyEmpty().setMaterialLevel(5)));
+		super(settings, i -> 15, 5);
 	}
 
 	@Override
@@ -17,11 +17,6 @@ public class NetheriteHeartItem extends BaseHeart
 		return Color.NetheriteColorRGB;
 	}
 
-	@Override
-	public int getEnchantability()
-	{
-		return 15;
-	}
 
 
 }

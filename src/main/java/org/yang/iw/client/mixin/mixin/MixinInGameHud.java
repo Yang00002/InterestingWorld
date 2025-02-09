@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,10 +38,10 @@ public abstract class MixinInGameHud
 	@Shadow
 	public abstract TextRenderer getTextRenderer();
 
-	@Inject(method = "renderStatusBars", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;" +
-																			 "getProfiler()" +
-																			 "Lnet/minecraft/util/profiler/Profiler;",
-			ordinal = 2))
+	@Inject(method = "renderStatusBars", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler" +
+																			 "/Profilers;" +
+																			 "get()Lnet/minecraft/util/profiler" +
+																			 "/Profiler;", ordinal = 2))
 	public void renderEnergy(DrawContext context, CallbackInfo ci, @Local PlayerEntity playerEntity, @Local(ordinal =
 			3) int m, @Local(ordinal = 8) int r)
 
@@ -53,7 +54,7 @@ public abstract class MixinInGameHud
 			for (int j = 0; j < 10; j++)
 			{
 				int l = m - j * 8 - 9;
-				context.drawGuiTexture(FFULL_ENERGY, l, r, 9, 9);
+				context.drawGuiTexture(RenderLayer::getGuiTextured, FFULL_ENERGY, l, r, 9, 9);
 			}
 		}
 		else
@@ -62,9 +63,9 @@ public abstract class MixinInGameHud
 			{
 				int t = j * 2 + 1;
 				int l = m - j * 8 - 9;
-				if (t > energy) context.drawGuiTexture(EMPTY_ENERGY, l, r, 9, 9);
-				else if (t == energy) context.drawGuiTexture(HALF_ENERGY, l, r, 9, 9);
-				else context.drawGuiTexture(FULL_ENERGY, l, r, 9, 9);
+				if (t > energy) context.drawGuiTexture(RenderLayer::getGuiTextured, EMPTY_ENERGY, l, r, 9, 9);
+				else if (t == energy) context.drawGuiTexture(RenderLayer::getGuiTextured, HALF_ENERGY, l, r, 9, 9);
+				else context.drawGuiTexture(RenderLayer::getGuiTextured, FULL_ENERGY, l, r, 9, 9);
 			}
 		}
 		RenderSystem.disableBlend();
@@ -94,10 +95,12 @@ public abstract class MixinInGameHud
 		}
 	}
 
-	@ModifyArg(method = "renderStatusBars", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui" +
-																				"/DrawContext;drawGuiTexture" +
-																				"(Lnet/minecraft/util/Identifier;" +
-																				"IIII)" + "V"), index = 2)
+	@ModifyArg(method = "renderStatusBars", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud" +
+																				"/InGameHud;renderAirBubbles" +
+																				"(Lnet/minecraft/client/gui" +
+																				"/DrawContext;Lnet/minecraft/entity" +
+																				"/player/PlayerEntity;III)V"), index
+			= 3)
 	private int changeAirPlace(int x)
 	{
 		return x - 10;

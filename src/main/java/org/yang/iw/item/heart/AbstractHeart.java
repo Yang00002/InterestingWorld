@@ -1,6 +1,7 @@
 package org.yang.iw.item.heart;
 
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.EnchantableComponent;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -20,17 +21,19 @@ import org.yang.iw.util.style.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static org.yang.iw.util.IWEnchantmentUtil.getWorldLevelOfXpCost;
 import static org.yang.iw.util.IWRuneAbilityUtil.getAbility;
 
 public abstract class AbstractHeart extends Item
 {
-	@Override
-	public boolean isEnchantable(ItemStack stack)
+
+	public final Function<Integer, Integer> enchantAbility;
+
+	public final int getEnchantAbility(int level)
 	{
-		return supportEnchant() &&
-			   HeartDataFlag.getFromItemStack(stack).getTypeTaking() == HeartFlagOnlyCheckable.HeartTypeTaking.NULL;
+		return supportEnchant() ? enchantAbility.apply(level) : 0;
 	}
 
 	@Override
@@ -60,9 +63,19 @@ public abstract class AbstractHeart extends Item
 		return SupportAbilityResult.SUPPORT;
 	}
 
-	public AbstractHeart(Settings settings)
+	private static Settings handleSettings(Settings settings, Function<Integer, Integer> initializer, int lvl)
 	{
-		super(settings.maxCount(1));
+		settings.maxCount(1);
+		int e = initializer == null ? 0 : initializer.apply(lvl);
+		if (e > 0) settings.component(DataComponentTypes.ENCHANTABLE, new EnchantableComponent(e));
+		settings.component(IWComponents.HEART_FLAG, HeartDataFlag.copyEmpty().setMaterialLevel(lvl));
+		return settings;
+	}
+
+	public AbstractHeart(Settings settings, Function<Integer, Integer> initializer, int defaultMaterialLevel)
+	{
+		super(handleSettings(settings, initializer, defaultMaterialLevel));
+		this.enchantAbility = initializer;
 	}
 
 	@Override
@@ -75,7 +88,10 @@ public abstract class AbstractHeart extends Item
 
 	public abstract int getNameColorRGB();
 
-	public abstract boolean supportEnchant();
+	public final boolean supportEnchant()
+	{
+		return enchantAbility != null;
+	}
 
 	public abstract boolean supportAbility();
 
@@ -88,6 +104,8 @@ public abstract class AbstractHeart extends Item
 			flag.setTypeTaking(HeartFlagOnlyCheckable.HeartTypeTaking.NULL);
 			stack.set(IWComponents.HEART_FLAG, flag);
 			stack.remove(DataComponentTypes.STORED_ENCHANTMENTS);
+			if (supportEnchant()) stack.set(DataComponentTypes.ENCHANTABLE,
+					new EnchantableComponent(getEnchantAbility(flag.getMaterialLevel())));
 		}
 	}
 
@@ -100,6 +118,7 @@ public abstract class AbstractHeart extends Item
 			flag.setTakingLevel(getWorldLevelOfXpCost(enchantCost));
 			stack.set(IWComponents.HEART_FLAG, flag);
 			stack.set(DataComponentTypes.STORED_ENCHANTMENTS, component);
+			stack.remove(DataComponentTypes.ENCHANTABLE);
 			return true;
 		}
 		return false;
@@ -129,6 +148,7 @@ public abstract class AbstractHeart extends Item
 		{
 			stack.set(IWComponents.HEART_FLAG, HeartDataFlag.copyFromItemStack(stack)
 					.setTypeTaking(HeartFlagOnlyCheckable.HeartTypeTaking.PREENCHANT));
+			stack.remove(DataComponentTypes.ENCHANTABLE);
 		}
 	}
 
