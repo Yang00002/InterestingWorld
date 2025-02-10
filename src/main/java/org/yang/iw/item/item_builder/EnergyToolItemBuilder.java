@@ -1,6 +1,5 @@
 package org.yang.iw.item.item_builder;
 
-import net.minecraft.client.data.Model;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
@@ -15,7 +14,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
-import org.yang.iw.IWComponents;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.IWItemGroups;
 import org.yang.iw.datagen.itemmodel.ItemModelPool;
 import org.yang.iw.datagen.itemmodel.ItemModelProvider;
@@ -36,7 +35,6 @@ import java.util.function.Function;
 import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
 import static net.minecraft.item.Item.BASE_ATTACK_SPEED_MODIFIER_ID;
 import static org.yang.iw.IWItemGroups.TOOLS_GROUP;
-import static org.yang.iw.util.Base.iwlogger;
 
 public class EnergyToolItemBuilder
 {

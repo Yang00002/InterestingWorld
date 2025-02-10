@@ -13,11 +13,11 @@ import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.yang.iw.IWComponents;
+import org.yang.iw.component.EnergyToolDataFlag;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.util.Server;
 import org.yang.iw.util.constants.Numbers;
-import org.yang.iw.util.toolflag.EnergyToolDataFlag;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class EnergySwordItem extends EnergyToolItem
 	public EnergySwordItem(Item.Settings settings,
 						   Map<Server.LoadOnceRegistryEntry<Enchantment>, Integer> defaultEnchantments)
 	{
-		super(settings.component(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyEmpty().setCanSweep()),
+		super(settings.component(IWComponents.TOOL_FLAG, EnergyToolDataFlag.builder().setCanSweep().build()),
 				defaultEnchantments);
 	}
 

@@ -102,13 +102,13 @@ public abstract class RawItemModel implements ItemModelProvider
 			JsonObject jsonObject1 = new JsonObject();
 			jsonObject1.addProperty("layer0", namespace + ":item/" + id);
 			outputModelObject.add("textures", jsonObject1);
-			generator.modelCollector.accept(Identifier.of(namespace, id), () -> outputModelObject);
+			generator.modelCollector.accept(Identifier.of(namespace, "item/" + id), () -> outputModelObject);
 		}
 
 		@Override
 		public Identifier getModelId()
 		{
-			return Identifier.of(namespace, id);
+			return Identifier.of(namespace, "item/" + id);
 		}
 
 	}
@@ -148,7 +148,7 @@ public abstract class RawItemModel implements ItemModelProvider
 		@Override
 		public Identifier getModelId()
 		{
-			return Identifier.of(namespace, id);
+			return Identifier.of(namespace, "item/" + id);
 		}
 	}
 }

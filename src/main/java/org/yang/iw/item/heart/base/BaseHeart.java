@@ -8,8 +8,7 @@ import net.minecraft.text.Text;
 import org.yang.iw.item.IWItems;
 import org.yang.iw.item.heart.AbstractHeart;
 import org.yang.iw.util.IWUtil;
-import org.yang.iw.util.heartflag.HeartDataFlag;
-import org.yang.iw.util.heartflag.HeartFlagOnlyCheckable;
+import org.yang.iw.component.HeartDataFlag;
 
 import java.util.function.Function;
 
@@ -18,50 +17,19 @@ public abstract class BaseHeart extends AbstractHeart
 	@Override
 	public boolean hasGlint(ItemStack stack)
 	{
-		var type = HeartDataFlag.getFromItemStack(stack).getTypeTaking();
-		return type != HeartFlagOnlyCheckable.HeartTypeTaking.NULL;
+		var type = HeartDataFlag.fromItemStack(stack).getTypeTaking();
+		return type != HeartDataFlag.HeartTypeTaking.NULL;
 	}
-
-	private static final CustomModelDataComponent ENCHANTED_MODEL_INDEX = IWUtil.getModelComponent(1);
 
 	public int getMaxSupportLevel()
 	{
-		return HeartDataFlag.getFromItem(this).getMaterialLevel();
+		return HeartDataFlag.fromItem(this).getMaterialLevel();
 	}
 
 	public BaseHeart(Settings settings, Function<Integer, Integer> enchantAbility, int lvl)
 	{
 		super(settings.component(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT),
 				enchantAbility, lvl);
-	}
-
-	@Override
-	public boolean setEnchant(ItemStack stack, ItemEnchantmentsComponent component, int enchantCost)
-	{
-		if (super.setEnchant(stack, component, enchantCost))
-		{
-			stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, ENCHANTED_MODEL_INDEX);
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean dumpPreEnchant(ItemStack stack, ItemEnchantmentsComponent component, int enchantCost)
-	{
-		if (super.dumpPreEnchant(stack, component, enchantCost))
-		{
-			stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, ENCHANTED_MODEL_INDEX);
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public void removeEnchant(ItemStack stack)
-	{
-		super.removeEnchant(stack);
-		stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT);
 	}
 
 	@Override
@@ -114,7 +82,7 @@ public abstract class BaseHeart extends AbstractHeart
 	@Override
 	public Text getName(ItemStack stack)
 	{
-		if (HeartDataFlag.getFromItemStack(stack).getTypeTaking() == HeartFlagOnlyCheckable.HeartTypeTaking.ENCHANT)
+		if (HeartDataFlag.fromItemStack(stack).getTypeTaking() == HeartDataFlag.HeartTypeTaking.ENCHANT)
 			return Text.translatable("item.iw.enchantedheart").withColor(getNameColorRGB());
 		return Text.translatable(getTranslationKey()).withColor(getNameColorRGB());
 	}

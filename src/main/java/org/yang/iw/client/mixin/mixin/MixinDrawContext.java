@@ -4,17 +4,19 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.yang.iw.IWComponents;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.rune_ability.AbstractRuneAbility;
 import org.yang.iw.util.IWRuneAbilityUtil;
 import org.yang.iw.util.style.Color;
 
+@Debug(export = true)
 @Mixin(DrawContext.class)
 public abstract class MixinDrawContext
 {

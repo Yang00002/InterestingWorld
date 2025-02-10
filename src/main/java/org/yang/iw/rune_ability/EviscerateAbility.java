@@ -21,7 +21,7 @@ import org.yang.iw.util.IWParticleUtil;
 import org.yang.iw.util.IWSoundUtil;
 import org.yang.iw.util.IWStatusEffectUtil;
 import org.yang.iw.util.style.Color;
-import org.yang.iw.util.toolflag.EnergyToolDataFlag;
+import org.yang.iw.component.EnergyToolDataFlag;
 
 public class EviscerateAbility extends RuneAbility
 {
@@ -53,7 +53,7 @@ public class EviscerateAbility extends RuneAbility
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
-		return EnergyToolDataFlag.getFromItemStack(stack).canSweep();
+		return EnergyToolDataFlag.fromItemStack(stack).canSweep();
 	}
 
 	@Override

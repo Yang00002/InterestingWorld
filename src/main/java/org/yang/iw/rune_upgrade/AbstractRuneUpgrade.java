@@ -4,11 +4,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import org.yang.iw.IWComponents;
+import org.yang.iw.component.EnergyToolDataFlag;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.util.style.Color;
 import org.yang.iw.util.style.TextStyle;
-import org.yang.iw.util.toolflag.EnergyToolDataFlag;
 
 import java.util.List;
 import java.util.Map;
@@ -41,8 +41,8 @@ public abstract class AbstractRuneUpgrade
 	{
 		applyUpgradeContent(toolStack);
 		toolStack.set(IWComponents.UPGRADE_TEXT, getTitleText().withColor(getColor()));
-		toolStack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(toolStack).setUpgradeLevel(level())
-				.updateLevelFromItemStack(toolStack));
+		EnergyToolDataFlag.builder(toolStack).setUpgradeLevel(level()).updateLevelFromItemStack(toolStack)
+				.dump(toolStack);
 	}
 
 	protected abstract void applyUpgradeContent(ItemStack toolStack);

@@ -8,6 +8,8 @@ import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.profiler.Profilers;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -23,6 +25,7 @@ import org.yang.iw.util.Base;
 import static org.yang.iw.util.style.Color.rgbToArgb;
 import static org.yang.iw.util.style.Color.rgbToDarkenArgb;
 
+@Debug(export = true)
 @Mixin(InGameHud.class)
 public abstract class MixinInGameHud
 {
@@ -46,6 +49,7 @@ public abstract class MixinInGameHud
 			3) int m, @Local(ordinal = 8) int r)
 
 	{
+		Profilers.get().swap("energy");
 		IWClientPlayerData manager = ((InterfaceClientPlayerEntity) playerEntity).getIWClientPlayerData();
 		int energy = manager.shown_energy;
 		RenderSystem.enableBlend();

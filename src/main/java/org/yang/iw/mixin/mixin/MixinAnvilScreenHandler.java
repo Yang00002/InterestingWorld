@@ -16,6 +16,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.StringHelper;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,14 +25,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.yang.iw.IWComponents;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.item.heart.AbstractHeart;
 import org.yang.iw.item.tool.EnergyToolItem;
-import org.yang.iw.util.heartflag.HeartDataFlag;
-import org.yang.iw.util.heartflag.HeartFlagOnlyCheckable;
+import org.yang.iw.component.HeartDataFlag;
 import org.yang.iw.util.style.Color;
 import org.yang.iw.util.style.TextStyle;
 
+@Debug(export = true)
 @Mixin(AnvilScreenHandler.class)
 public abstract class MixinAnvilScreenHandler extends ForgingScreenHandler
 {
@@ -89,15 +90,15 @@ public abstract class MixinAnvilScreenHandler extends ForgingScreenHandler
 			ci.cancel();
 		}
 		else if (itemStackLeft.getItem() instanceof AbstractHeart &&
-				 HeartDataFlag.getFromItemStack(itemStackLeft).getTypeTaking() ==
-				 HeartFlagOnlyCheckable.HeartTypeTaking.PREENCHANT)
+				 HeartDataFlag.fromItemStack(itemStackLeft).getTypeTaking() ==
+				 HeartDataFlag.HeartTypeTaking.PREENCHANT)
 		{
 			if (itemStackRight.isEmpty()) return;
 			if (itemStackRight.getItem() != itemStackLeft.getItem()) return;
-			if (HeartDataFlag.getFromItemStack(itemStackRight).getTypeTaking() !=
-				HeartFlagOnlyCheckable.HeartTypeTaking.PREENCHANT) return;
-			if (HeartDataFlag.getFromItemStack(itemStackRight).getMaterialLevel() !=
-				HeartDataFlag.getFromItemStack(itemStackLeft).getMaterialLevel()) return;
+			if (HeartDataFlag.fromItemStack(itemStackRight).getTypeTaking() !=
+				HeartDataFlag.HeartTypeTaking.PREENCHANT) return;
+			if (HeartDataFlag.fromItemStack(itemStackRight).getMaterialLevel() !=
+				HeartDataFlag.fromItemStack(itemStackLeft).getMaterialLevel()) return;
 			this.levelCost.set(1);
 			int repairCostLevel = 0;
 			long l = 0L;

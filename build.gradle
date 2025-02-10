@@ -11,14 +11,20 @@ base {
 }
 
 loom {
-    // splitEnvironmentSourceSets()
+    runs {
+        datagen {
+            client()
 
-    mods {
-        "iw" {
-            sourceSet sourceSets.main
+            name "Data Generation"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.output-dir=${file('src/main/generated')}"
+
+            runDir "build/datagen"
         }
     }
 }
+
+sourceSets { main { resources { srcDirs += 'src/main/generated' } } }
 
 repositories {
     maven { url = 'https://maven.aliyun.com/nexus/content/groups/public' }
@@ -44,8 +50,7 @@ dependencies {
     modRuntimeOnly files("runtimemods/minihud-fabric-1.21.4-0.34.3.jar")
     modRuntimeOnly files("runtimemods/sodium-fabric-0.6.6+mc1.21.4.jar")
     modRuntimeOnly files("runtimemods/tweakeroo-fabric-1.21.4-0.23.1.jar")
- //   modRuntimeOnly files("runtimemods/Neat-1.21.4-42-FABRIC.jar")
-    // modRuntimeOnly files("runtimemods/I18nUpdateMod-3.6.0-all.jar")
+   // modRuntimeOnly files("runtimemods/Neat-1.21.4-42-FABRIC.jar")
 }
 
 processResources {
@@ -108,6 +113,6 @@ publishing {
     }
 }
 
-fabricApi {
-    configureDataGeneration()
-}
+//fabricApi {
+//   configureDataGeneration()
+//}

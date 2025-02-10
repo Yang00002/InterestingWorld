@@ -2,12 +2,12 @@ package org.yang.iw.util;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import org.yang.iw.IWComponents;
+import org.yang.iw.component.EnergyToolDataFlag;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.rune_ability.AbstractRuneAbility;
 import org.yang.iw.rune_ability.IWRuneAbilities;
 import org.yang.iw.util.style.Color;
-import org.yang.iw.util.toolflag.EnergyToolDataFlag;
 
 
 public class IWRuneAbilityUtil
@@ -23,13 +23,10 @@ public class IWRuneAbilityUtil
 			stack.set(IWComponents.ABILITY_COLOR_RGB, ability.getColor());
 			if (item instanceof EnergyToolItem)
 			{
-				//stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
-				stack.set(IWComponents.TOOL_FLAG,
-						EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
+				EnergyToolDataFlag.builder(stack).updateLevelFromItemStack(stack).dump(stack);
 				origin.onRemoveAbility(stack);
 				ability.onSetAbility(stack);
 			}
-			//else stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.runeIndex));
 		}
 	}
 
@@ -44,13 +41,10 @@ public class IWRuneAbilityUtil
 			stack.set(IWComponents.ABILITY_COLOR_RGB, ability.getColor());
 			if (item instanceof EnergyToolItem)
 			{
-				//stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.toolIndex));
-				stack.set(IWComponents.TOOL_FLAG,
-						EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
+				EnergyToolDataFlag.builder(stack).updateLevelFromItemStack(stack).dump(stack);
 				origin.onRemoveAbility(stack);
 				ability.onSetAbility(stack);
 			}
-			//else stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, getModelComponent(ability.runeIndex));
 		}
 	}
 
@@ -81,7 +75,7 @@ public class IWRuneAbilityUtil
 		stack.remove(IWComponents.ABILITY_INDEX);
 		//stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 		stack.set(IWComponents.ABILITY_COLOR_RGB, IWRuneAbilities.DEFAULT_ABILITY.getColor());
-		stack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
+		EnergyToolDataFlag.builder(stack).updateLevelFromItemStack(stack).dump(stack);
 		ability.onRemoveAbility(stack);
 	}
 
@@ -90,7 +84,7 @@ public class IWRuneAbilityUtil
 		stack.remove(IWComponents.ABILITY_INDEX);
 		//stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 		stack.set(IWComponents.ABILITY_COLOR_RGB, IWRuneAbilities.DEFAULT_ABILITY.getColor());
-		stack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(stack).updateLevelFromItemStack(stack));
+		EnergyToolDataFlag.builder(stack).updateLevelFromItemStack(stack).dump(stack);
 		ability.onRemoveAbility(stack);
 	}
 }

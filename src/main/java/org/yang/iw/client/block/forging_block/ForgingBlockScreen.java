@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.Predicate;
 
+import static org.yang.iw.util.Base.iwlogger;
 import static org.yang.iw.util.IWEnchantmentUtil.getWorldLevelOfXpCost;
 
 public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler> implements ScreenHandlerListener

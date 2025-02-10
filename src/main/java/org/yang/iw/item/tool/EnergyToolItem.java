@@ -20,7 +20,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import org.yang.iw.IWComponents;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.rune_ability.AbstractRuneAbility;
 import org.yang.iw.rune_ability.IWRuneAbilities;
@@ -28,12 +28,12 @@ import org.yang.iw.util.IWEnchantmentUtil;
 import org.yang.iw.util.Server;
 import org.yang.iw.util.style.Color;
 import org.yang.iw.util.style.TextStyle;
-import org.yang.iw.util.toolflag.EnergyToolDataFlag;
+import org.yang.iw.component.EnergyToolDataFlag;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.yang.iw.util.Base.iwlogger;
 import static org.yang.iw.util.IWRuneAbilityUtil.getAbility;
 import static org.yang.iw.util.IWRuneAbilityUtil.getColor;
 import static org.yang.iw.util.IWUtil.Components.currentEnergy;
@@ -56,7 +56,7 @@ public class EnergyToolItem extends Item
 	public boolean hasGlint(ItemStack stack)
 	{
 		return stack.contains(IWComponents.ABILITY_INDEX) ||
-			   EnergyToolDataFlag.getFromItemStack(stack).haveRealEnchantment();
+			   EnergyToolDataFlag.fromItemStack(stack).haveRealEnchantment();
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class EnergyToolItem extends Item
 						  Map<Server.LoadOnceRegistryEntry<Enchantment>, Integer> defaultEnchantments)
 	{
 		super(settings.maxCount(1));
-		this.defaultEnchantments = defaultEnchantments;
+		this.defaultEnchantments = new HashMap<>();
 	}
 
 	/**
@@ -176,6 +176,7 @@ public class EnergyToolItem extends Item
 				.append(Text.literal(String.valueOf(max)).withColor(Color.PURE_GREEN_RGB));
 	}
 
+
 	@Override
 	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type)
 	{
@@ -195,16 +196,17 @@ public class EnergyToolItem extends Item
 			if (stack.hasEnchantments())
 			{
 				tooltip.add(Text.empty());
-				if (EnergyToolDataFlag.getFromItemStack(stack).onlyHaveDefaultEnchantment())
+				if (EnergyToolDataFlag.fromItemStack(stack).onlyHaveDefaultEnchantment())
 					tooltip.add(Text.translatable(TranslationPool.TOOLTIP_DEFAULT_ENCHANT).withColor(Color.GRAY_RGB));
 			}
 		}
 		else
 		{
-			if (EnergyToolDataFlag.getFromItemStack(stack).onlyHaveDefaultEnchantment())
+			if (EnergyToolDataFlag.fromItemStack(stack).onlyHaveDefaultEnchantment())
 				tooltip.add(Text.translatable(TranslationPool.TOOLTIP_DEFAULT_ENCHANT).withColor(Color.GRAY_RGB));
 		}
 	}
+
 
 	@Override
 	public Text getName(ItemStack stack)
@@ -215,19 +217,19 @@ public class EnergyToolItem extends Item
 		{
 			if (ab == IWRuneAbilities.DEFAULT_ABILITY)
 				return Text.translatable(this.getTranslationKey()).setStyle(TextStyle.BOLD_STYLE)
-						.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor());
+						.withColor(EnergyToolDataFlag.fromItemStack(stack).levelColor());
 			else return Text.translatable(this.getTranslationKey()).setStyle(TextStyle.BOLD_STYLE)
-					.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor()).append(" ")
+					.withColor(EnergyToolDataFlag.fromItemStack(stack).levelColor()).append(" ")
 					.append(ab.getTitleText().setStyle(TextStyle.BOLD_STYLE).withColor(getColor(stack)));
 		}
 		else
 		{
 			if (ab == IWRuneAbilities.DEFAULT_ABILITY) return ut.copy().append(" ")
 					.append(Text.translatable(this.getTranslationKey()).setStyle(TextStyle.BOLD_STYLE)
-							.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor()));
+							.withColor(EnergyToolDataFlag.fromItemStack(stack).levelColor()));
 			else return ut.copy().append(" ")
 					.append(Text.translatable(this.getTranslationKey()).setStyle(TextStyle.BOLD_STYLE)
-							.withColor(EnergyToolDataFlag.getFromItemStack(stack).levelColor())).append(" ")
+							.withColor(EnergyToolDataFlag.fromItemStack(stack).levelColor())).append(" ")
 					.append(ab.getTitleText().setStyle(TextStyle.BOLD_STYLE).withColor(getColor(stack)));
 		}
 	}

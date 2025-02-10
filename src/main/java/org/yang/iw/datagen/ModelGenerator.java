@@ -1,7 +1,5 @@
 package org.yang.iw.datagen;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.client.data.BlockStateModelGenerator;
@@ -19,12 +17,12 @@ public class ModelGenerator extends FabricModelProvider
 	@Override
 	public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator)
 	{
-		//BlockModelPool.generatePool(blockStateModelGenerator);
+		BlockModelPool.generatePool(blockStateModelGenerator);
 	}
 
 	@Override
 	public void generateItemModels(ItemModelGenerator itemModelGenerator)
 	{
-		//ItemModelPool.generatePool(itemModelGenerator);
+		ItemModelPool.generatePool(itemModelGenerator);
 	}
 }

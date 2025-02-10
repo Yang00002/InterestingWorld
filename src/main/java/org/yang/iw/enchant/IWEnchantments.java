@@ -16,12 +16,13 @@ public class IWEnchantments
 {
 	private static RegistryKey<Enchantment> enchant(String id, String translation)
 	{
-		var r = RegistryKey.of(RegistryKeys.ENCHANTMENT, Identifier.of(Base.MOD_ID, "fast_hit"));
+		var r = RegistryKey.of(RegistryKeys.ENCHANTMENT, Identifier.of(Base.MOD_ID, id));
 		TranslationPool.addString("enchantment.%s.%s".formatted(MOD_ID, id), translation);
 		return r;
 	}
 
 	public static final RegistryKey<Enchantment> FAST_HIT = enchant("fast_hit", "迅捷打击");
+	public static final RegistryKey<Enchantment> FAST_ATTACK = enchant("fast_attack", "快速挥舞");
 	public static final RegistryKey<Enchantment> BALANCE = enchant("balance", "均衡");
 	public static final RegistryKey<Enchantment> PLENTIFUL = enchant("plentiful", "充盈");
 	public static final RegistryKey<Enchantment> RUNE_BOOST = enchant("rune_boost", "符文强化");

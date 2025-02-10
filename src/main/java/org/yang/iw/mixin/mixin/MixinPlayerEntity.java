@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.yang.iw.util.IWUtil;
 import org.yang.iw.mixin.mixin_interface.InterfaceServerPlayerEntity;
 import org.yang.iw.rune_ability.AbstractRuneAbility;
-import org.yang.iw.util.toolflag.EnergyToolDataFlag;
+import org.yang.iw.component.EnergyToolDataFlag;
 
 import static org.yang.iw.util.IWRuneAbilityUtil.getAbility;
 
@@ -57,7 +57,7 @@ public abstract class MixinPlayerEntity extends LivingEntity implements Interfac
 	private ItemStack handleSweeping(PlayerEntity instance, Hand hand)
 	{
 		ItemStack before = instance.getWeaponStack();
-		if (instance instanceof ServerPlayerEntity && EnergyToolDataFlag.getFromItemStack(before).canSweep())
+		if (instance instanceof ServerPlayerEntity && EnergyToolDataFlag.fromItemStack(before).canSweep())
 			return Items.DIAMOND_SWORD.getDefaultStack();
 		return before;
 	}

@@ -15,6 +15,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+@Debug(export = true)
 @Mixin(ItemStack.class)
 public abstract class MixinItemStack implements ComponentHolder
 {
@@ -45,9 +47,7 @@ public abstract class MixinItemStack implements ComponentHolder
 				DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
 		if (attributeModifiersComponent.showInTooltip())
 		{
-			Map<RegistryEntry<EntityAttribute>,
-					org.yang.iw.mixin.helper.HelperItemStack.ModifierSummerizer> attributeMap =
-					new LinkedHashMap<>();
+			Map<RegistryEntry<EntityAttribute>, org.yang.iw.mixin.helper.HelperItemStack.ModifierSummerizer> attributeMap = new LinkedHashMap<>();
 			for (AttributeModifierSlot attributeModifierSlot : AttributeModifierSlot.values())
 			{
 				MutableBoolean mutableBoolean = new MutableBoolean(true);
@@ -74,8 +74,8 @@ public abstract class MixinItemStack implements ComponentHolder
 						case ADD_MULTIPLIED_TOTAL -> modifierSum.mul2 *= (1 + modifier.value());
 					}
 				});
-				org.yang.iw.mixin.helper.HelperItemStack.appendAttributeModifierToolTip(textConsumer,
-						player, attributeMap, attributeModifierSlot);
+				org.yang.iw.mixin.helper.HelperItemStack.appendAttributeModifierToolTip(textConsumer, player,
+						attributeMap, attributeModifierSlot);
 			}
 		}
 		ci.cancel();

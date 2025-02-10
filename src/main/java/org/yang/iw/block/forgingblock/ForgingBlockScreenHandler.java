@@ -22,6 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import org.yang.iw.IWResources;
 import org.yang.iw.IWScreenHandlers;
 import org.yang.iw.block.IWBlocks;
+import org.yang.iw.component.EnergyToolDataFlag;
+import org.yang.iw.component.HeartDataFlag;
 import org.yang.iw.enchant.util.TableEnchantGenerator;
 import org.yang.iw.item.IWItems;
 import org.yang.iw.item.heart.AbstractHeart;
@@ -32,13 +34,11 @@ import org.yang.iw.rune_ability.IWRuneAbilities;
 import org.yang.iw.util.IWEnchantmentUtil;
 import org.yang.iw.util.Rand;
 import org.yang.iw.util.Server;
-import org.yang.iw.util.heartflag.HeartDataFlag;
-import org.yang.iw.util.heartflag.HeartFlagOnlyCheckable;
-import org.yang.iw.util.toolflag.EnergyToolDataFlag;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.yang.iw.util.Base.iwlogger;
 import static org.yang.iw.util.IWEnchantmentUtil.applyEnchant;
 import static org.yang.iw.util.IWEnchantmentUtil.getExperienceFromLevel;
 import static org.yang.iw.util.IWRuneAbilityUtil.*;
@@ -312,7 +312,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		ItemStack stackDown = inventoryDown.getStack(0);
 		Item item = stackDown.getItem();
 		if (isEnchantHeart(stackDown)) return Server.getPersistentData().worldEnergyLevel >=
-											  HeartDataFlag.getFromItemStack(stackDown).getTakingLevel();
+											  HeartDataFlag.fromItemStack(stackDown).getTakingLevel();
 		if (item instanceof UpgradeTemplate it) return Server.getPersistentData().worldEnergyLevel >= it.getLevel();
 		return false;
 	}
@@ -358,25 +358,25 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	private boolean isAbilityHeart(ItemStack stack)
 	{
 		return stack.getItem() instanceof AbstractHeart &&
-			   HeartDataFlag.getFromItemStack(stack).getTypeTaking() == HeartFlagOnlyCheckable.HeartTypeTaking.ABILITY;
+			   HeartDataFlag.fromItemStack(stack).getTypeTaking() == HeartDataFlag.HeartTypeTaking.ABILITY;
 	}
 
 	private boolean isEnchantHeart(ItemStack stack)
 	{
 		return stack.getItem() instanceof AbstractHeart &&
-			   HeartDataFlag.getFromItemStack(stack).getTypeTaking() == HeartFlagOnlyCheckable.HeartTypeTaking.ENCHANT;
+			   HeartDataFlag.fromItemStack(stack).getTypeTaking() == HeartDataFlag.HeartTypeTaking.ENCHANT;
 	}
 
 	private boolean isPreEnchantHeart(ItemStack stack)
 	{
-		return stack.getItem() instanceof AbstractHeart && HeartDataFlag.getFromItemStack(stack).getTypeTaking() ==
-														   HeartFlagOnlyCheckable.HeartTypeTaking.PREENCHANT;
+		return stack.getItem() instanceof AbstractHeart &&
+			   HeartDataFlag.fromItemStack(stack).getTypeTaking() == HeartDataFlag.HeartTypeTaking.PREENCHANT;
 	}
 
 	private boolean isEmptyAbilityHeart(ItemStack stack)
 	{
 		return stack.getItem() instanceof AbstractHeart h && h.supportAbility() &&
-			   HeartDataFlag.getFromItemStack(stack).getTypeTaking() == HeartFlagOnlyCheckable.HeartTypeTaking.NULL;
+			   HeartDataFlag.fromItemStack(stack).getTypeTaking() == HeartDataFlag.HeartTypeTaking.NULL;
 	}
 
 	//0: 耐久满 空 -> 标题(所有)
@@ -420,24 +420,24 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				return;
 			}
 			AbstractHeart abstractHeart = (AbstractHeart) itemDown;
-			HeartFlagOnlyCheckable flagOnlyCheckable = HeartDataFlag.getFromItemStack(stackDown);
+			HeartDataFlag flagOnlyCheckable = HeartDataFlag.fromItemStack(stackDown);
 			var typeTaking = flagOnlyCheckable.getTypeTaking();
-			if (typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.PREENCHANT)
+			if (typeTaking == HeartDataFlag.HeartTypeTaking.PREENCHANT)
 			{
 				updateGlobalState(2);
 				return;
 			}
-			if (abstractHeart.supportAbility() && typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.NULL)
+			if (abstractHeart.supportAbility() && typeTaking == HeartDataFlag.HeartTypeTaking.NULL)
 			{
 				updateGlobalState(14);
 				return;
 			}
-			if (typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.ABILITY)
+			if (typeTaking == HeartDataFlag.HeartTypeTaking.ABILITY)
 			{
 				updateGlobalState(11);
 				return;
 			}
-			if (typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.ENCHANT)
+			if (typeTaking == HeartDataFlag.HeartTypeTaking.ENCHANT)
 			{
 				updateGlobalState(5);
 				return;
@@ -459,13 +459,13 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			Item itemDown = stackDown.getItem();
 			AbstractRuneAbility abilityUp = getAbility(stackUp);
 			AbstractHeart abstractHeart = itemDown instanceof UpgradeTemplate ? null : (AbstractHeart) itemDown;
-			HeartFlagOnlyCheckable flagOnlyCheckable = HeartDataFlag.getFromItemStack(stackDown);
+			HeartDataFlag flagOnlyCheckable = HeartDataFlag.fromItemStack(stackDown);
 			var typeTaking = flagOnlyCheckable.getTypeTaking();
 			if (durabilityEnough)
 			{
 				if (itemDown instanceof UpgradeTemplate upgradeTemplate)
 				{
-					var flagUp = EnergyToolDataFlag.getFromItemStack(stackUp);
+					var flagUp = EnergyToolDataFlag.fromItemStack(stackUp);
 					if (flagUp.haveUpgrade())
 					{
 						updateGlobalState(19);
@@ -496,7 +496,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					}
 					return;
 				}
-				if (abstractHeart.supportAbility() && typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.NULL)
+				if (abstractHeart.supportAbility() && typeTaking == HeartDataFlag.HeartTypeTaking.NULL)
 				{
 					if (abilityUp == IWRuneAbilities.DEFAULT_ABILITY)
 					{
@@ -526,7 +526,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					}
 					return;
 				}
-				if (typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.ABILITY)
+				if (typeTaking == HeartDataFlag.HeartTypeTaking.ABILITY)
 				{
 					if (abilityUp != IWRuneAbilities.DEFAULT_ABILITY)
 					{
@@ -551,7 +551,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					}
 					return;
 				}
-				if (typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.ENCHANT)
+				if (typeTaking == HeartDataFlag.HeartTypeTaking.ENCHANT)
 				{
 					ItemStack stackOut = stackUp.copy();
 					int cost = applyEnchant(stackDown.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS,
@@ -570,7 +570,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					return;
 				}
 			}
-			if (abstractHeart != null && typeTaking == HeartFlagOnlyCheckable.HeartTypeTaking.PREENCHANT)
+			if (abstractHeart != null && typeTaking == HeartDataFlag.HeartTypeTaking.PREENCHANT)
 			{
 				MutableInt crystal_count = new MutableInt(inventoryCount(Items.AMETHYST_SHARD));
 				MutableInt lapis_count = new MutableInt(inventoryCount(Items.LAPIS_LAZULI));
@@ -618,7 +618,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				ItemStack stackOut = stackUp.copy();
 				stackOut.setDamage(currentDamage);
 				setOutput(stackOut);
-				experienceCost.set(EnergyToolDataFlag.getFromItemStack(stackUp).level() * rp * 25);
+				experienceCost.set(EnergyToolDataFlag.fromItemStack(stackUp).level() * rp * 25);
 			}
 			else
 			{
@@ -659,7 +659,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					ItemStack stackOut = stackUp.copy();
 					stackOut.setDamage(currentDamage);
 					setOutput(stackOut);
-					experienceCost.set(EnergyToolDataFlag.getFromItemStack(stackUp).level() * rp * 25);
+					experienceCost.set(EnergyToolDataFlag.fromItemStack(stackUp).level() * rp * 25);
 				}
 			}
 			case 7 ->
@@ -686,7 +686,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					ItemStack stackOut = stackUp.copy();
 					stackOut.setDamage(currentDamage);
 					setOutput(stackOut);
-					experienceCost.set(EnergyToolDataFlag.getFromItemStack(stackUp).level() * rp * 25);
+					experienceCost.set(EnergyToolDataFlag.fromItemStack(stackUp).level() * rp * 25);
 				}
 				else
 				{
@@ -1043,7 +1043,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				ItemStack stackDown = inventoryDown.getStack(0);
 				if (!isEnchantHeart(stackDown)) return false;
 				return (Server.getPersistentData().worldEnergyLevel >=
-						HeartDataFlag.getFromItemStack(stackDown).getTakingLevel()) &&
+						HeartDataFlag.fromItemStack(stackDown).getTakingLevel()) &&
 					   (getExperienceFromLevel(player.experienceLevel, player.experienceProgress) >=
 						experienceCost.get());
 			}

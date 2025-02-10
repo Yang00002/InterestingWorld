@@ -2,7 +2,6 @@ package org.yang.iw.item;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.data.Models;
 import net.minecraft.component.type.ToolComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
@@ -87,58 +86,58 @@ public class IWItems
 			"copper_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
 					item -> new CustomItemModelDefinitionProvider(item,
 							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()),
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchanted/%s").upload()))))
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("铜心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
 	public static final IronHeartItem IRON_HEART = (IronHeartItem) new CommonItemBuilder(IronHeartItem::new,
 			"iron_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
 					item -> new CustomItemModelDefinitionProvider(item,
 							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()),
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchanted/%s").upload()))))
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("铁心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
 	public static final GoldHeartItem GOLD_HEART = (GoldHeartItem) new CommonItemBuilder(GoldHeartItem::new,
 			"gold_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
 					item -> new CustomItemModelDefinitionProvider(item,
 							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()),
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchanted/%s").upload()))))
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("金心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
 	public static final DiamondHeartItem DIAMOND_HEART =
 			(DiamondHeartItem) new CommonItemBuilder(DiamondHeartItem::new,
 			"diamond_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
 					item -> new CustomItemModelDefinitionProvider(item,
 							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()),
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchanted/%s").upload()))))
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("钻石心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
 	public static final NetheriteHeartItem NETHERITE_HEART = (NetheriteHeartItem) new CommonItemBuilder(
 			NetheriteHeartItem::new, "netherite_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
 					item -> new CustomItemModelDefinitionProvider(item,
 							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()),
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchanted/%s").upload()))))
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("下界合金心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
 	public static final EnderiteHeartItem ENDERITE_HEART = (EnderiteHeartItem) new CommonItemBuilder(
 			EnderiteHeartItem::new, "enderite_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
 					item -> new CustomItemModelDefinitionProvider(item,
 							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()),
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchanted/%s").upload()))))
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("末影合金心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
 	public static final VoidalloyHeartItem VOIDALLOY_HEART = (VoidalloyHeartItem) new CommonItemBuilder(
 			VoidalloyHeartItem::new, "voidalloy_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
 					item -> new CustomItemModelDefinitionProvider(item,
 							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()),
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
-									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchanted/%s").upload()))))
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("虚空合金心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
 	public static final TinkerHeart TINKER_HEART = (TinkerHeart) new AbilityHeartItemBuilder(TinkerHeart::new,
 			"tinker_heart").addToItemGroup(IWItemGroups.RUNES_GROUP).setCommonModel(ModelParents.GENERATED)
@@ -170,8 +169,8 @@ public class IWItems
 			{
 				var k = i.getKey();
 				var v = i.getValue();
-				definitionMap.put((float) k,
-						ItemModelDefinition.of(RawItemModel.simple(Base.MOD_ID, v.id(), model).upload()));
+				definitionMap.put((float) k, ItemModelDefinition.of(RawItemModel.simple(Base.MOD_ID, v.id(), model)
+						.setIdFormat(Registries.ITEM.getId(item).getPath() + "/%s").upload()));
 			}
 			return new CustomItemModelDefinitionProvider(item,
 					ItemModelDefinition.abilityIndex(ItemModelDefinition.of(RawItemModel.of(baseTexture)),
@@ -197,8 +196,8 @@ public class IWItems
 			{
 				var k = i.getKey();
 				var v = i.getValue();
-				definitionMap.put((float) k,
-						ItemModelDefinition.of(RawItemModel.simple(Base.MOD_ID, v.id(), model).upload()));
+				definitionMap.put((float) k, ItemModelDefinition.of(RawItemModel.simple(Base.MOD_ID, v.id(), model)
+						.setIdFormat(Registries.ITEM.getId(item).getPath() + "/%s").upload()));
 			}
 			return new CustomItemModelDefinitionProvider(item,
 					ItemModelDefinition.abilityIndex(ItemModelDefinition.of(RawItemModel.of(item)), definitionMap));

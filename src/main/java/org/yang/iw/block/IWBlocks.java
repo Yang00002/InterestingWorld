@@ -8,7 +8,7 @@ import org.yang.iw.block.forgingblock.ForgingBlock;
 public class IWBlocks
 {
 	public static final Block FORGING_BLOCK = new CommonBlockBuilder(ForgingBlock::new,
-			"forging_block").setParentModelForBlockAndItem(Blocks.SMITHING_TABLE).setTranslation("符文锻造台").asItem()
+			"forging_block").setParentModelForBlockAndItem(Blocks.SMITHING_TABLE).asItem().setTranslation("符文锻造台")
 			.build();
 
 	public static void initialize()

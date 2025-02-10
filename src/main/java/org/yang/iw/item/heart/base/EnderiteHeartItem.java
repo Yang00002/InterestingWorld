@@ -1,7 +1,5 @@
 package org.yang.iw.item.heart.base;
 
-import org.yang.iw.IWComponents;
-import org.yang.iw.util.heartflag.HeartDataFlag;
 import org.yang.iw.util.style.Color;
 
 public class EnderiteHeartItem extends BaseHeart

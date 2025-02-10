@@ -19,7 +19,7 @@ import org.yang.iw.util.IWLivingEntityUtil;
 import org.yang.iw.util.IWParticleUtil;
 import org.yang.iw.util.IWSoundUtil;
 import org.yang.iw.util.style.Color;
-import org.yang.iw.util.toolflag.EnergyToolDataFlag;
+import org.yang.iw.component.EnergyToolDataFlag;
 
 public class RepeatSlashingAbility extends RuneAbility
 {
@@ -59,7 +59,7 @@ public class RepeatSlashingAbility extends RuneAbility
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
-		return EnergyToolDataFlag.getFromItemStack(stack).canSweep();
+		return EnergyToolDataFlag.fromItemStack(stack).canSweep();
 	}
 
 	@Override

@@ -18,7 +18,7 @@ import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.entity.player.IWServerPlayerData;
 import org.yang.iw.util.*;
 import org.yang.iw.util.style.Color;
-import org.yang.iw.util.toolflag.EnergyToolDataFlag;
+import org.yang.iw.component.EnergyToolDataFlag;
 
 public class InfiniteSlashingAbility extends InfiniteAbility
 {
@@ -38,7 +38,7 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
-		return EnergyToolDataFlag.getFromItemStack(stack).canSweep();
+		return EnergyToolDataFlag.fromItemStack(stack).canSweep();
 	}
 
 	@Override

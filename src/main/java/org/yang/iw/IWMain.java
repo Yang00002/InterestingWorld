@@ -2,6 +2,7 @@ package org.yang.iw;
 
 import net.fabricmc.api.ModInitializer;
 import org.yang.iw.block.IWBlocks;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.effect.IWEffects;
 import org.yang.iw.enchant.IWEnchantments;
 import org.yang.iw.entity.IWEntities;

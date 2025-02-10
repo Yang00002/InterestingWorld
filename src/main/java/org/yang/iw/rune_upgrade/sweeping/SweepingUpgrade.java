@@ -3,10 +3,10 @@ package org.yang.iw.rune_upgrade.sweeping;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import org.yang.iw.IWComponents;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.rune_upgrade.AbstractRuneUpgrade;
 import org.yang.iw.util.style.Color;
-import org.yang.iw.util.toolflag.EnergyToolDataFlag;
+import org.yang.iw.component.EnergyToolDataFlag;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,14 +27,14 @@ public class SweepingUpgrade extends AbstractRuneUpgrade
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
-		return !EnergyToolDataFlag.getFromItemStack(stack).canSweep();
+		return !EnergyToolDataFlag.fromItemStack(stack).canSweep();
 	}
 
 
 	@Override
 	protected void applyUpgradeContent(ItemStack toolStack)
 	{
-		toolStack.set(IWComponents.TOOL_FLAG, EnergyToolDataFlag.copyFromItemStack(toolStack).setCanSweep());
+		EnergyToolDataFlag.builder(toolStack).setCanSweep().dump(toolStack);
 	}
 
 	@Override

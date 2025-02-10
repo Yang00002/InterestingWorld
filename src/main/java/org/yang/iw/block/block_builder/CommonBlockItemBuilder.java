@@ -9,6 +9,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import org.yang.iw.IWItemGroups;
+import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.util.Base;
 
 import java.util.function.BiFunction;
@@ -19,12 +20,19 @@ public class CommonBlockItemBuilder
 	private final BiFunction<Block, Item.Settings, Item> constructor;
 	private final String id;
 	private RegistryKey<ItemGroup> itemGroupBelong = IWItemGroups.BLOCKS_GROUP;
+	private String translation = null;
 
 	CommonBlockItemBuilder(BlockBuilder blockBuilder, BiFunction<Block, Item.Settings, Item> constructor, String id)
 	{
 		this.blockBuilder = blockBuilder;
 		this.constructor = constructor;
 		this.id = id;
+	}
+
+	public CommonBlockItemBuilder setTranslation(String str)
+	{
+		translation = str;
+		return this;
 	}
 
 	public CommonBlockItemBuilder addToItemGroup(RegistryKey<ItemGroup> itemGroup)
@@ -49,6 +57,8 @@ public class CommonBlockItemBuilder
 				wrapperOp.ifPresent(wrapper -> entries.add(item));
 			}, itemGroupBelong);
 		}
+		if (translation != null) TranslationPool.addItem(item, translation);
+		if (!blockBuilder.translationSetted()) TranslationPool.addBlock(block, translation);
 		return block;
 	}
 }

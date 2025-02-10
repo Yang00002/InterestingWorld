@@ -1,4 +1,4 @@
-package org.yang.iw;
+package org.yang.iw.component;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.component.ComponentType;
@@ -8,8 +8,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
-import org.yang.iw.util.heartflag.HeartDataFlag;
-import org.yang.iw.util.toolflag.EnergyToolDataFlag;
 
 import static org.yang.iw.util.Base.MOD_ID;
 

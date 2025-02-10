@@ -20,7 +20,7 @@ public class CommonBlockBuilder implements BlockBuilder
 	private final String id;
 	private final Function<AbstractBlock.Settings, Block> constructer;
 	private AbstractBlock.Settings settings = null;
-	private String translation = null;
+	String translation = null;
 
 	private Function<Block, BlockModelProvider> modelProvider = null;
 
@@ -62,6 +62,12 @@ public class CommonBlockBuilder implements BlockBuilder
 		if (modelProvider != null) BlockModelPool.addModel(modelProvider.apply(block));
 		if (translation != null) TranslationPool.addBlock(block, translation);
 		return block;
+	}
+
+	@Override
+	public boolean translationSetted()
+	{
+		return translation != null;
 	}
 
 }

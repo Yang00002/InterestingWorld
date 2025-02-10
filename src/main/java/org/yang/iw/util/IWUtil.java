@@ -1,20 +1,14 @@
 package org.yang.iw.util;
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.AttributeModifierSlot;
-import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.component.type.CustomModelDataComponent;
-import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
-import org.yang.iw.IWComponents;
+import org.yang.iw.component.IWComponents;
 
 import java.util.ArrayList;
-
-import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
 
 public class IWUtil
 {

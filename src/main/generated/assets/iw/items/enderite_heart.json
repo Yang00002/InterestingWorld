@@ -1,0 +1,14 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "iw:item/baseheart/enderite_heart"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "iw:item/enchantedheart/enderite_heart"
+    },
+    "property": "iw:heart_enchant"
+  }
+}

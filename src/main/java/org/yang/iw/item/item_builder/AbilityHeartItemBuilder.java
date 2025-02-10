@@ -1,6 +1,5 @@
 package org.yang.iw.item.item_builder;
 
-import net.minecraft.client.data.Model;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Items;
@@ -8,7 +7,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
-import org.yang.iw.IWComponents;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.IWItemGroups;
 import org.yang.iw.datagen.itemmodel.ItemModelPool;
 import org.yang.iw.datagen.itemmodel.ItemModelProvider;
@@ -19,7 +18,7 @@ import org.yang.iw.datagen.tag.ItemTagPool;
 import org.yang.iw.item.heart.common.CommonHeart;
 import org.yang.iw.rune_ability.IWRuneAbilities;
 import org.yang.iw.util.Base;
-import org.yang.iw.util.heartflag.HeartDataFlag;
+import org.yang.iw.component.HeartDataFlag;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -92,7 +91,7 @@ public class AbilityHeartItemBuilder
 							if (ret.setAbility(stack, ability))
 							{
 								stack.set(IWComponents.HEART_FLAG,
-										HeartDataFlag.copyFromItemStack(stack).setMaterialLevel(ability.level()));
+										HeartDataFlag.builder(stack).setMaterialLevel(ability.level()).build());
 								entries.add(stack);
 							}
 						});

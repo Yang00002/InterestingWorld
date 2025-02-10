@@ -7,8 +7,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ModelTransformationMode;
 import org.jetbrains.annotations.Nullable;
-import org.yang.iw.util.heartflag.HeartDataFlag;
-import org.yang.iw.util.heartflag.HeartFlagOnlyCheckable;
+import org.yang.iw.component.HeartDataFlag;
 
 public class HeartEnchantedBooleanProperty implements BooleanProperty
 {
@@ -19,7 +18,7 @@ public class HeartEnchantedBooleanProperty implements BooleanProperty
 	public boolean getValue(ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity holder, int seed,
 							ModelTransformationMode modelTransformationMode)
 	{
-		return HeartDataFlag.getFromItemStack(stack).getTypeTaking() == HeartFlagOnlyCheckable.HeartTypeTaking.ENCHANT;
+		return HeartDataFlag.fromItemStack(stack).getTypeTaking() == HeartDataFlag.HeartTypeTaking.ENCHANT;
 	}
 
 	@Override
