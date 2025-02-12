@@ -46,6 +46,9 @@
       ],
       "net/minecraft/client/data/Model": [
         "org/yang/iw/mixin/mixin_interface/InterfaceModel"
+      ],
+      "net/minecraft/client/gui/tooltip/OrderedTextTooltipComponent": [
+        "org/yang/iw/mixin/mixin_interface/InterfaceOrderedTextTooltipComponent"
       ]
     }
   },

@@ -9,7 +9,8 @@
     "MixinDrawContext",
     "MixinInGameHud",
     "MixinModel",
-    "MixinNumericProperties"
+    "MixinNumericProperties",
+    "AccessOrderedTextTooltipComponent"
   ],
   "injectors": {
     "defaultRequire": 1

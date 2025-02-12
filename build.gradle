@@ -29,6 +29,9 @@ sourceSets { main { resources { srcDirs += 'src/main/generated' } } }
 repositories {
     maven { url = 'https://maven.aliyun.com/nexus/content/groups/public' }
     maven { url = 'https://repository.hanbings.io/proxy' }
+    maven { url = 'https://maven.shedaniel.me' } // rei
+    maven { url = 'https://cursemaven.com' }
+    maven { url = 'https://api.modrinth.com/maven' }
     // Add repositories to retrieve artifacts from in here.
     // You should only use this when depending on other mods because
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
@@ -45,12 +48,15 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modRuntimeOnly files("runtimemods/Jade-1.21.4-Fabric-17.2.2.jar")
-    modRuntimeOnly files("runtimemods/malilib-fabric-1.21.4-0.23.1.jar")
-    modRuntimeOnly files("runtimemods/minihud-fabric-1.21.4-0.34.3.jar")
-    modRuntimeOnly files("runtimemods/sodium-fabric-0.6.6+mc1.21.4.jar")
-    modRuntimeOnly files("runtimemods/tweakeroo-fabric-1.21.4-0.23.1.jar")
-   // modRuntimeOnly files("runtimemods/Neat-1.21.4-42-FABRIC.jar")
+    modLocalRuntime "maven.modrinth:jade:${project.jade_modrinth_version}"
+    modLocalRuntime "maven.modrinth:malilib:${project.malilib_modrinth_version}" //masa 依赖
+    modLocalRuntime "maven.modrinth:minihud:${project.minihud_modrinth_version}"
+    modLocalRuntime "maven.modrinth:tweakeroo:${project.tweakeroo_modrinth_version}"
+    modLocalRuntime "maven.modrinth:sodium:${project.sodium_modrinth_version}"
+    modLocalRuntime "me.zeroeightsix:fiber:${project.fiber_version}" // Neat 依赖
+    // "curse.maven:<随便起名>-<Project ID, 右侧项目信息>:<File ID, 点进文件的 URL>"
+    modLocalRuntime "curse.maven:Neat-639987:${project:neat_curseforge_id}"
+    modLocalRuntime "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
 }
 
 processResources {

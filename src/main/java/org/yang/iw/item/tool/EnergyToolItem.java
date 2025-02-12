@@ -20,6 +20,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import org.yang.iw.component.EnergyToolDataFlag;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.rune_ability.AbstractRuneAbility;
@@ -28,9 +29,7 @@ import org.yang.iw.util.IWEnchantmentUtil;
 import org.yang.iw.util.Server;
 import org.yang.iw.util.style.Color;
 import org.yang.iw.util.style.TextStyle;
-import org.yang.iw.component.EnergyToolDataFlag;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -131,7 +130,7 @@ public class EnergyToolItem extends Item
 						  Map<Server.LoadOnceRegistryEntry<Enchantment>, Integer> defaultEnchantments)
 	{
 		super(settings.maxCount(1));
-		this.defaultEnchantments = new HashMap<>();
+		this.defaultEnchantments = defaultEnchantments;
 	}
 
 	/**
@@ -187,6 +186,7 @@ public class EnergyToolItem extends Item
 					.append(" ");
 			appendEneryText(text, stack);
 			tooltip.add(text);
+			tooltip.add(Text.empty());
 		}
 		var ab = getAbility(stack);
 		if (ab.canWork()) ab.appendToolTip(tooltip);

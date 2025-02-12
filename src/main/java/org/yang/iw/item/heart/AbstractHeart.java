@@ -221,8 +221,12 @@ public abstract class AbstractHeart extends Item
 							.withColor(Color.GRAY_RGB));
 				}
 			}
-			case PREENCHANT -> tooltip.add(
-					Text.translatable(TranslationPool.TOOLTIP_HEART_NEED_FURTHER_ENCHANT).withColor(Color.GRAY_RGB));
+			case PREENCHANT ->
+			{
+				tooltip.add(Text.translatable(TranslationPool.TOOLTIP_HEART_NEED_FURTHER_ENCHANT)
+						.withColor(Color.GRAY_RGB));
+				tooltip.add(Text.empty());
+			}
 			case ENCHANT ->
 			{
 				int takeLvl = flagOnlyCheckable.getTakingLevel();
