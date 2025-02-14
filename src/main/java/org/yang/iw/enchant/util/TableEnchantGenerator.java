@@ -2,13 +2,13 @@ package org.yang.iw.enchant.util;
 
 
 import net.minecraft.component.type.ItemEnchantmentsComponent;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.yang.iw.component.HeartDataFlag;
 import org.yang.iw.enchant.IWEnchantments;
 import org.yang.iw.enchant.resource.TableEnchantGroup;
-import org.yang.iw.item.heart.base.BaseHeart;
+import org.yang.iw.item.heart.AbstractHeart;
 import org.yang.iw.util.Rand;
 import org.yang.iw.util.Server;
 
@@ -76,10 +76,12 @@ public class TableEnchantGenerator
 		int maxTryAmount = crystalCount.getValue() + 1 + runeComponent.getLevel(IWEnchantments.ENTRY_PLENTIFUL.get());
 		int efficiency = runeComponent.getLevel(IWEnchantments.ENTRY_ENERGY_EFFICIENCY.get());
 		//获得最大消耗
-		Item heartItem = heartStack.getItem();
-		int worldGate = Server.getPersistentData().worldEnergyLevel;
-		if (heartItem instanceof BaseHeart baseHeart) worldGate = Math.min(worldGate, baseHeart.getMaxSupportLevel());
-		int maxCost = (200 * (1 + lapisCount.getValue()) * (efficiency + 1));
+		int materialLevel = HeartDataFlag.fromItemStack(heartStack).getMaterialLevel();
+		int worldGate = Math.min(Server.getPersistentData().worldEnergyLevel, materialLevel);
+		int costPerLapis = 160;
+		if (heartStack.getItem() instanceof AbstractHeart heart) costPerLapis += heart.getEnchantAbility(materialLevel);
+		int costPerLapisWithEfficiency = (int) ((efficiency * 0.5f + 1) * costPerLapis);
+		int maxCost = (1 + lapisCount.getValue()) * costPerLapisWithEfficiency;
 		int cap = getMaxAllowXpCostOfWorldLevel(worldGate);
 		if (maxCost > cap) maxCost = cap;
 		int maxWeight = 0;
@@ -180,7 +182,8 @@ public class TableEnchantGenerator
 		for (var i : enchantmentPool)
 			if (i.currentLevel > 0) builder.set(i.enchantData.getRegistryEntry(), i.currentLevel);
 		costAchieve.setValue(maxCost - leftCost);
-		lapisCount.setValue(Math.max((maxCost - leftCost) / ((efficiency + 1) * 200) - 1, 0));
+		lapisCount.setValue(
+				Math.max((maxCost - leftCost + costPerLapisWithEfficiency - 1) / costPerLapisWithEfficiency - 1, 0));
 		var ret = builder.build();
 		int n = ret.getSize();
 		crystalCount.setValue(Math.max(tryamount - 1, 0) + (random.nextEvenInt(1, n) << 10));

@@ -13,13 +13,13 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
+import org.yang.iw.component.EnergyToolDataFlag;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.entity.player.IWServerPlayerData;
 import org.yang.iw.util.IWLivingEntityUtil;
 import org.yang.iw.util.IWParticleUtil;
 import org.yang.iw.util.IWSoundUtil;
 import org.yang.iw.util.style.Color;
-import org.yang.iw.component.EnergyToolDataFlag;
 
 public class BoostRepeatSlashingAbility extends RuneAbility
 {
@@ -263,19 +263,19 @@ public class BoostRepeatSlashingAbility extends RuneAbility
 	}
 
 	@Override
-	public boolean shouldRenderAbilityNumber(IWClientPlayerData data)
+	public boolean shouldRenderAbilityText(IWClientPlayerData data)
 	{
 		return data.server_ability_on_opt && (data.shown_number < 3 || data.charge_rate16 == 16);
 	}
 
 	@Override
-	public int abilityNumber(IWClientPlayerData data)
+	public String abilityText(IWClientPlayerData data)
 	{
-		return data.shown_number;
+		return String.valueOf(data.shown_number);
 	}
 
 	@Override
-	public int abilityNumberColor()
+	public int abilityTextColor()
 	{
 		return Color.DARK_RED_RGB;
 	}

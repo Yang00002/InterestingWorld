@@ -1,19 +1,18 @@
-package org.yang.iw.item.heart.base;
+package org.yang.iw.item.heart;
 
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
-import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
-import org.yang.iw.item.IWItems;
-import org.yang.iw.item.heart.AbstractHeart;
-import org.yang.iw.util.IWUtil;
 import org.yang.iw.component.HeartDataFlag;
+import org.yang.iw.item.IWItems;
 
 import java.util.function.Function;
 
-public abstract class BaseHeart extends AbstractHeart
+public class BaseHeart extends AbstractHeart
 {
+	private final int nameRGB;
+
 	@Override
 	public boolean hasGlint(ItemStack stack)
 	{
@@ -21,15 +20,23 @@ public abstract class BaseHeart extends AbstractHeart
 		return type != HeartDataFlag.HeartTypeTaking.NULL;
 	}
 
-	public int getMaxSupportLevel()
+	@Override
+	public int getNameColorRGB()
 	{
-		return HeartDataFlag.fromItem(this).getMaterialLevel();
+		return nameRGB;
 	}
 
-	public BaseHeart(Settings settings, Function<Integer, Integer> enchantAbility, int lvl)
+	public BaseHeart(Settings settings, Function<Integer, Integer> enchantAbility, int lvl, int color)
 	{
 		super(settings.component(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT),
 				enchantAbility, lvl);
+		nameRGB = color;
+	}
+
+	public static Function<Integer, Integer> handleEnchantAbility(Function<Integer, Integer> origin, int lvl)
+	{
+		int n = origin.apply(lvl);
+		return i -> n;
 	}
 
 	@Override
@@ -62,7 +69,7 @@ public abstract class BaseHeart extends AbstractHeart
 			{
 				return IWItems.ENDERITE_HEART;
 			}
-			case 7, 8 ->
+			case 7, 8, 9, 10 ->
 			{
 				return IWItems.VOIDALLOY_HEART;
 			}

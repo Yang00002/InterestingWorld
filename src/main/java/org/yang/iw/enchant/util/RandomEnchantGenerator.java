@@ -2,23 +2,23 @@ package org.yang.iw.enchant.util;
 
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.item.ItemStack;
+import org.yang.iw.component.HeartDataFlag;
 import org.yang.iw.enchant.resource.ConflictGroup;
 import org.yang.iw.enchant.resource.RandomEnchantGroup;
-import org.yang.iw.item.IWItems;
 import org.yang.iw.item.heart.AbstractHeart;
-import org.yang.iw.item.heart.base.BaseHeart;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
 import static org.yang.iw.util.IWEnchantmentUtil.getRandomXpCostOfWorldLevel;
+import static org.yang.iw.util.IWEnchantmentUtil.getWorldLevelOfXpCost;
 
 public class RandomEnchantGenerator
 {
-	public static ItemStack generate(int seed, int level, AbstractHeart container)
+	public static ItemStack generate(int seed, int level, AbstractHeart container, ItemStack orElse)
 	{
-		if (container instanceof BaseHeart baseHeart) level = Math.min(level, baseHeart.getMaxSupportLevel());
+		level = Math.min(level, HeartDataFlag.fromItem(container).getMaterialLevel());
 		Random random = new Random(seed); //rd
 		//获得附魔组
 		int enchantGroupWeight = random.nextInt(1, RandomEnchantGroup.getMaxWeight() + 1);
@@ -32,9 +32,9 @@ public class RandomEnchantGenerator
 			}
 			enchantGroupWeight -= g.getWeight();
 		}
-		if (enchantGroup == null) return IWItems.HEART.getDefaultStack();
+		if (enchantGroup == null) return orElse;
 		int enchantGroupSize = enchantGroup.getEnchants().size();
-		if (enchantGroupSize < 1) return IWItems.HEART.getDefaultStack();
+		if (enchantGroupSize < 1) return orElse;
 		//附魔池
 		List<RandomEnchantEntry> enchantmentPool = new LinkedList<>();
 		//获得最大附魔数
@@ -44,6 +44,13 @@ public class RandomEnchantGenerator
 		if (maxEnchantCount < 1) maxEnchantCount = 1;
 		//获得最大消耗
 		int maxCost = getRandomXpCostOfWorldLevel(level, random);
+		int enchantability = container.getEnchantAbility(level);
+		while (enchantability > 0 && random.nextInt(100) < enchantability)
+		{
+			int maxCost2 = getRandomXpCostOfWorldLevel(level, random);
+			if (maxCost > maxCost2) maxCost = maxCost2;
+			enchantability -= 100;
+		}
 		int maxWeight = 0;
 		for (var i : enchantGroup.getEnchants())
 		{
@@ -54,7 +61,7 @@ public class RandomEnchantGenerator
 				maxWeight += g.weight;
 			}
 		}
-		if (maxWeight < 1) return IWItems.HEART.getDefaultStack();
+		if (maxWeight < 1) return orElse;
 		int leftCost = maxCost;
 		boolean firstUp = true;
 		ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(
@@ -195,9 +202,7 @@ public class RandomEnchantGenerator
 		for (var i : enchantmentPool)
 			if (i.currentLevel > 0) builder.set(i.enchantData.getRegistryEntry(), i.currentLevel);
 		var ec = builder.build();
-		if (ec.getSize() < 1) return IWItems.HEART.getDefaultStack();
-		var ret = container.getDefaultStack(level);
-		container.setEnchant(ret, builder.build(), maxCost - leftCost);
-		return ret;
+		if (ec.getSize() < 1) return orElse;
+		return container.ofEnchants(builder.build(), getWorldLevelOfXpCost(maxCost - leftCost), maxCost - leftCost);
 	}
 }

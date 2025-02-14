@@ -11,6 +11,7 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
@@ -24,6 +25,7 @@ import org.yang.iw.IWScreenHandlers;
 import org.yang.iw.block.IWBlocks;
 import org.yang.iw.component.EnergyToolDataFlag;
 import org.yang.iw.component.HeartDataFlag;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.enchant.util.TableEnchantGenerator;
 import org.yang.iw.item.IWItems;
 import org.yang.iw.item.heart.AbstractHeart;
@@ -38,13 +40,14 @@ import org.yang.iw.util.Server;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.yang.iw.util.Base.iwlogger;
-import static org.yang.iw.util.IWEnchantmentUtil.applyEnchant;
-import static org.yang.iw.util.IWEnchantmentUtil.getExperienceFromLevel;
+import static org.yang.iw.util.IWEnchantmentUtil.*;
 import static org.yang.iw.util.IWRuneAbilityUtil.*;
 
 public class ForgingBlockScreenHandler extends ScreenHandler
 {
+
+	private static final RepairableComponent DEFUALT_REPAIR_INGREDIENT = new RepairableComponent(
+			RegistryEntryList.of());
 	// <editor-fold desc="数据段">
 	private final boolean clientSide;
 	private final ScreenHandlerContext context;
@@ -292,7 +295,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		ItemStack stack = inventoryUp.getStack(0);
 		if (stack.getItem() instanceof EnergyToolItem)
 		{
-			return stack.getOrDefault(DataComponentTypes.REPAIRABLE, null);
+			return stack.getOrDefault(DataComponentTypes.REPAIRABLE, DEFUALT_REPAIR_INGREDIENT);
 		}
 		return null;
 	}
@@ -311,8 +314,9 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	{
 		ItemStack stackDown = inventoryDown.getStack(0);
 		Item item = stackDown.getItem();
-		if (isEnchantHeart(stackDown)) return Server.getPersistentData().worldEnergyLevel >=
-											  HeartDataFlag.fromItemStack(stackDown).getTakingLevel();
+		if (isEnchantHeart(stackDown))
+			return (getWorldLevelOfXpCost(inventoryOut.getStack(0).getOrDefault(IWComponents.ENCHANT_VALUE, -1)) <=
+					Server.getPersistentData().worldEnergyLevel);
 		if (item instanceof UpgradeTemplate it) return Server.getPersistentData().worldEnergyLevel >= it.getLevel();
 		return false;
 	}
@@ -597,7 +601,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		if ((!durabilityEnough) || (!durabilityFull && stackDown.isEmpty()))
 		{
 			int haveCount = 0;
-			repairIngredient = stackUp.getOrDefault(DataComponentTypes.REPAIRABLE, null);
+			repairIngredient = stackUp.getOrDefault(DataComponentTypes.REPAIRABLE, DEFUALT_REPAIR_INGREDIENT);
 			if (repairIngredient != null) for (int i = 0; i < 9; i++)
 			{
 				ItemStack cstack = inventoryIngredient.getStack(i);
@@ -1040,10 +1044,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		{
 			case 3 ->
 			{
-				ItemStack stackDown = inventoryDown.getStack(0);
-				if (!isEnchantHeart(stackDown)) return false;
-				return (Server.getPersistentData().worldEnergyLevel >=
-						HeartDataFlag.fromItemStack(stackDown).getTakingLevel()) &&
+				return (getWorldLevelOfXpCost(inventoryOut.getStack(0).getOrDefault(IWComponents.ENCHANT_VALUE, -1)) <=
+						Server.getPersistentData().worldEnergyLevel) &&
 					   (getExperienceFromLevel(player.experienceLevel, player.experienceProgress) >=
 						experienceCost.get());
 			}

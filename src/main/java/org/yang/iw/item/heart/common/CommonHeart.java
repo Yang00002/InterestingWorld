@@ -11,7 +11,7 @@ public abstract class CommonHeart extends AbstractHeart
 
 	public CommonHeart(Settings settings, Function<Integer, Integer> enchantAbility)
 	{
-		super(settings, enchantAbility, 8);
+		super(settings, enchantAbility, 10);
 	}
 
 	public boolean supportAbility()
@@ -28,5 +28,11 @@ public abstract class CommonHeart extends AbstractHeart
 	public ItemStack getDefaultStack(int materialLevel)
 	{
 		return boostStackByLevel(materialLevel, super.getDefaultStack(materialLevel));
+	}
+
+	@Override
+	public ItemStack getDefaultStack()
+	{
+		return getDefaultStack(10);
 	}
 }

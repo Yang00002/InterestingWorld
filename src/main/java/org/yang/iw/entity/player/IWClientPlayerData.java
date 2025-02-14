@@ -12,6 +12,7 @@ public class IWClientPlayerData
 	public int shown_energy = 0;
 	public int charge_rate16 = 0;
 	public int shown_number = 0;
+	public boolean is_charged = false;
 	public boolean client_ability_on = true;
 
 	/**

@@ -8,6 +8,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
 import org.yang.iw.component.EnergyToolDataFlag;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.enchant.resource.EnchantData;
@@ -103,38 +104,44 @@ public class IWEnchantmentUtil
 
 	public static int getWorldLevelOfXpCost(int cost)
 	{
-		if (cost >= 910)
+		if (cost >= 2045)
 		{
-			if (cost >= 2045)
+			if (cost >= 4020)
 			{
-				if (cost >= 4020) return 8;
-				if (cost >= 2920) return 7;
-				return 6;
+				if (cost >= 5345) return 10;
+				return 9;
 			}
-			if (cost >= 1395) return 5;
+			if (cost >= 2920) return 8;
+			return 7;
+		}
+		if (cost >= 550)
+		{
+			if (cost >= 1395) return 6;
+			if (cost >= 910) return 5;
 			return 4;
 		}
-		if (cost >= 315)
+		if (cost >= 160)
 		{
-			if (cost >= 550) return 3;
+			if (cost >= 315) return 3;
 			return 2;
 		}
-		if (cost >= 160) return 1;
+		if (cost >= 55) return 1;
 		return 0;
 	}
 
-	//									   1    2    3    4    5     6     7     8
-	private static final int[] xp_costs = {160, 315, 550, 910, 1395, 2045, 2920, 4020, 5345};
+	//									   0   1    2    3    4    5     6     7     8   9     10   11
+	private static final int[] xp_costs = {0, 55, 160, 315, 550, 910, 1395, 2045, 2920, 4020, 5345, 8670};
 
 	public static int getMaxAllowXpCostOfWorldLevel(int level)
 	{
-		return xp_costs[level] - 1;
+		level = Math.min(level, 10);
+		return xp_costs[level + 1] - 1;
 	}
 
-	public static int getRandomXpCostOfWorldLevel(int level, Random random)
+	public static int getRandomXpCostOfWorldLevel(int level, @NotNull Random random)
 	{
-		if (level > 0) return random.nextInt(xp_costs[level - 1], xp_costs[level]);
-		return random.nextInt(0, xp_costs[0]);
+		level = Math.min(level, 10);
+		return random.nextInt(xp_costs[level], xp_costs[level + 1]);
 	}
 
 	public static int getExperienceFromLevel(int level, float frac)

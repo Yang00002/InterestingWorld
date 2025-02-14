@@ -166,7 +166,7 @@ public class IWLivingEntityUtil
 			Vec3d dis = getVec3toEntity(entity, x, y, z);
 			double len = dis.length();
 			double angle = (viewX * dis.x + viewY * dis.y + viewZ * dis.z) / len;
-			if (len <= maxLength && (len <= 0.1 || angle >= maxAngleCosin)) dealer.attack(attacker, entity, len);
+			if (len <= maxLength && (len <= 0.5 || angle >= maxAngleCosin)) dealer.attack(attacker, entity, len);
 		}
 	}
 }

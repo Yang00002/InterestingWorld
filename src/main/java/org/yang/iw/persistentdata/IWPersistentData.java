@@ -26,9 +26,7 @@ public class IWPersistentData extends PersistentState
 	public static IWPersistentData createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup)
 	{
 		IWPersistentData state = new IWPersistentData();
-		state.worldEnergyLevel = tag.getInt("worldenergylevel");
-		if (state.worldEnergyLevel > 8) state.worldEnergyLevel = 8;
-		else if (state.worldEnergyLevel < 0) state.worldEnergyLevel = 0;
+		state.worldEnergyLevel = Math.clamp(tag.getInt("worldenergylevel"), 0, 10);
 		return state;
 	}
 

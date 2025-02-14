@@ -17,7 +17,7 @@ public class TinkerHeart extends CommonHeart
 {
 	public TinkerHeart(Settings settings)
 	{
-		super(settings, i -> 14);
+		super(settings, i -> 14 + i);
 	}
 
 	@Override

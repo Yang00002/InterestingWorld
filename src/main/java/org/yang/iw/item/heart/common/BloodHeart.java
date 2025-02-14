@@ -17,7 +17,7 @@ public class BloodHeart extends CommonHeart
 {
 	public BloodHeart(Settings settings)
 	{
-		super(settings, i -> 10);
+		super(settings, i -> 10 + i);
 	}
 
 	@Override

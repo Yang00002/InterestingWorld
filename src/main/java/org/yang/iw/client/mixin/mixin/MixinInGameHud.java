@@ -80,21 +80,26 @@ public abstract class MixinInGameHud
 			int k = context.getScaledWindowHeight() - 50;
 			int div = ability.abilityProcess(manager);
 			int fc = ability.abilityBarForegroundColor(manager);
-			if (div == 16) context.fill(j, k, j + 17, k + 5, rgbToDarkenArgb(fc, 0.2f));
+			// fill 左闭右开 a , a + 1 即渲染坐标 a 1 个
+			if (div == 16) context.fill(j, k, j + 18, k + 6, rgbToDarkenArgb(fc, 0.2f));
 			else
 			{
-				context.fill(j, k, j + 17, k + 5, rgbToArgb(0));
-				context.fill(j + 1 + div, k + 1, j + 16, k + 4, rgbToDarkenArgb(fc, 0.2f));
+				context.fill(j, k, j + 18, k + 6, rgbToArgb(0));
+				context.fill(j + 1 + div, k + 1, j + 17, k + 5, rgbToDarkenArgb(fc, 0.2f));
 			}
-			if (div > 0) context.fill(j + 1, k + 1, j + div, k + 4, rgbToArgb(fc));
+			if (div > 0) context.fill(j + 1, k + 1, j + div + 1, k + 5, rgbToArgb(fc));
 		}
-		if (ability.shouldRenderAbilityNumber(manager))
+		if (ability.shouldRenderAbilityText(manager))
 		{
-			String number = ability.abilityNumber(manager) + "";
-			int j = (context.getScaledWindowWidth() - this.getTextRenderer().getWidth(number)) / 2;
-			int k = context.getScaledWindowHeight() - 48;
+			String text = ability.abilityText(manager);
+			int j = (context.getScaledWindowWidth() - this.getTextRenderer().getWidth(text)) / 2;
+			int k = context.getScaledWindowHeight() - 47;
 			RenderSystem.enableBlend();
-			context.drawText(getTextRenderer(), number, j - 1, k, 0, false);
+			context.drawText(this.getTextRenderer(), text, j + 1, k, 0, false);
+			context.drawText(this.getTextRenderer(), text, j - 1, k, 0, false);
+			context.drawText(this.getTextRenderer(), text, j, k + 1, 0, false);
+			context.drawText(this.getTextRenderer(), text, j, k - 1, 0, false);
+			context.drawText(this.getTextRenderer(), text, j, k, ability.abilityTextColor(), false);
 			RenderSystem.disableBlend();
 		}
 	}

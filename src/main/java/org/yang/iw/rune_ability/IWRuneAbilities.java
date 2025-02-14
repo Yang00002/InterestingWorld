@@ -13,15 +13,21 @@ public class IWRuneAbilities
 	private static AbstractRuneAbility[] ABILITY_LIST = null;
 	public static final AbstractRuneAbility DEFAULT_ABILITY = abilityRegister.register(new AbstractRuneAbility());
 	public static final AbstractRuneAbility SLASHING_ABILITY = abilityRegister.register("斩击",
-			"横扫攻击消耗" + numberToString(SlashingAbility.EnergyCosume) + "点能量对前方一定范围内所有敌人造成" +
-			numberToString(SlashingAbility.AbilityDamage) + "点伤害，并使它们流血" +
-			numberToString((float) SlashingAbility.EffectDuration / 20) + "秒。流血的敌人每秒损失1点生命值。",
-			new SlashingAbility());
+			"横扫攻击消耗%s点能量对前方敌人造成%s点伤害，该技能冷却%ss。".formatted(
+					numberToString(SlashingAbility.EnergyCosume), numberToString(SlashingAbility.AbilityDamage),
+					numberToString(SlashingAbility.AbilityDuration / 20f)), new SlashingAbility());
 	public static final AbstractRuneAbility INFINITESLASHING_ABILITY = abilityRegister.register("无限斩击",
-			"横扫攻击将对前方大范围内所有敌人造成" + numberToString(InfiniteSlashingAbility.AbilityDamage) +
-			"点伤害，并使它们流血" + numberToString((float) InfiniteSlashingAbility.EffectDuration / 20) +
-			"秒。流血的敌人每秒损失" + numberToString(InfiniteSlashingAbility.EffectAmplifier + 1) + "点生命值。",
-			new InfiniteSlashingAbility());
+			"横扫攻击将对前方敌人造成%s点伤害，该技能冷却%ss。连续横扫会减少冷却时间，%s次后最终减少至%ss。右键%ss蓄力，蓄力后的%ss内横扫攻击伤害增加到%s，且普通攻击也能对前方敌人造成%s伤害。".formatted(
+					numberToString(InfiniteSlashingAbility.AbilityDamage),
+					numberToString(InfiniteSlashingAbility.MaxAbilityDuration / 20f), numberToString((float) (
+							(InfiniteSlashingAbility.MaxAbilityDuration - InfiniteSlashingAbility.MinAbilityDuration +
+							 InfiniteSlashingAbility.AbilityDurationDownPerHit - 1) /
+							InfiniteSlashingAbility.AbilityDurationDownPerHit)),
+					numberToString(InfiniteSlashingAbility.MinAbilityDuration / 20f),
+					numberToString(InfiniteSlashingAbility.ChargeTime / 20f),
+					numberToString(InfiniteSlashingAbility.ChargedTime / 20f),
+					numberToString(InfiniteSlashingAbility.ChargedSweepDamage),
+					numberToString(InfiniteSlashingAbility.ChargedAttackDamage)), new InfiniteSlashingAbility());
 	public static final AbstractRuneAbility SWEETCURSE_ABILITY = abilityRegister.register("甜蜜诅咒",
 			"右键消耗" + numberToString(SweetCurseAbility.EnergyConsume) + "点能量使你周围的敌人受到" +
 			numberToString((float) SweetCurseAbility.EffectDuration / 20) +

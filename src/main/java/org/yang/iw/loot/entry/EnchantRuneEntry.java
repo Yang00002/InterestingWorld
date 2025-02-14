@@ -9,9 +9,10 @@ import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.entry.LeafEntry;
 import net.minecraft.loot.entry.LootPoolEntryType;
 import net.minecraft.loot.function.LootFunction;
+import org.yang.iw.component.HeartDataFlag;
 import org.yang.iw.enchant.util.RandomEnchantGenerator;
 import org.yang.iw.item.IWItems;
-import org.yang.iw.item.heart.base.BaseHeart;
+import org.yang.iw.item.heart.BaseHeart;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -23,8 +24,8 @@ public class EnchantRuneEntry extends LeafEntry
 
 	public static final MapCodec<EnchantRuneEntry> CODEC = RecordCodecBuilder.mapCodec(
 			instance -> instance.group(Codec.INT.fieldOf("ll").forGetter(entry -> entry.min_level))
-					.and(Codec.INT.fieldOf("lr").forGetter(entry -> entry.max_level))
-					.and(Codec.INT.fieldOf("cl").forGetter(entry -> entry.container.getMaxSupportLevel()))
+					.and(Codec.INT.fieldOf("lr").forGetter(entry -> entry.max_level)).and(Codec.INT.fieldOf("cl")
+							.forGetter(entry -> HeartDataFlag.fromItem(entry.container).getMaterialLevel()))
 					.and(addLeafFields(instance)).apply(instance, EnchantRuneEntry::new));
 	private final int min_level;
 	private final int max_level;
@@ -60,7 +61,8 @@ public class EnchantRuneEntry extends LeafEntry
 		//}
 		//else
 		lootConsumer.accept(
-				RandomEnchantGenerator.generate(rd.nextInt(), rd.nextBetween(min_level, max_level), container));
+				RandomEnchantGenerator.generate(rd.nextInt(), rd.nextBetween(min_level, max_level), container,
+						IWItems.HEART.getDefaultStack()));
 	}
 
 	@Override

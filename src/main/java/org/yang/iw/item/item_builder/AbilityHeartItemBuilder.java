@@ -7,8 +7,9 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
-import org.yang.iw.component.IWComponents;
 import org.yang.iw.IWItemGroups;
+import org.yang.iw.component.HeartDataFlag;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.datagen.itemmodel.ItemModelPool;
 import org.yang.iw.datagen.itemmodel.ItemModelProvider;
 import org.yang.iw.datagen.itemmodel.SimpleItemModelProvider;
@@ -18,7 +19,6 @@ import org.yang.iw.datagen.tag.ItemTagPool;
 import org.yang.iw.item.heart.common.CommonHeart;
 import org.yang.iw.rune_ability.IWRuneAbilities;
 import org.yang.iw.util.Base;
-import org.yang.iw.component.HeartDataFlag;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -79,6 +79,7 @@ public class AbilityHeartItemBuilder
 		CommonHeart ret = (CommonHeart) Items.register(registryKey, constructor::apply, settings);
 		if (itemGroupBelong != null)
 		{
+			IWItemGroups.addItemToGroup((context, entries) -> entries.add(ret.getDefaultStack()), itemGroupBelong);
 			for (var idx : ret.getAbilitiesSupport())
 			{
 				var ability = getAbility(idx);

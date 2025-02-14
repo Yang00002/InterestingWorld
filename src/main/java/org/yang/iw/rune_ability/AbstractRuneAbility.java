@@ -5,12 +5,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
-import net.minecraft.item.consume.UseAction;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.yang.iw.entity.player.IWClientPlayerData;
@@ -164,17 +164,14 @@ public class AbstractRuneAbility
 		return before;
 	}
 
-	/**
-	 * TwoSide
-	 * <p>
-	 * CallSequence:
-	 * <p>
-	 * use(setCurrentItem) -> usageTick... -> onStoppedUsing -> usageTick...
-	 *
-	 * @param remainingUseTicks (-INF, getMaxUseTime]
-	 */
-	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
+	public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user)
 	{
+		return stack;
+	}
+
+	public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
+	{
+		return false;
 	}
 
 	public UseAction getUseAction(ItemStack stack, UseAction before)
@@ -227,17 +224,17 @@ public class AbstractRuneAbility
 		return 0;
 	}
 
-	public boolean shouldRenderAbilityNumber(IWClientPlayerData data)
+	public boolean shouldRenderAbilityText(IWClientPlayerData data)
 	{
 		return false;
 	}
 
-	public int abilityNumber(IWClientPlayerData data)
+	public String abilityText(IWClientPlayerData data)
 	{
-		return 0;
+		return "";
 	}
 
-	public int abilityNumberColor()
+	public int abilityTextColor()
 	{
 		return 0;
 	}

@@ -122,6 +122,13 @@ public abstract class AbstractHeart extends Item
 		return false;
 	}
 
+	public ItemStack ofEnchants(ItemEnchantmentsComponent component, int MaterialLevel, int enchantCost)
+	{
+		ItemStack stack = getDefaultStack(MaterialLevel);
+		setEnchant(stack, component, enchantCost);
+		return stack;
+	}
+
 	public boolean dumpPreEnchant(ItemStack stack, ItemEnchantmentsComponent component, int enchantCost)
 	{
 		if (supportEnchant())
@@ -260,8 +267,11 @@ public abstract class AbstractHeart extends Item
 
 	public ItemStack getDefaultStack(int materialLevel)
 	{
-		var stack = getDefaultStack();
+		var stack = new ItemStack(this);
 		stack.set(IWComponents.HEART_FLAG, HeartDataFlag.builder(stack).setMaterialLevel(materialLevel).build());
+		if (supportEnchant())
+			stack.set(DataComponentTypes.ENCHANTABLE, new EnchantableComponent(enchantAbility.apply(materialLevel)));
 		return stack;
 	}
+
 }

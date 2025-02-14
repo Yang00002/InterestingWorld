@@ -68,6 +68,9 @@ public class TranslationPool
 	public static final String FORGING_BLOCK_TITLE_ENCHANT_N = add("forgingblock.title.enchant", "附魔");
 	public static final String FORGING_BLOCK_TIP_CANNOT_USE_BECAUSE_LEVEL_N = add("forgingblock.text.level",
 			"你还不能使用该符文");
+
+	public static final String FORGING_BLOCK_TIP_CANNOT_USE_BECAUSE_OUTPUT_LEVEL_N = add("forgingblock.text.outlevel",
+			"对于你得到的附魔而言，世界等级太低");
 	public static final String FORGING_BLOCK_TIP_ENCHANT_COST_L_N = add("forgingblock.text.enchant.3xpl", "附魔花费：");
 	public static final String FORGING_BLOCK_TIP_ENCHANT_COST_R_N = add("forgingblock.text.enchant.3xpr", "%s / %s");
 	public static final String FORGING_BLOCK_TIP_ENCHANT_NO_USEFUL_N = add("forgingblock.text.enchant.4",
@@ -123,9 +126,13 @@ public class TranslationPool
 	public static final String TOOLTIP_HEART_CONTAINER_LEVEL = add("tooltip.heart.containerLevel", "材料等级：");
 	public static final String TOOLTIP_HEART_CAN_ENCHANT = add("tooltip.heart.canEnchant", "可附魔");
 	public static final String TOOLTIP_HEART_CAN_TAKE_ABILITY = add("tooltip.heart.canHaveAbility", "可携带能力");
-	public static final String TOOLTIP_HEART_ABILITY_LEVEL = add("tooltip.heart.enchantLevel", "附魔等级：");
-	public static final String TOOLTIP_HEART_ENCHANT_LEVEL = add("tooltip.heart.abilityLevel", "能力等级：");
+	public static final String TOOLTIP_HEART_ABILITY_LEVEL = add("tooltip.heart.enchantLevel", "能力等级：");
+	public static final String TOOLTIP_HEART_ENCHANT_LEVEL = add("tooltip.heart.abilityLevel", "附魔等级：");
 	public static final String TOOLTIP_HEART_NEED_FURTHER_ENCHANT = add("tooltip.heart.furtherEnchant", "它还需要打磨");
 	public static final String ENCHANT_HEART = add("item.iw.enchantedheart", "附魔之心");
+	public static final String COMMAND_NO_STACK_IN_HAND = add("command.nostackinhand", "%s未手持任何物品");
+	public static final String COMMAND_NOT_A_ENCHANT_HEART = add("command.noaheart", "%s手持物品不是可附魔的心类物品");
+	public static final String COMMAND_SET_TEST_NUMBER_SUCCESS = add("command.settestnumber.s", "成功将数字%s设置为%s");
+	public static final String COMMAND_NOT_A_PLAYER = add("command.noaplayer", "执行者不是玩家");
 
 }

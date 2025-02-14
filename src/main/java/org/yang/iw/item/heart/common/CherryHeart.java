@@ -17,7 +17,7 @@ public class CherryHeart extends CommonHeart
 {
 	public CherryHeart(Settings settings)
 	{
-		super(settings, i -> 28);
+		super(settings, i -> 22 + 2 * i);
 	}
 
 	@Override

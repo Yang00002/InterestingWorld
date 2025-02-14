@@ -32,7 +32,7 @@ public record HeartDataFlag(int value)
 
 		public Builder setTakingLevel(int lvl)
 		{
-			value = (value & ~TAKING_LEVEL_BITS) | ((Math.clamp(lvl, 0, 8)) << 5);
+			value = (value & ~TAKING_LEVEL_BITS) | ((Math.clamp(lvl, 0, 10)) << 6);
 			return this;
 		}
 
@@ -41,16 +41,16 @@ public record HeartDataFlag(int value)
 			switch (type)
 			{
 				case NULL -> value = (value & ~TYPE_TAKING_BITS);
-				case ENCHANT -> value = (value & ~TYPE_TAKING_BITS) | 0b01000;
-				case ABILITY -> value = (value & ~TYPE_TAKING_BITS) | 0b010000;
-				case PREENCHANT -> value = (value & ~TYPE_TAKING_BITS) | 0b011000;
+				case ENCHANT -> value = (value & ~TYPE_TAKING_BITS) | 0b010000;
+				case ABILITY -> value = (value & ~TYPE_TAKING_BITS) | 0b0100000;
+				case PREENCHANT -> value = (value & ~TYPE_TAKING_BITS) | 0b0110000;
 			}
 			return this;
 		}
 
 		public Builder setMaterialLevel(int lvl)
 		{
-			value = (value & ~MATERIAL_LEVEL_BITS) | Math.clamp(lvl - 1, 0, 7);
+			value = (value & ~MATERIAL_LEVEL_BITS) | Math.clamp(lvl, 0, 10);
 			return this;
 		}
 	}
@@ -59,27 +59,27 @@ public record HeartDataFlag(int value)
 
 	public static Codec<HeartDataFlag> CODEC = Codec.INT.xmap(HeartDataFlag::new, HeartDataFlag::value);
 	/**
-	 * 材料等级 bit 3 位, 在 0 - 7 之间, 代表 1 - 8.
+	 * 材料等级 bit 4 位, 在 0 - 10 之间
 	 */
-	private static final int MATERIAL_LEVEL_BITS = 0b0111;
+	private static final int MATERIAL_LEVEL_BITS = 0b01111;
 
-	private static final int TYPE_TAKING_BITS = 0b011000;
-	private static final int TAKING_LEVEL_BITS = 0b0111100000;
+	private static final int TYPE_TAKING_BITS = 0b0110000;
+	private static final int TAKING_LEVEL_BITS = 0b01111000000;
 
 	public int getMaterialLevel()
 	{
-		return (MATERIAL_LEVEL_BITS & value) + 1;
+		return MATERIAL_LEVEL_BITS & value;
 	}
 
 	public int getTakingLevel()
 	{
-		return (value & TAKING_LEVEL_BITS) >> 5;
+		return (value & TAKING_LEVEL_BITS) >> 6;
 	}
 
 
 	public HeartTypeTaking getTypeTaking()
 	{
-		switch ((TYPE_TAKING_BITS & value) >> 3)
+		switch ((TYPE_TAKING_BITS & value) >> 4)
 		{
 			default ->
 			{

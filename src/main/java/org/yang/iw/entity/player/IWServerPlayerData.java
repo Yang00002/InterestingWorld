@@ -7,13 +7,13 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.yang.iw.component.IWComponents;
-import org.yang.iw.util.IWUtil;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.network.payload.S2CAbilityDataPayload;
 import org.yang.iw.network.payload.S2CPlayerEnergyDataPayload;
 import org.yang.iw.rune_ability.AbstractRuneAbility;
 import org.yang.iw.rune_ability.IWRuneAbilities;
 import org.yang.iw.util.IWRuneAbilityUtil;
+import org.yang.iw.util.IWUtil;
 
 import static org.yang.iw.util.IWRuneAbilityUtil.getAbility;
 import static org.yang.iw.util.Return.RETURNTRUE;
@@ -28,12 +28,13 @@ public class IWServerPlayerData
 	private boolean ability_on = true;
 
 	public boolean sweeping = false;
-	public boolean charged = false;
 	public int chargeStep = -1;
 	public int chargeRate = -1;
 	public boolean isCharging = false;
 	public boolean shouldSync = false;
+	public boolean used = false;
 	public int forging_seed = 0;
+	public boolean isCharged = false;
 
 	public boolean isAbilityOn()
 	{

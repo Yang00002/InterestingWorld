@@ -133,16 +133,18 @@ public class EnergyToolItem extends Item
 		this.defaultEnchantments = defaultEnchantments;
 	}
 
-	/**
-	 * TwoSide
-	 *
-	 * @param remainingUseTicks (-INF, getMaxUseTime]
-	 */
+	public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user)
+	{
+		AbstractRuneAbility ab = getAbility(stack);
+		if (ab.canWork()) return ab.finishUsing(stack, world, user);
+		return super.finishUsing(stack, world, user);
+	}
+
 	public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
 	{
 		AbstractRuneAbility ab = getAbility(stack);
-		if (ab.canWork()) ab.onStoppedUsing(stack, world, user, remainingUseTicks);
-		return true;
+		if (ab.canWork()) return ab.onStoppedUsing(stack, world, user, remainingUseTicks);
+		return super.onStoppedUsing(stack, world, user, remainingUseTicks);
 	}
 
 	/**

@@ -71,7 +71,9 @@ public class InfiniteCurseAbility extends InfiniteAbility
 				if (len < 0.01) entity.takeKnockback(Knockback, knox, knoz);
 				else entity.takeKnockback(Knockback, tx, tz);
 				entity.addStatusEffect(new StatusEffectInstance(IWEffects.HURTING, -1, HurtingAmplifier));
-				if (entity.getStatusEffect(IWEffects.INFINITECURSE) == null) entity.addStatusEffect(
+				if (entity.getStatusEffect(IWEffects.INFINITECURSE) != null)
+					entity.removeStatusEffect(IWEffects.INFINITECURSE);
+				entity.addStatusEffect(
 						new StatusEffectInstance(IWEffects.INFINITECURSE, ExplodeTick + 1, ExplodeDamage - 1, false,
 								true));
 				entity.addStatusEffect(

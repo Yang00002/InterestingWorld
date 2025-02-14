@@ -1,5 +1,6 @@
 package org.yang.iw.item.item_builder;
 
+import com.mojang.datafixers.util.Either;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
@@ -14,8 +15,8 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
-import org.yang.iw.component.IWComponents;
 import org.yang.iw.IWItemGroups;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.datagen.itemmodel.ItemModelPool;
 import org.yang.iw.datagen.itemmodel.ItemModelProvider;
 import org.yang.iw.datagen.itemmodel.SimpleItemModelProvider;
@@ -62,6 +63,7 @@ public class EnergyToolItemBuilder
 
 	private Function<Item, ItemModelProvider> modelProvider = null;
 	private String translation = null;
+	private Either<TagKey<Item>, Item> repairableComponent = null;
 	private final Set<TagKey<Item>> tags = new HashSet<>();
 
 	public EnergyToolItemBuilder addTag(TagKey<Item> tag)
@@ -86,6 +88,18 @@ public class EnergyToolItemBuilder
 	public EnergyToolItemBuilder setEnergy(float max)
 	{
 		maxEnergy = max;
+		return this;
+	}
+
+	public EnergyToolItemBuilder setRepairIngredient(TagKey<Item> tagKey)
+	{
+		repairableComponent = Either.left(tagKey);
+		return this;
+	}
+
+	public EnergyToolItemBuilder setRepairIngredient(Item item)
+	{
+		repairableComponent = Either.right(item);
 		return this;
 	}
 
@@ -159,6 +173,7 @@ public class EnergyToolItemBuilder
 		if (fireresistence) settings.fireproof();
 		if (durability > 0) settings.maxDamage(durability);
 		if (toolComponent != null) settings.component(DataComponentTypes.TOOL, toolComponent);
+		if (repairableComponent != null) repairableComponent.map(settings::repairable, settings::repairable);
 		var builder = AttributeModifiersComponent.builder();
 		builder.add(EntityAttributes.ATTACK_DAMAGE,
 				new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, attackDamageAdding,

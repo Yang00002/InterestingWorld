@@ -13,22 +13,22 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
-import org.yang.iw.effect.IWEffects;
+import org.yang.iw.component.EnergyToolDataFlag;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.entity.player.IWServerPlayerData;
-import org.yang.iw.util.*;
+import org.yang.iw.util.IWLivingEntityUtil;
+import org.yang.iw.util.IWParticleUtil;
+import org.yang.iw.util.IWSoundUtil;
 import org.yang.iw.util.style.Color;
-import org.yang.iw.component.EnergyToolDataFlag;
 
 public class SlashingAbility extends RuneAbility
 {
 	public static final short AbilityDuration = 30;
 	public static final float AbilityDamage = 3;
-	public static final int EffectDuration = 120;
 	public static final double AttackMaxAngleCosine = 0.5;
 	public static final double AttackMaxLength = 3.5;
-	public static final float EnergyCosume = 10;
-	public static final double KnockbackDistance = 0.4;
+	public static final float EnergyCosume = 5;
+	public static final double KnockbackDistance = 0.5;
 
 	public String id()
 	{
@@ -78,9 +78,6 @@ public class SlashingAbility extends RuneAbility
 						(attacker1, entity, distance) -> {
 							entity.takeKnockback(KnockbackDistance, knox, knoz);
 							entity.damage(world, damageSource, AbilityDamage);
-							IWStatusEffectUtil.addHiddenStatusEffectWithConsistence(entity, IWEffects.BLOOD,
-									(int) (IWDamageUtil.getArmoredDamage(entity, damageSource, AbilityDamage) *
-										   EffectDuration / AbilityDamage), 20);
 							double x = entity.getX();
 							double y = entity.getBodyY(0.5);
 							double z = entity.getZ();

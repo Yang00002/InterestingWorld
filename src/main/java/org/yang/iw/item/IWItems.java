@@ -7,6 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
 import org.yang.iw.IWItemGroups;
 import org.yang.iw.datagen.itemmodel.CustomItemModelDefinitionProvider;
@@ -15,7 +16,7 @@ import org.yang.iw.datagen.itemmodel.server.ItemModelDefinition;
 import org.yang.iw.datagen.itemmodel.server.ModelParents;
 import org.yang.iw.datagen.itemmodel.server.RawItemModel;
 import org.yang.iw.enchant.IWEnchantments;
-import org.yang.iw.item.heart.base.*;
+import org.yang.iw.item.heart.BaseHeart;
 import org.yang.iw.item.heart.common.BloodHeart;
 import org.yang.iw.item.heart.common.CherryHeart;
 import org.yang.iw.item.heart.common.TinkerHeart;
@@ -27,6 +28,7 @@ import org.yang.iw.item.tool.sword.EnergySwordItem;
 import org.yang.iw.rune_ability.AbstractRuneAbility;
 import org.yang.iw.rune_ability.IWRuneAbilities;
 import org.yang.iw.util.Base;
+import org.yang.iw.util.style.Color;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,43 +40,57 @@ public class IWItems
 
 	public static final Item STICK = new EnergyToolItemBuilder(EnergyToolItem::new, "energy_stick",
 			63).setBaseAttackDamage(3).setEnergy(5).setRegen(0.1f)
-			.setModel(getModelForEnergyTool(ModelParents.HANDHELD, Items.STICK)).setTranslation("棍子").build();
+			.setModel(getModelForEnergyTool(ModelParents.HANDHELD, Items.STICK)).setTranslation("棍子")
+			.setRepairIngredient(ItemTags.WOODEN_TOOL_MATERIALS).build();
 	public static final Item BLAZEROD = new EnergyToolItemBuilder(EnergyToolItem::new, "energy_blazerod",
 			127).setBaseAttackDamage(4).setEnergy(10).setRegen(0.15f)
 			.addDefaultEnchant(IWEnchantments.ENTRY_FIRE_ASPECT, 1)
 			.setModel(getModelForEnergyTool(ModelParents.HANDHELD, Items.BLAZE_ROD)).setTranslation("烈焰棒子")
 			.setToolComponent(new ToolComponent(
 					List.of(ToolComponent.Rule.ofAlwaysDropping(RegistryEntryList.of(Blocks.COBWEB.getRegistryEntry()),
-							2.0F)), 1.0F, 1)).build();
+							2.0F)), 1.0F, 1)).setRepairIngredient(IWItemTags.CanRepairBlazeRod).build();
 
 	public static final Item WOODEN_SWORD = new EnergyToolItemBuilder(EnergySwordItem::new, "wooden_sword",
 			63).setBaseAttackDamage(4).setBaseAttackSpeed(1.6).setEnergy(5).setRegen(0.1f).setModel(
 					i -> new CustomItemModelDefinitionProvider(i,
 							ItemModelDefinition.of(RawItemModel.of(Items.WOODEN_SWORD))))
-			.setTranslation("木剑").setToolComponent(EnergySwordItem.createToolComponent(0.5f)).build();
+			.setTranslation("木剑").setToolComponent(EnergySwordItem.createToolComponent(0.5f))
+			.setRepairIngredient(ItemTags.WOODEN_TOOL_MATERIALS).build();
 	public static final Item STONE_SWORD = new EnergyToolItemBuilder(EnergySwordItem::new, "stone_sword",
 			127).setBaseAttackDamage(5).setBaseAttackSpeed(1.6).setEnergy(10).setRegen(0.15f)
 			.setModel(getModelForEnergyTool(ModelParents.HANDHELD, Items.STONE_SWORD)).setTranslation("石剑")
-			.setToolComponent(EnergySwordItem.createToolComponent(0.75f)).build();
+			.setToolComponent(EnergySwordItem.createToolComponent(0.75f))
+			.setRepairIngredient(ItemTags.STONE_TOOL_MATERIALS).build();
 	public static final Item IRON_SWORD = new EnergyToolItemBuilder(EnergySwordItem::new, "iron_sword",
 			255).setBaseAttackDamage(6).setBaseAttackSpeed(1.6).setEnergy(15).setRegen(0.2f)
 			.setModel(getModelForEnergyTool(ModelParents.HANDHELD, Items.IRON_SWORD)).setTranslation("铁剑")
-			.setToolComponent(EnergySwordItem.createToolComponent(1.0f)).build();
+			.setToolComponent(EnergySwordItem.createToolComponent(1.0f))
+			.setRepairIngredient(ItemTags.IRON_TOOL_MATERIALS).build();
 	public static final Item GOLDEN_SWORD = new EnergyToolItemBuilder(EnergySwordItem::new, "golden_sword",
 			31).setBaseAttackDamage(4).setBaseAttackSpeed(2.0).setEnergy(10).setRegen(1.0f)
 			.addDefaultEnchant(IWEnchantments.ENTRY_FAST_HIT, 1)
 			.setModel(getModelForEnergyTool(ModelParents.HANDHELD, Items.GOLDEN_SWORD)).setTranslation("金剑")
-			.setToolComponent(EnergySwordItem.createToolComponent(2f)).build();
+			.setToolComponent(EnergySwordItem.createToolComponent(2f)).setRepairIngredient(ItemTags.GOLD_TOOL_MATERIALS)
+			.build();
 	public static final Item DIAMOND_SWORD = new EnergyToolItemBuilder(EnergySwordItem::new, "diamond_sword",
 			1023).setBaseAttackDamage(7).setBaseAttackSpeed(1.6).setEnergy(20).setRegen(0.25f)
 			.setModel(getModelForEnergyTool(ModelParents.HANDHELD, Items.DIAMOND_SWORD)).setTranslation("钻石剑")
-			.setToolComponent(EnergySwordItem.createToolComponent(1.25f)).build();
+			.setToolComponent(EnergySwordItem.createToolComponent(1.25f))
+			.setRepairIngredient(ItemTags.DIAMOND_TOOL_MATERIALS).build();
 	public static final Item NETHERITE_SWORD = new EnergyToolItemBuilder(EnergySwordItem::new, "netherite_sword",
 			2047).setBaseAttackDamage(8).setBaseAttackSpeed(1.6).setEnergy(25).setRegen(0.3f).setFireResistence()
 			.setModel(getModelForEnergyTool(ModelParents.HANDHELD, Items.NETHERITE_SWORD))
-			.setToolComponent(EnergySwordItem.createToolComponent(1.5f)).setTranslation("下界合金剑").build();
+			.setToolComponent(EnergySwordItem.createToolComponent(1.5f))
+			.setRepairIngredient(ItemTags.NETHERITE_TOOL_MATERIALS).setTranslation("下界合金剑").build();
+
 	public static final Item HEART = new CommonItemBuilder(Item::new, "heart").addToItemGroup(
 			IWItemGroups.INGREDIENTS_GROUP).setCommonModel(ModelParents.GENERATED).setTranslation("心").build();
+
+	public static final Item TEST_ITEM = new CommonItemBuilder(TestItem::new, "test_item").addToItemGroup(
+					IWItemGroups.INGREDIENTS_GROUP).setModel(
+					item -> new CustomItemModelDefinitionProvider(item,
+							ItemModelDefinition.of(RawItemModel.of(HEART))))
+			.setTranslation("测试物品").build();
 
 	/**
 	 * (it) -> new LocatedItemModelDefinitionProvider(it, Models.GENERATED).setTextureAsItemTexture(it, "baseheart")
@@ -82,57 +98,68 @@ public class IWItems
 	 * new LocatedItemModelDefinitionProvider(ItemModelIdBuilder.of(it).addDirectory("enchanted").build(),
 	 * Models.GENERATED).setTextureAsItemTexture(it, "enchantedheart"))
 	 */
-	public static final CopperHeartItem COPPER_HEART = (CopperHeartItem) new CommonItemBuilder(CopperHeartItem::new,
-			"copper_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
-					item -> new CustomItemModelDefinitionProvider(item,
-							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
+	public static final BaseHeart COPPER_HEART = (BaseHeart) new CommonItemBuilder(
+			settings -> new BaseHeart(settings, i -> 10 + i, 1, Color.CopperColorRGB), "copper_heart").addToItemGroup(
+					IWItemGroups.INGREDIENTS_GROUP).setModel(item -> new CustomItemModelDefinitionProvider(item,
+					ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("铜心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
-	public static final IronHeartItem IRON_HEART = (IronHeartItem) new CommonItemBuilder(IronHeartItem::new,
-			"iron_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
-					item -> new CustomItemModelDefinitionProvider(item,
-							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
+	public static final BaseHeart IRON_HEART = (BaseHeart) new CommonItemBuilder(
+			settings -> new BaseHeart(settings, i -> 14 + i, 2, Color.IronColorRGB), "iron_heart").addToItemGroup(
+					IWItemGroups.INGREDIENTS_GROUP).setModel(item -> new CustomItemModelDefinitionProvider(item,
+					ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("铁心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
-	public static final GoldHeartItem GOLD_HEART = (GoldHeartItem) new CommonItemBuilder(GoldHeartItem::new,
-			"gold_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
-					item -> new CustomItemModelDefinitionProvider(item,
-							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
+	public static final BaseHeart GOLD_HEART = (BaseHeart) new CommonItemBuilder(
+			settings -> new BaseHeart(settings, i -> 22 + i, 3, Color.GoldColorRGB), "gold_heart").addToItemGroup(
+					IWItemGroups.INGREDIENTS_GROUP).setModel(item -> new CustomItemModelDefinitionProvider(item,
+					ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("金心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
-	public static final DiamondHeartItem DIAMOND_HEART =
-			(DiamondHeartItem) new CommonItemBuilder(DiamondHeartItem::new,
-			"diamond_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
+	public static final BaseHeart EMERALD_HEART = (BaseHeart) new CommonItemBuilder(
+			settings -> new BaseHeart(settings, i -> 4 + (int) (0.75f * i), 4, Color.EmeraldColorRGB),
+			"emerald_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
 					item -> new CustomItemModelDefinitionProvider(item,
 							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
+			.setTranslation("绿宝石心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
+	public static final BaseHeart DIAMOND_HEART = (BaseHeart) new CommonItemBuilder(
+			settings -> new BaseHeart(settings, i -> 10 + i, 4, Color.DiamondColorRGB), "diamond_heart").addToItemGroup(
+					IWItemGroups.INGREDIENTS_GROUP).setModel(item -> new CustomItemModelDefinitionProvider(item,
+					ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
+							ItemModelDefinition.of(
+									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("钻石心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
-	public static final NetheriteHeartItem NETHERITE_HEART = (NetheriteHeartItem) new CommonItemBuilder(
-			NetheriteHeartItem::new, "netherite_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
+	public static final BaseHeart NETHERITE_HEART = (BaseHeart) new CommonItemBuilder(
+			settings -> new BaseHeart(settings, i -> 15 + i, 5, Color.NetheriteColorRGB),
+			"netherite_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
 					item -> new CustomItemModelDefinitionProvider(item,
 							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("下界合金心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
-	public static final EnderiteHeartItem ENDERITE_HEART = (EnderiteHeartItem) new CommonItemBuilder(
-			EnderiteHeartItem::new, "enderite_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
+	public static final BaseHeart ENDERITE_HEART = (BaseHeart) new CommonItemBuilder(
+			settings -> new BaseHeart(settings, i -> 5 + 2 * i, 6, Color.EnderiteColorRGB),
+			"enderite_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
 					item -> new CustomItemModelDefinitionProvider(item,
 							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
 							ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("baseheart/%s").upload()))))
 			.setTranslation("末影合金心").addTag(IWItemTags.CanEnchantAsPreEnchantHeart).build();
-	public static final VoidalloyHeartItem VOIDALLOY_HEART = (VoidalloyHeartItem) new CommonItemBuilder(
-			VoidalloyHeartItem::new, "voidalloy_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
+	public static final BaseHeart VOIDALLOY_HEART = (BaseHeart) new CommonItemBuilder(
+			settings -> new BaseHeart(settings, i -> 18 + i, 10, Color.VoidalloyColorRGB),
+			"voidalloy_heart").addToItemGroup(IWItemGroups.INGREDIENTS_GROUP).setModel(
 					item -> new CustomItemModelDefinitionProvider(item,
 							ItemModelDefinition.heartEnchant(ItemModelDefinition.of(
 									RawItemModel.simple(item, ModelParents.HANDHELD).setIdFormat("enchantedheart/%s").upload()),
