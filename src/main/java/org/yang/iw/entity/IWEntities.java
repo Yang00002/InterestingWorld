@@ -10,12 +10,22 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
+import org.yang.iw.api.register.DataGenSupplier;
+import org.yang.iw.api.register.IndependentRegister;
+import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.entity.dummy.DummyEntity;
 import org.yang.iw.util.Base;
 
+@DataGenSupplier
+@IndependentRegister
 public class IWEntities
 {
+	static
+	{
+		LoadTime.assertTime(LoadTime.Type.ON_INITIALIZE);
+	}
+
 	public static final EntityType<DummyEntity> DUMMY = register("dummy", "测试假人",
 			FabricEntityType.Builder.createLiving(DummyEntity::new, SpawnGroup.MISC, (a) -> a).dimensions(0.6F, 1.8F));
 
@@ -28,8 +38,12 @@ public class IWEntities
 		return e;
 	}
 
-	public static void initialize()
+	static
 	{
 		FabricDefaultAttributeRegistry.register(DUMMY, DummyEntity.createLivingAttributes());
+	}
+
+	public static void initialize()
+	{
 	}
 }

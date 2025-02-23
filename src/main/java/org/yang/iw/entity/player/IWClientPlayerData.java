@@ -3,12 +3,12 @@ package org.yang.iw.entity.player;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.yang.iw.network.payload.C2SAbilityKeyPressPayload;
-import org.yang.iw.rune_ability.AbstractRuneAbility;
-import org.yang.iw.rune_ability.IWRuneAbilities;
+import org.yang.iw.ability.AbstractAbility;
+import org.yang.iw.ability.IWAbilities;
 
 public class IWClientPlayerData
 {
-	public AbstractRuneAbility WeaponAbility = IWRuneAbilities.DEFAULT_ABILITY;
+	public AbstractAbility WeaponAbility = AbstractAbility.getDefault();
 	public int shown_energy = 0;
 	public int charge_rate16 = 0;
 	public int shown_number = 0;

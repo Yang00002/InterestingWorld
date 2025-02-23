@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 public class HelperItemStack
 {
-	public static class ModifierSummerizer
+	public static class ModifierSummarizer
 	{
 		public double base = 0;
 		public double mul1 = 0;
@@ -26,7 +26,7 @@ public class HelperItemStack
 	}
 
 	public static void appendBasicToolTip(Consumer<Text> textConsumer, @NotNull PlayerEntity player,
-										  ModifierSummerizer modifier, RegistryEntry<EntityAttribute> attribute)
+										  ModifierSummarizer modifier, RegistryEntry<EntityAttribute> attribute)
 	{
 		double base = player.getAttributeBaseValue(attribute) + modifier.base;
 		modifier.base = 0.0;
@@ -36,7 +36,7 @@ public class HelperItemStack
 				Text.translatable(attribute.value().getTranslationKey()))).formatted(Formatting.DARK_GREEN));
 	}
 
-	public static void appendCommonToolTip(Consumer<Text> textConsumer, ModifierSummerizer modifierValue,
+	public static void appendCommonToolTip(Consumer<Text> textConsumer, ModifierSummarizer modifierValue,
 										   RegistryEntry<EntityAttribute> attribute)
 	{
 		if (modifierValue.base > 0.0)
@@ -91,7 +91,7 @@ public class HelperItemStack
 
 
 	public static void appendAttributeModifierToolTip(Consumer<Text> textConsumer, @Nullable PlayerEntity player,
-													  Map<RegistryEntry<EntityAttribute>, ModifierSummerizer> attributeMap, AttributeModifierSlot slot)
+													  Map<RegistryEntry<EntityAttribute>, ModifierSummarizer> attributeMap, AttributeModifierSlot slot)
 	{
 		if (player != null && (slot == AttributeModifierSlot.HAND || slot == AttributeModifierSlot.MAINHAND))
 		{

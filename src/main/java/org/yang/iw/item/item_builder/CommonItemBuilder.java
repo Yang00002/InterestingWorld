@@ -1,11 +1,8 @@
 package org.yang.iw.item.item_builder;
 
-import net.minecraft.client.data.Model;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
@@ -72,19 +69,13 @@ public class CommonItemBuilder
 
 	public Item build()
 	{
-
 		Item.Settings settings = new Item.Settings();
 		Identifier itemID = Identifier.of(Base.MOD_ID, id);
 		RegistryKey<Item> registryKey = RegistryKey.of(RegistryKeys.ITEM, itemID);
 		Item ret = Items.register(registryKey, constructor, settings);
 		if (itemGroupBelong != null)
-		{
-			IWItemGroups.addItemToGroup((context, entries) -> {
-				var wrapperOp = context.lookup().getOptional(RegistryKeys.ENCHANTMENT);
-				wrapperOp.ifPresent(wrapper -> entries.add(ret));
-			}, itemGroupBelong);
-		}
-		if (modelProvider != null) ItemModelPool.addModel(modelProvider.apply(ret));
+			IWItemGroups.addItemToGroup((context, entries) -> entries.add(ret), itemGroupBelong);
+		if (modelProvider != null) ItemModelPool.addModel(() -> modelProvider.apply(ret));
 		if (translation != null) TranslationPool.addItem(ret, translation);
 		tags.forEach(tag -> ItemTagPool.add(tag, ret));
 		return ret;

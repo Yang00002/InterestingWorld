@@ -25,6 +25,9 @@ public class MixinStatusEffectInstance implements InterfaceStatusEffectInstance
 	@Shadow
 	private int duration;
 
+	@Shadow
+	private int amplifier;
+
 	@Inject(method = "onEntityDamage", at = @At(value = "INVOKE", target =
 			"Lnet/minecraft/entity/effect/StatusEffect;" + "onEntityDamage(Lnet/minecraft/server/world" +
 			"/ServerWorld;Lnet/minecraft/entity" + "/LivingEntity;" + "ILnet/minecraft/entity/damage" +
@@ -37,7 +40,14 @@ public class MixinStatusEffectInstance implements InterfaceStatusEffectInstance
 
 	@Override
 	@Unique
-	public void setDuration(int tick)
+	public float interestingWorld$getDamageValueModifierOnDamage(ServerWorld world, DamageSource source, float amount)
+	{
+		return type.value().getDamageValueModifierOnDamage(world, source, amount, amplifier);
+	}
+
+	@Override
+	@Unique
+	public void interestingWorld$setDuration(int tick)
 	{
 		duration = tick;
 	}

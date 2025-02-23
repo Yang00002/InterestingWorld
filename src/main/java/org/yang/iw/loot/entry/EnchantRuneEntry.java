@@ -1,26 +1,8 @@
 package org.yang.iw.loot.entry;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.condition.LootCondition;
-import net.minecraft.loot.context.LootContext;
-import net.minecraft.loot.entry.LeafEntry;
-import net.minecraft.loot.entry.LootPoolEntryType;
-import net.minecraft.loot.function.LootFunction;
-import org.yang.iw.component.HeartDataFlag;
-import org.yang.iw.enchant.util.RandomEnchantGenerator;
-import org.yang.iw.item.IWItems;
-import org.yang.iw.item.heart.BaseHeart;
-
-import java.util.List;
-import java.util.function.Consumer;
-
-import static org.yang.iw.loot.IWLoots.ENCHANT_RUNE_TYPE;
-
-public class EnchantRuneEntry extends LeafEntry
+public class EnchantRuneEntry //extends LeafEntry
 {
+	/*
 
 	public static final MapCodec<EnchantRuneEntry> CODEC = RecordCodecBuilder.mapCodec(
 			instance -> instance.group(Codec.INT.fieldOf("ll").forGetter(entry -> entry.min_level))
@@ -76,5 +58,5 @@ public class EnchantRuneEntry extends LeafEntry
 		return builder(
 				(weight, quality, conditions, functions) -> new EnchantRuneEntry(l, r, containerLevel, weight, quality,
 						conditions, functions));
-	}
+	}*/
 }

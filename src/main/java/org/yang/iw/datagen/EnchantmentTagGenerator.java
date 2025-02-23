@@ -6,7 +6,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.EnchantmentTags;
-import org.yang.iw.enchant.IWEnchantments;
+import org.yang.iw.IWEnchantments;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,10 +22,10 @@ public class EnchantmentTagGenerator extends FabricTagProvider<Enchantment>
 	protected void configure(RegistryWrapper.WrapperLookup wrapperLookup)
 	{
 		getOrCreateTagBuilder(EnchantmentTags.IN_ENCHANTING_TABLE).addOptional(IWEnchantments.BALANCE)
-				.addOptional(IWEnchantments.PLENTIFUL).addOptional(IWEnchantments.RUNE_BOOST)
-				.addOptional(IWEnchantments.ENERGY_EFFICIENCY).addOptional(IWEnchantments.LUCKY);
+				.addOptional(IWEnchantments.RUNE_BOOST).addOptional(IWEnchantments.ENERGY_EFFICIENCY)
+				.addOptional(IWEnchantments.LUCKY);
 		getOrCreateTagBuilder(EnchantmentTags.TRADEABLE).addOptional(IWEnchantments.BALANCE)
-				.addOptional(IWEnchantments.PLENTIFUL).addOptional(IWEnchantments.RUNE_BOOST)
-				.addOptional(IWEnchantments.ENERGY_EFFICIENCY).addOptional(IWEnchantments.LUCKY);
+				.addOptional(IWEnchantments.RUNE_BOOST).addOptional(IWEnchantments.ENERGY_EFFICIENCY)
+				.addOptional(IWEnchantments.LUCKY);
 	}
 }

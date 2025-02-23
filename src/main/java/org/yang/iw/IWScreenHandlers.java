@@ -5,17 +5,24 @@ import net.minecraft.registry.Registry;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
+import org.yang.iw.api.register.IndependentRegister;
+import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.block.forgingblock.ForgingBlockScreenHandler;
 import org.yang.iw.util.Base;
 
+@IndependentRegister
 public class IWScreenHandlers
 {
+	static
+	{
+		LoadTime.assertTime(LoadTime.Type.ON_INITIALIZE);
+	}
+
 	public static final ScreenHandlerType<ForgingBlockScreenHandler> FORGINGBLOCK_SCREEN_HANDLER = Registry.register(
 			Registries.SCREEN_HANDLER, Identifier.of(Base.MOD_ID, "forging_block"),
 			new ScreenHandlerType<>(ForgingBlockScreenHandler::new, FeatureSet.empty()));
 
 	public static void initialize()
 	{
-
 	}
 }

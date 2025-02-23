@@ -3,7 +3,6 @@ package org.yang.iw.block.forgingblock;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.component.type.RepairableComponent;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -18,35 +17,32 @@ import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
 import org.yang.iw.IWResources;
 import org.yang.iw.IWScreenHandlers;
 import org.yang.iw.block.IWBlocks;
-import org.yang.iw.component.EnergyToolDataFlag;
-import org.yang.iw.component.HeartDataFlag;
+import org.yang.iw.boost.pool.TableBoostGenerator;
+import org.yang.iw.component.AbilityComponent;
+import org.yang.iw.component.BoostComponent;
+import org.yang.iw.component.BoostableComponent;
 import org.yang.iw.component.IWComponents;
-import org.yang.iw.enchant.util.TableEnchantGenerator;
 import org.yang.iw.item.IWItems;
-import org.yang.iw.item.heart.AbstractHeart;
+import org.yang.iw.item.heart.AbilityHeart;
+import org.yang.iw.item.heart.BaseHeart;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.item.upgrade.UpgradeTemplate;
-import org.yang.iw.rune_ability.AbstractRuneAbility;
-import org.yang.iw.rune_ability.IWRuneAbilities;
-import org.yang.iw.util.IWEnchantmentUtil;
 import org.yang.iw.util.Rand;
 import org.yang.iw.util.Server;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.yang.iw.util.IWEnchantmentUtil.*;
-import static org.yang.iw.util.IWRuneAbilityUtil.*;
+import static org.yang.iw.util.IWCostUtil.getExperienceFromLevel;
 
 public class ForgingBlockScreenHandler extends ScreenHandler
 {
 
-	private static final RepairableComponent DEFUALT_REPAIR_INGREDIENT = new RepairableComponent(
+	private static final RepairableComponent DEFAULT_REPAIR_INGREDIENT = new RepairableComponent(
 			RegistryEntryList.of());
 	// <editor-fold desc="数据段">
 	private final boolean clientSide;
@@ -61,7 +57,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 
 	// player hotbar 21 - 47
 
-	private final Property globalState;
+	private final ForgingBlockStateProperty globalState;
 	private final Property experienceCost;
 	private RepairableComponent repairIngredient;
 	private final Property repairCount;
@@ -83,7 +79,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		this.clientSide = !(playerInventory.player instanceof ServerPlayerEntity);
 		if (playerInventory.player instanceof ServerPlayerEntity)
 		{
-			var data = ((ServerPlayerEntity) playerInventory.player).getIWServerPlayerData();
+			var data = ((ServerPlayerEntity) playerInventory.player).interestingWorld$getIWServerPlayerData();
 			this.random_seed = data.forging_seed;
 		}
 		else this.random_seed = 0;
@@ -92,9 +88,9 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		this.inventoryOut = createInventoryOut();
 		this.inventoryIngredient = createInventoryIngredient();
 		this.addPlayerInventorySlots(playerInventory);
-		globalState = net.minecraft.screen.Property.create();
-		this.addProperty(globalState);
-		globalState.set(0);
+		globalState = new ForgingBlockStateProperty();
+		this.addProperty(globalState.getProperty());
+		globalState.set(ForgingBlockState.EMPTY);
 		experienceCost = net.minecraft.screen.Property.create();
 		this.addProperty(experienceCost);
 		experienceCost.set(0);
@@ -202,7 +198,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 			public boolean canInsert(ItemStack stack)
 			{
 				var item = stack.getItem();
-				return item instanceof UpgradeTemplate || item instanceof AbstractHeart;
+				return item instanceof UpgradeTemplate || item instanceof AbilityHeart || item instanceof BaseHeart;
 			}
 
 			@Override
@@ -295,7 +291,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		ItemStack stack = inventoryUp.getStack(0);
 		if (stack.getItem() instanceof EnergyToolItem)
 		{
-			return stack.getOrDefault(DataComponentTypes.REPAIRABLE, DEFUALT_REPAIR_INGREDIENT);
+			return stack.getOrDefault(DataComponentTypes.REPAIRABLE, DEFAULT_REPAIR_INGREDIENT);
 		}
 		return null;
 	}
@@ -305,7 +301,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		return inventory == inventoryOut;
 	}
 
-	public int getGlobalState()
+	public ForgingBlockState getGlobalState()
 	{
 		return globalState.get();
 	}
@@ -314,9 +310,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	{
 		ItemStack stackDown = inventoryDown.getStack(0);
 		Item item = stackDown.getItem();
-		if (isEnchantHeart(stackDown))
-			return (getWorldLevelOfXpCost(inventoryOut.getStack(0).getOrDefault(IWComponents.ENCHANT_VALUE, -1)) <=
-					Server.getPersistentData().worldEnergyLevel);
+		if (isBoostHeart(stackDown)) return (inventoryOut.getStack(0).interestingWorld$getBoosts().level() <=
+											 Server.getPersistentData().worldEnergyLevel);
 		if (item instanceof UpgradeTemplate it) return Server.getPersistentData().worldEnergyLevel >= it.getLevel();
 		return false;
 	}
@@ -326,25 +321,15 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 		return repairCount.get();
 	}
 
-	public Text getFirstEnchantOut()
+	public Text getFirstBoostOut()
 	{
 		var stackOut = inventoryOut.getStack(0);
-		if (stackOut == null) return null;
-		ItemEnchantmentsComponent component = stackOut.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS,
-				ItemEnchantmentsComponent.DEFAULT);
-		if (component.isEmpty()) return null;
-		int target = experienceCost.get() >> 10;
-		for (it.unimi.dsi.fastutil.objects.Object2IntMap.Entry<net.minecraft.registry.entry.RegistryEntry<Enchantment>> e : component.getEnchantmentEntries())
-		{
-			if (target > 1) target--;
-			else return IWEnchantmentUtil.getRawName(e.getKey(), e.getIntValue());
-		}
-		return null;
+		return stackOut.interestingWorld$getBoosts().randomEntryText(experienceCost.get());
 	}
 
 	//</editor-fold>
 
-	private void updateGlobalState(int current)
+	private void updateGlobalState(ForgingBlockState current)
 	{
 		if (globalState.get() != current) globalState.set(current);
 	}
@@ -361,26 +346,12 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 
 	private boolean isAbilityHeart(ItemStack stack)
 	{
-		return stack.getItem() instanceof AbstractHeart &&
-			   HeartDataFlag.fromItemStack(stack).getTypeTaking() == HeartDataFlag.HeartTypeTaking.ABILITY;
+		return stack.getItem() instanceof AbilityHeart && !stack.interestingWorld$getAbility().isEmpty();
 	}
 
-	private boolean isEnchantHeart(ItemStack stack)
+	private boolean isBoostHeart(ItemStack stack)
 	{
-		return stack.getItem() instanceof AbstractHeart &&
-			   HeartDataFlag.fromItemStack(stack).getTypeTaking() == HeartDataFlag.HeartTypeTaking.ENCHANT;
-	}
-
-	private boolean isPreEnchantHeart(ItemStack stack)
-	{
-		return stack.getItem() instanceof AbstractHeart &&
-			   HeartDataFlag.fromItemStack(stack).getTypeTaking() == HeartDataFlag.HeartTypeTaking.PREENCHANT;
-	}
-
-	private boolean isEmptyAbilityHeart(ItemStack stack)
-	{
-		return stack.getItem() instanceof AbstractHeart h && h.supportAbility() &&
-			   HeartDataFlag.fromItemStack(stack).getTypeTaking() == HeartDataFlag.HeartTypeTaking.NULL;
+		return stack.getItem() instanceof BaseHeart && !stack.interestingWorld$getBoosts().isEmpty();
 	}
 
 	//0: 耐久满 空 -> 标题(所有)
@@ -404,234 +375,250 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	//18:耐久足够,有升级 升级 -> 标题(升级), 提示F("不能重复升级")
 	//19:无物品 升级 -> 标题(升级), 提示F("放入工具以进行升级")
 	//21:能力不兼容, 不能提取
-	//22: 材料太差, 不能提取
+	//22: 耐久足够 附魔 -> [如果强化不足] 标题(附魔), 提示F("没有可用的附魔")
 	private void onUpDownContentChanged()
 	{
 		ItemStack stackUp = inventoryUp.getStack(0);
 		ItemStack stackDown = inventoryDown.getStack(0);
-		if (stackUp.isEmpty())
+		if (stackDown.isEmpty())
 		{
-			removeOutput();
-			if (stackDown.isEmpty())
+			if (stackUp.isEmpty())
 			{
-				updateGlobalState(0);
+				updateGlobalState(ForgingBlockState.EMPTY);
+				removeOutput();
 				return;
 			}
-			Item itemDown = stackDown.getItem();
-			if (itemDown instanceof UpgradeTemplate)
+			int currentDamage = stackUp.getDamage();
+			int maxDamage = stackUp.getMaxDamage();
+			if (currentDamage <= 0)
 			{
-				updateGlobalState(20);
+				updateGlobalState(ForgingBlockState.EMPTY);
+				removeOutput();
 				return;
 			}
-			AbstractHeart abstractHeart = (AbstractHeart) itemDown;
-			HeartDataFlag flagOnlyCheckable = HeartDataFlag.fromItemStack(stackDown);
-			var typeTaking = flagOnlyCheckable.getTypeTaking();
-			if (typeTaking == HeartDataFlag.HeartTypeTaking.PREENCHANT)
+			repairIngredient = stackUp.getOrDefault(DataComponentTypes.REPAIRABLE, DEFAULT_REPAIR_INGREDIENT);
+			if (repairIngredient == DEFAULT_REPAIR_INGREDIENT)
 			{
-				updateGlobalState(2);
+				updateGlobalState(ForgingBlockState.REPAIR_DISABLE);
+				removeOutput();
 				return;
 			}
-			if (abstractHeart.supportAbility() && typeTaking == HeartDataFlag.HeartTypeTaking.NULL)
-			{
-				updateGlobalState(14);
-				return;
-			}
-			if (typeTaking == HeartDataFlag.HeartTypeTaking.ABILITY)
-			{
-				updateGlobalState(11);
-				return;
-			}
-			if (typeTaking == HeartDataFlag.HeartTypeTaking.ENCHANT)
-			{
-				updateGlobalState(5);
-				return;
-			}
-			updateGlobalState(0);
-			return;
-		}
-		EnergyToolItem itemUp = (EnergyToolItem) stackUp.getItem();
-		if (itemUp == null)
-		{
-			updateGlobalState(0);
-			removeOutput();
-			return;
-		}
-
-		boolean durabilityEnough = stackUp.getDamage() * 4 <= stackUp.getMaxDamage();
-		if (!stackDown.isEmpty())
-		{
-			Item itemDown = stackDown.getItem();
-			AbstractRuneAbility abilityUp = getAbility(stackUp);
-			AbstractHeart abstractHeart = itemDown instanceof UpgradeTemplate ? null : (AbstractHeart) itemDown;
-			HeartDataFlag flagOnlyCheckable = HeartDataFlag.fromItemStack(stackDown);
-			var typeTaking = flagOnlyCheckable.getTypeTaking();
-			if (durabilityEnough)
-			{
-				if (itemDown instanceof UpgradeTemplate upgradeTemplate)
-				{
-					var flagUp = EnergyToolDataFlag.fromItemStack(stackUp);
-					if (flagUp.haveUpgrade())
-					{
-						updateGlobalState(19);
-						removeOutput();
-					}
-					else
-					{
-						var upgrade = upgradeTemplate.getUpgrade();
-						if (upgrade.canApplyTo(stackUp))
-						{
-							var ig = upgrade.getIngredients();
-
-							if (ig == null || inventoryHave(upgrade.getIngredients())) updateGlobalState(16);
-							else
-							{
-								updateGlobalState(17);
-								removeOutput();
-							}
-							ItemStack stackOut = stackUp.copy();
-							upgrade.applyUpgrade(stackOut);
-							setOutput(stackOut);
-						}
-						else
-						{
-							updateGlobalState(18);
-							removeOutput();
-						}
-					}
-					return;
-				}
-				if (abstractHeart.supportAbility() && typeTaking == HeartDataFlag.HeartTypeTaking.NULL)
-				{
-					if (abilityUp == IWRuneAbilities.DEFAULT_ABILITY)
-					{
-						updateGlobalState(13);
-						removeOutput();
-					}
-					else switch (((AbstractHeart) itemDown).supportAbility(stackDown, abilityUp))
-					{
-						case SUPPORT ->
-						{
-							updateGlobalState(12);
-							repairCount.set(countToolBreakingProbability(stackUp));
-							ItemStack stackOut = inventoryDown.getStack(0).copy();
-							((AbstractHeart) stackOut.getItem()).setAbility(stackOut, abilityUp);
-							setOutput(stackOut);
-						}
-						case LOW_LEVEL ->
-						{
-							updateGlobalState(22);
-							removeOutput();
-						}
-						case NO_ABILITY ->
-						{
-							updateGlobalState(21);
-							removeOutput();
-						}
-					}
-					return;
-				}
-				if (typeTaking == HeartDataFlag.HeartTypeTaking.ABILITY)
-				{
-					if (abilityUp != IWRuneAbilities.DEFAULT_ABILITY)
-					{
-						updateGlobalState(10);
-						removeOutput();
-					}
-					else
-					{
-						AbstractRuneAbility abilityDown = getAbility(stackDown);
-						if (abilityDown.canApplyTo(stackUp))
-						{
-							updateGlobalState(8);
-							ItemStack stackOut = stackUp.copy();
-							setAbility(stackOut, abilityDown);
-							setOutput(stackOut);
-						}
-						else
-						{
-							updateGlobalState(9);
-							removeOutput();
-						}
-					}
-					return;
-				}
-				if (typeTaking == HeartDataFlag.HeartTypeTaking.ENCHANT)
-				{
-					ItemStack stackOut = stackUp.copy();
-					int cost = applyEnchant(stackDown.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS,
-							ItemEnchantmentsComponent.DEFAULT), stackOut);
-					if (cost > -1)
-					{
-						experienceCost.set(cost);
-						updateGlobalState(3);
-						setOutput(stackOut);
-					}
-					else
-					{
-						updateGlobalState(4);
-						removeOutput();
-					}
-					return;
-				}
-			}
-			if (abstractHeart != null && typeTaking == HeartDataFlag.HeartTypeTaking.PREENCHANT)
-			{
-				MutableInt crystal_count = new MutableInt(inventoryCount(Items.AMETHYST_SHARD));
-				MutableInt lapis_count = new MutableInt(inventoryCount(Items.LAPIS_LAZULI));
-				MutableInt cost_achieve = new MutableInt(0);
-				ItemEnchantmentsComponent component = TableEnchantGenerator.generateFromItemStack(stackUp, stackDown,
-						random_seed, crystal_count, lapis_count, cost_achieve);
-				repairCount.set(lapis_count.getValue());
-				experienceCost.set(crystal_count.getValue());
-				if (component == null || component.isEmpty())
-				{
-					updateGlobalState(15);
-					removeOutput();
-					return;
-				}
-				updateGlobalState(1);
-				ItemStack stackOut = stackDown.copy();
-				stackOut.set(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
-				((AbstractHeart) stackDown.getItem()).setEnchant(stackOut, component, cost_achieve.getValue());
-				setOutput(stackOut);
-				return;
-			}
-		}
-		boolean durabilityFull = stackUp.getDamage() == 0;
-		if ((!durabilityEnough) || (!durabilityFull && stackDown.isEmpty()))
-		{
+			int repairNeedMax = stackUp.getOrDefault(IWComponents.REPAIR_COST, (short) 1);
+			if (repairNeedMax < 1) repairNeedMax = 1;
 			int haveCount = 0;
-			repairIngredient = stackUp.getOrDefault(DataComponentTypes.REPAIRABLE, DEFUALT_REPAIR_INGREDIENT);
-			if (repairIngredient != null) for (int i = 0; i < 9; i++)
+			for (int i = 0; i < 9; i++)
 			{
-				ItemStack cstack = inventoryIngredient.getStack(i);
-				if (repairIngredient.matches(cstack))
+				ItemStack stack = inventoryIngredient.getStack(i);
+				if (repairIngredient.matches(stack))
 				{
-					haveCount += cstack.getCount();
-					if (haveCount > 3) break;
+					haveCount += stack.getCount();
+					if (haveCount >= repairNeedMax) break;
 				}
 			}
 			if (haveCount > 0)
 			{
-				updateGlobalState(7);
-				int damage = stackUp.getDamage();
-				int perRepair = (stackUp.getMaxDamage() + 3) >> 2;
-				int rp = Math.min(haveCount, (damage + perRepair - 1) / perRepair);
+				updateGlobalState(ForgingBlockState.REPAIR);
+				int perRepair = (maxDamage + repairNeedMax - 1) / repairNeedMax;
+				int rp = Math.min(haveCount, (currentDamage + perRepair - 1) / perRepair);
 				repairCount.set(rp);
-				int currentDamage = Math.max(0, damage - rp * perRepair);
+				int repairedDamage = Math.max(0, currentDamage - rp * perRepair);
 				ItemStack stackOut = stackUp.copy();
-				stackOut.setDamage(currentDamage);
+				stackOut.setDamage(repairedDamage);
 				setOutput(stackOut);
-				experienceCost.set(EnergyToolDataFlag.fromItemStack(stackUp).level() * rp * 25);
+				experienceCost.set((stackUp.interestingWorld$getUpgrade().upgrade().level() +
+									stackUp.interestingWorld$getBoosts().level() +
+									stackUp.interestingWorld$getAbility().ability().level()) * 100 * rp /
+								   repairNeedMax);
 			}
 			else
 			{
-				updateGlobalState(6);
+				updateGlobalState(ForgingBlockState.REPAIR_LACK_INGREDIENT);
 				removeOutput();
 			}
 			return;
 		}
-		updateGlobalState(0);
+		Item itemDown = stackDown.getItem();
+		if (itemDown instanceof BaseHeart baseHeart)
+		{
+			boolean noBoost = stackDown.interestingWorld$getBoosts().isEmpty();
+			if (noBoost)
+			{
+				if (stackUp.isEmpty())
+				{
+					updateGlobalState(ForgingBlockState.APPEND_BOOST_NEED_TOOL_HINT);
+					removeOutput();
+				}
+				else
+				{
+					EnergyToolItem itemUp = (EnergyToolItem) stackUp.getItem();
+					BoostableComponent boostableComponent = stackDown.getOrDefault(IWComponents.BOOSTABLE,
+							BoostableComponent.DEFAULT);
+					if (boostableComponent.remainBoostTime() < 1)
+					{
+						updateGlobalState(ForgingBlockState.APPEND_BOOST_NO_BOOST_TIME);
+						removeOutput();
+						return;
+					}
+					TableBoostGenerator generator = new TableBoostGenerator(itemUp.getTableBoostPool(),
+							stackDown.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT),
+							boostableComponent.remainBoostTime(), inventoryCount(Items.LAPIS_LAZULI),
+							Server.getPersistentData().worldEnergyLevel, baseHeart.materialLevel, random_seed);
+					BoostComponent component = generator.getBoostComponent();
+					if (component.isEmpty())
+					{
+						updateGlobalState(ForgingBlockState.APPEND_BOOST_NO_AVAILABLE);
+						removeOutput();
+						return;
+					}
+					repairCount.set(generator.getLazuriteCost());
+					updateGlobalState(ForgingBlockState.APPEND_BOOST);
+					ItemStack stackOut = stackDown.copy();
+					stackOut.set(IWComponents.BOOST, component);
+					stackOut.remove(DataComponentTypes.ENCHANTMENTS);
+					if (!boostableComponent.isEmpty()) stackOut.set(IWComponents.BOOSTABLE,
+							boostableComponent.hardUse(generator.getBoostTimeConsume()));
+					setOutput(stackOut);
+				}
+			}
+			else
+			{
+				if (stackUp.isEmpty())
+				{
+					updateGlobalState(ForgingBlockState.BOOST_NEED_TOOL);
+					removeOutput();
+				}
+				else
+				{
+					ItemStack stackOut = stackUp.copy();
+					BoostComponent boostComponent = stackDown.interestingWorld$getBoosts();
+					int cost = boostComponent.applyTo(stackOut);
+					if (cost > 0)
+					{
+						experienceCost.set(cost);
+						updateGlobalState(ForgingBlockState.BOOST);
+						setOutput(stackOut);
+					}
+					else if (cost == 0)
+					{
+						updateGlobalState(ForgingBlockState.BOOST_NO_SUITABLE);
+						removeOutput();
+					}
+					else
+					{
+						updateGlobalState(ForgingBlockState.BOOST_NO_SLOT);
+						removeOutput();
+					}
+				}
+			}
+			return;
+		}
+		if (itemDown instanceof AbilityHeart abilityHeart)
+		{
+			var abilityDown = stackDown.interestingWorld$getAbility().ability();
+			if (abilityDown.isEmpty())
+			{
+				if (stackUp.isEmpty())
+				{
+					updateGlobalState(ForgingBlockState.EXTRACT_ABILITY_NO_TOOL);
+					removeOutput();
+				}
+				else
+				{
+					var abilityUp = stackUp.interestingWorld$getAbility().ability();
+					if (abilityUp.isEmpty())
+					{
+						updateGlobalState(ForgingBlockState.EXTRACT_ABILITY_NO_ABILITY);
+						removeOutput();
+					}
+					else if (abilityHeart.supportAbility(abilityUp))
+					{
+						updateGlobalState(ForgingBlockState.EXTRACT_ABILITY);
+						ItemStack stackOut = stackDown.copy();
+						((AbilityHeart) stackOut.getItem()).setAbility(stackOut, abilityUp);
+						setOutput(stackOut);
+					}
+					else
+					{
+						updateGlobalState(ForgingBlockState.EXTRACT_ABILITY_NOT_SUPPORT);
+						removeOutput();
+					}
+				}
+			}
+			else
+			{
+				if (stackUp.isEmpty())
+				{
+					updateGlobalState(ForgingBlockState.APPEND_ABILITY_NO_TOOL);
+					removeOutput();
+				}
+				else
+				{
+					if (stackUp.interestingWorld$getAbility().ability().isEmpty())
+					{
+						if (abilityDown.canApplyTo(stackUp))
+						{
+							updateGlobalState(ForgingBlockState.APPEND_ABILITY);
+							ItemStack stackOut = stackUp.copy();
+							stackOut.set(IWComponents.ABILITY, new AbilityComponent(abilityDown));
+							setOutput(stackOut);
+						}
+						else
+						{
+							updateGlobalState(ForgingBlockState.APPEND_ABILITY_NOT_SUITABLE);
+							removeOutput();
+						}
+					}
+					else
+					{
+						updateGlobalState(ForgingBlockState.APPEND_ABILITY_ALREADY_HAVE);
+						removeOutput();
+					}
+				}
+			}
+			return;
+		}
+		if (itemDown instanceof UpgradeTemplate upgradeTemplate)
+		{
+			if (stackUp.isEmpty())
+			{
+				updateGlobalState(ForgingBlockState.UPGRADE_NEED_TOOL);
+				removeOutput();
+			}
+			else
+			{
+				if (stackUp.interestingWorld$getUpgrade().isEmpty())
+				{
+					var upgradeDown = upgradeTemplate.getUpgrade();
+					if (upgradeDown.canApplyTo(stackUp))
+					{
+						if (upgradeDown.level() > Server.getPersistentData().worldEnergyLevel)
+							updateGlobalState(ForgingBlockState.UPGRADE_LEVEL_LOW);
+						else
+						{
+							var ingredients = upgradeDown.getIngredients();
+							if (ingredients == null || inventoryHave(upgradeDown.getIngredients()))
+								updateGlobalState(ForgingBlockState.UPGRADE);
+							else updateGlobalState(ForgingBlockState.UPGRADE_LACK_INGREDIENTS);
+						}
+						ItemStack stackOut = stackUp.copy();
+						upgradeDown.applyUpgrade(stackOut);
+						setOutput(stackOut);
+					}
+					else
+					{
+						updateGlobalState(ForgingBlockState.UPGRADE_NOT_SUITABLE);
+						removeOutput();
+					}
+				}
+				else
+				{
+					updateGlobalState(ForgingBlockState.UPGRADE_ALREADY_HAVE);
+					removeOutput();
+				}
+			}
+			return;
+		}
+		updateGlobalState(ForgingBlockState.EMPTY);
 		removeOutput();
 	}
 
@@ -639,101 +626,85 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	{
 		switch (globalState.get())
 		{
-			case 6 ->
+			case REPAIR, REPAIR_LACK_INGREDIENT ->
 			{
 				ItemStack stackUp = inventoryUp.getStack(0);
 				int haveCount = 0;
+				int repairNeedMax = stackUp.getOrDefault(IWComponents.REPAIR_COST, (short) 1);
+				if (repairNeedMax < 1) repairNeedMax = 1;
 				for (int i = 0; i < 9; i++)
 				{
-					ItemStack cstack = inventoryIngredient.getStack(i);
-					if (repairIngredient.matches(cstack))
+					ItemStack stack = inventoryIngredient.getStack(i);
+					if (repairIngredient.matches(stack))
 					{
-						haveCount += cstack.getCount();
-						if (haveCount > 3) break;
+						haveCount += stack.getCount();
+						if (haveCount >= repairNeedMax) break;
 					}
 				}
 				if (haveCount > 0)
 				{
-					updateGlobalState(7);
+					updateGlobalState(ForgingBlockState.REPAIR);
 					int damage = stackUp.getDamage();
-					int perRepair = (stackUp.getMaxDamage() + 3) >> 2;
+					int perRepair = (stackUp.getMaxDamage() + repairNeedMax - 1) / repairNeedMax;
 					int rp = Math.min(haveCount, (damage + perRepair - 1) / perRepair);
 					repairCount.set(rp);
 					int currentDamage = Math.max(0, damage - rp * perRepair);
 					ItemStack stackOut = stackUp.copy();
 					stackOut.setDamage(currentDamage);
 					setOutput(stackOut);
-					experienceCost.set(EnergyToolDataFlag.fromItemStack(stackUp).level() * rp * 25);
-				}
-			}
-			case 7 ->
-			{
-				ItemStack stackUp = inventoryUp.getStack(0);
-				int haveCount = 0;
-				for (int i = 0; i < 9; i++)
-				{
-					ItemStack cstack = inventoryIngredient.getStack(i);
-					if (repairIngredient.matches(cstack))
-					{
-						haveCount += cstack.getCount();
-						if (haveCount > 3) break;
-					}
-				}
-				if (haveCount > 0)
-				{
-					updateGlobalState(7);
-					int damage = stackUp.getDamage();
-					int perRepair = (stackUp.getMaxDamage() + 3) >> 2;
-					int rp = Math.min(haveCount, (damage + perRepair - 1) / perRepair);
-					repairCount.set(rp);
-					int currentDamage = Math.max(0, damage - rp * perRepair);
-					ItemStack stackOut = stackUp.copy();
-					stackOut.setDamage(currentDamage);
-					setOutput(stackOut);
-					experienceCost.set(EnergyToolDataFlag.fromItemStack(stackUp).level() * rp * 25);
+					experienceCost.set((stackUp.interestingWorld$getUpgrade().upgrade().level() +
+										stackUp.interestingWorld$getBoosts().level() +
+										stackUp.interestingWorld$getAbility().ability().level()) * 100 * rp /
+									   repairNeedMax);
 				}
 				else
 				{
-					updateGlobalState(6);
+					updateGlobalState(ForgingBlockState.REPAIR_LACK_INGREDIENT);
 					removeOutput();
 				}
 			}
-			case 12 ->
+			case APPEND_BOOST_NO_AVAILABLE, APPEND_BOOST ->
 			{
-				ItemStack stackUp = inventoryUp.getStack(0);
-				if (stackUp.isEmpty()) return;
-				int nextCost = countToolBreakingProbability(stackUp);
-				if (nextCost != repairCount.get()) repairCount.set(nextCost);
-			}
-			case 1, 15 ->
-			{
-				MutableInt crystal_count = new MutableInt(inventoryCount(Items.AMETHYST_SHARD));
-				MutableInt lapis_count = new MutableInt(inventoryCount(Items.LAPIS_LAZULI));
-				ItemStack stackUp = inventoryUp.getStack(0);
 				ItemStack stackDown = inventoryDown.getStack(0);
-				MutableInt cost_achieve = new MutableInt(0);
-				ItemEnchantmentsComponent component = TableEnchantGenerator.generateFromItemStack(stackUp, stackDown,
-						random_seed, crystal_count, lapis_count, cost_achieve);
-				repairCount.set(lapis_count.getValue());
-				experienceCost.set(crystal_count.getValue());
-				if (component == null || component.isEmpty())
+				ItemStack stackUp = inventoryUp.getStack(0);
+				EnergyToolItem itemUp = (EnergyToolItem) stackUp.getItem();
+				BaseHeart baseHeart = (BaseHeart) stackDown.getItem();
+				BoostableComponent boostableComponent = stackDown.getOrDefault(IWComponents.BOOSTABLE,
+						BoostableComponent.DEFAULT);
+				if (boostableComponent.remainBoostTime() < 1)
 				{
-					updateGlobalState(15);
+					updateGlobalState(ForgingBlockState.APPEND_BOOST_NO_BOOST_TIME);
 					removeOutput();
 					return;
 				}
-				updateGlobalState(1);
+				TableBoostGenerator generator = new TableBoostGenerator(itemUp.getTableBoostPool(),
+						stackDown.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT),
+						boostableComponent.remainBoostTime(), inventoryCount(Items.LAPIS_LAZULI),
+						Server.getPersistentData().worldEnergyLevel, baseHeart.materialLevel, random_seed);
+				BoostComponent component = generator.getBoostComponent();
+				repairCount.set(generator.getLazuriteCost());
+				if (component.isEmpty())
+				{
+					updateGlobalState(ForgingBlockState.APPEND_BOOST_NO_AVAILABLE);
+					removeOutput();
+					return;
+				}
+				updateGlobalState(ForgingBlockState.APPEND_BOOST);
 				ItemStack stackOut = stackDown.copy();
-				((AbstractHeart) stackDown.getItem()).dumpPreEnchant(stackOut, component, cost_achieve.getValue());
+				stackOut.set(IWComponents.BOOST, component);
+				stackOut.remove(DataComponentTypes.ENCHANTMENTS);
+				if (!boostableComponent.isEmpty())
+					stackOut.set(IWComponents.BOOSTABLE, boostableComponent.hardUse(generator.getBoostTimeConsume()));
 				setOutput(stackOut);
 			}
-			case 16, 17 ->
+			case UPGRADE_LACK_INGREDIENTS, UPGRADE ->
 			{
 				ItemStack stackDown = inventoryDown.getStack(0);
-				var upgrade = ((UpgradeTemplate) stackDown.getItem()).getUpgrade();
-				var ig = upgrade.getIngredients();
-				if (ig == null || inventoryHave(upgrade.getIngredients())) updateGlobalState(16);
-				else updateGlobalState(17);
+				var upgradeDown = ((UpgradeTemplate) stackDown.getItem()).getUpgrade();
+				var ingredients = upgradeDown.getIngredients();
+				if (ingredients == null || inventoryHave(upgradeDown.getIngredients()))
+					updateGlobalState(ForgingBlockState.UPGRADE);
+				else updateGlobalState(ForgingBlockState.UPGRADE_LACK_INGREDIENTS);
 			}
 		}
 	}
@@ -792,26 +763,6 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				inventoryIngredient.setStack(index, ItemStack.EMPTY);
 			}
 		}
-	}
-
-	private int countToolBreakingProbability(ItemStack stack)
-	{
-		int abilityLevelOfTool = getAbility(stack).level();
-		float pro = (float) stack.getDamage() / stack.getMaxDamage();
-		if (abilityLevelOfTool == 0) return 0;
-		int originNeed = abilityLevelOfTool * 16;
-		int need = abilityLevelOfTool * 16;
-		for (int i = 0; i < 9; i++)
-		{
-			ItemStack s = inventoryIngredient.getStack(i);
-			int value = IWResources.RuneItemValue.RuneItemValue.getOrDefault(s.getItem(), 0);
-			if (value == 0) continue;
-			int count = s.getCount();
-			int needCount = (need + value - 1) / value;
-			if (count >= needCount) return Math.clamp((int) pro, 0, 100);
-			else need -= count * value;
-		}
-		return Math.clamp((int) ((float) (need * 100) / originNeed + pro), 0, 100);
 	}
 
 	private boolean inventoryHave(Map<Item, Integer> need)
@@ -942,36 +893,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	{
 		switch (globalState.get())
 		{
-			case 1 ->//符文附魔
-			{
-				inventoryIngredient.setSleeping();
-				inventoryDown.setWaiting();
-				inventoryDown.setStack(0, ItemStack.EMPTY);
-				int cr = experienceCost.get() & 0b01111111111;
-				int lp = repairCount.get();
-				if (lp > 0) extractIngredient(Items.LAPIS_LAZULI, lp);
-				if (cr > 0) extractIngredient(Items.AMETHYST_SHARD, cr);
-				random_seed = rand.nextInt();
-				inventoryIngredient.setActive();
-				inventoryDown.setActive();
-			}
-			case 3 -> // 附魔
-			{
-				player.addExperience(-experienceCost.get());
-				inventoryUp.setWaiting();
-				inventoryDown.setSleeping();
-				inventoryUp.setStack(0, ItemStack.EMPTY);
-				var stackDown = inventoryDown.getStack(0);
-				if (!isEnchantHeart(stackDown)) inventoryDown.removeStack(0);
-				else
-				{
-					((AbstractHeart) stackDown.getItem()).removeEnchant(stackDown);
-					inventoryDown.setStack(0, stackDown);
-				}
-				inventoryDown.setActive();
-				inventoryUp.setActive();
-			}
-			case 7 -> // 修补
+			case REPAIR ->
 			{
 				player.addExperience(-experienceCost.get());
 				inventoryUp.setWaiting();
@@ -981,7 +903,25 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				inventoryIngredient.setActive();
 				inventoryUp.setActive();
 			}
-			case 8 -> //能力附加
+			case APPEND_BOOST ->
+			{
+				inventoryIngredient.setSleeping();
+				inventoryDown.setWaiting();
+				inventoryDown.setStack(0, ItemStack.EMPTY);
+				int lp = repairCount.get();
+				if (lp > 0) extractIngredient(Items.LAPIS_LAZULI, lp);
+				random_seed = rand.nextInt();
+				inventoryIngredient.setActive();
+				inventoryDown.setActive();
+			}
+			case BOOST ->
+			{
+				player.addExperience(-experienceCost.get());
+				inventoryUp.setWaiting();
+				inventoryUp.setStack(0, ItemStack.EMPTY);
+				inventoryUp.setActive();
+			}
+			case APPEND_ABILITY ->
 			{
 				inventoryUp.setWaiting();
 				inventoryDown.setSleeping();
@@ -989,7 +929,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				var stackDown = inventoryDown.getStack(0);
 				if (isAbilityHeart(stackDown))
 				{
-					AbstractHeart itemDown = (AbstractHeart) stackDown.getItem();
+					AbilityHeart itemDown = (AbilityHeart) stackDown.getItem();
 					itemDown.removeAbility(stackDown);
 					inventoryDown.setStack(0, stackDown);
 				}
@@ -997,27 +937,19 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				inventoryDown.setActive();
 				inventoryUp.setActive();
 			}
-			case 12 -> //能力提取
+			case EXTRACT_ABILITY ->
 			{
 				ItemStack stackUp = inventoryUp.getStack(0);
 				if (stackUp.isEmpty()) return;
 				inventoryUp.setWaiting();
 				inventoryDown.setSleeping();
-				inventoryIngredient.setSleeping();
-				boolean isOk = rand.nextEvenInt(1, 100) > repairCount.get();
-				if (isOk)
-				{
-					extractItemForSavingTool(getAbility(stackUp).level());
-					removeToolAbility(stackUp);
-					inventoryUp.setStack(0, stackUp);
-				}
-				else inventoryUp.setStack(0, ItemStack.EMPTY);
+				stackUp.remove(IWComponents.ABILITY);
+				inventoryUp.setStack(0, stackUp);
 				inventoryDown.setStack(0, ItemStack.EMPTY);
 				inventoryDown.setActive();
-				inventoryIngredient.setActive();
 				inventoryUp.setActive();
 			}
-			case 16 -> // 升级
+			case UPGRADE ->
 			{
 				inventoryUp.setWaiting();
 				inventoryIngredient.setSleeping();
@@ -1042,23 +974,23 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	{
 		switch (globalState.get())
 		{
-			case 3 ->
+			case BOOST ->
 			{
-				return (getWorldLevelOfXpCost(inventoryOut.getStack(0).getOrDefault(IWComponents.ENCHANT_VALUE, -1)) <=
+				return (inventoryOut.getStack(0).interestingWorld$getBoosts().level() <=
 						Server.getPersistentData().worldEnergyLevel) &&
 					   (getExperienceFromLevel(player.experienceLevel, player.experienceProgress) >=
 						experienceCost.get());
 			}
-			case 7 ->
+			case REPAIR ->
 			{
 				return getExperienceFromLevel(player.experienceLevel, player.experienceProgress) >=
 					   experienceCost.get();
 			}
-			case 1, 8, 12 ->
+			case APPEND_BOOST, APPEND_ABILITY, EXTRACT_ABILITY ->
 			{
 				return true;
 			}
-			case 16 ->
+			case UPGRADE ->
 			{
 				ItemStack stackDown = inventoryDown.getStack(0);
 				if (!(stackDown.getItem() instanceof UpgradeTemplate it)) return false;
@@ -1072,7 +1004,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	{
 		switch (globalState.get())
 		{
-			case 3, 7 ->
+			case BOOST, REPAIR ->
 			{
 				return experienceCost.get();
 			}

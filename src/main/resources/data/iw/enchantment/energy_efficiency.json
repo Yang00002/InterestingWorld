@@ -15,6 +15,6 @@
   "slots": [
     "mainhand"
   ],
-  "supported_items": "#iw:can_pre_enchant",
+  "supported_items": "#iw:is_base_heart",
   "weight": 8
 }

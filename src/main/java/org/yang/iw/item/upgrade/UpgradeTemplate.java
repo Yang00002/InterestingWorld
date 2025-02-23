@@ -6,16 +6,16 @@ import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.persistentdata.IWPersistentData;
-import org.yang.iw.rune_upgrade.AbstractRuneUpgrade;
+import org.yang.iw.upgrade.AbstractUpgrade;
 import org.yang.iw.util.Server;
 import org.yang.iw.util.style.Color;
 
 import java.util.List;
 
-public class UpgradeTemplate extends Item
+public class UpgradeTemplate extends Item implements HideUpgradeTooltip
 {
 
-	private final AbstractRuneUpgrade upgrade;
+	private final AbstractUpgrade upgrade;
 
 	@Override
 	public Text getName(ItemStack stack)
@@ -33,10 +33,12 @@ public class UpgradeTemplate extends Item
 						.append(Text.literal(String.valueOf(takeLvl)).withColor(Color.getLevelColor(takeLvl))));
 		else tooltip.add(Text.translatable(TranslationPool.TOOLTIP_UPGRADE_TEMPLATE_LEVEL_N).withColor(Color.RED_RGB)
 				.append(Text.literal(String.valueOf(takeLvl)).withColor(Color.getLevelColor(takeLvl))));
-		upgrade.appendToolTip(tooltip);
+		tooltip.add(Text.empty());
+		tooltip.add(upgrade.getTitleText());
+		tooltip.add(upgrade.getTip());
 	}
 
-	public UpgradeTemplate(Item.Settings settings, AbstractRuneUpgrade abstractRuneUpgrade)
+	public UpgradeTemplate(Item.Settings settings, AbstractUpgrade abstractRuneUpgrade)
 	{
 		super(settings.maxCount(1));
 		upgrade = abstractRuneUpgrade;
@@ -47,7 +49,7 @@ public class UpgradeTemplate extends Item
 		return upgrade.level();
 	}
 
-	public AbstractRuneUpgrade getUpgrade()
+	public AbstractUpgrade getUpgrade()
 	{
 		return upgrade;
 	}

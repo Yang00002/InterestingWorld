@@ -7,12 +7,23 @@ import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+import org.yang.iw.api.register.IndependentRegister;
+import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.util.Base;
 
+import static org.yang.iw.util.Base.iwlogger;
+
+@IndependentRegister
 public class IWParticleTypes
 {
+	static
+	{
+		LoadTime.assertTime(LoadTime.Type.ON_INITIALIZE);
+	}
+
 	public static final SimpleParticleType SWEETCURSE_CYCLE = register("sweetcurse_cycle", true);
 	public static final SimpleParticleType INFINITECURSE_CYCLE = register("infinitecurse_cycle", true);
+
 
 	public static void initialize()
 	{

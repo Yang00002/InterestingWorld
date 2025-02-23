@@ -4,7 +4,7 @@ import org.yang.iw.entity.player.IWServerPlayerData;
 
 public interface InterfaceServerPlayerEntity
 {
-	default IWServerPlayerData getIWServerPlayerData()
+	default IWServerPlayerData interestingWorld$getIWServerPlayerData()
 	{
 		return null;
 	}

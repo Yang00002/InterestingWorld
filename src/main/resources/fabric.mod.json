@@ -27,6 +27,7 @@
       "environment": "client"
     }
   ],
+  "accessWidener": "iw.accesswidener",
   "custom": {
     "loom:injected_interfaces": {
       "net/minecraft/entity/LivingEntity": [
@@ -49,6 +50,18 @@
       ],
       "net/minecraft/client/gui/tooltip/OrderedTextTooltipComponent": [
         "org/yang/iw/mixin/mixin_interface/InterfaceOrderedTextTooltipComponent"
+      ],
+      "net/minecraft/registry/RegistryKeys": [
+        "org/yang/iw/mixin/mixin_interface/InterfaceRegistryKeys"
+      ],
+      "net/minecraft/registry/Registries": [
+        "org/yang/iw/mixin/mixin_interface/InterfaceRegistries"
+      ],
+      "net/minecraft/item/ItemStack": [
+        "org/yang/iw/mixin/mixin_interface/InterfaceItemStack"
+      ],
+      "net/minecraft/item/Item": [
+        "org/yang/iw/mixin/mixin_interface/InterfaceItem"
       ]
     }
   },

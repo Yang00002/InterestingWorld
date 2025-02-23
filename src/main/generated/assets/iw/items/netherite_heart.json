@@ -9,6 +9,6 @@
       "type": "minecraft:model",
       "model": "iw:item/enchantedheart/netherite_heart"
     },
-    "property": "iw:heart_enchant"
+    "property": "iw:is_boosted"
   }
 }

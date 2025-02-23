@@ -3,11 +3,7 @@ package org.yang.iw.component;
 import com.mojang.serialization.Codec;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import org.yang.iw.rune_ability.IWRuneAbilities;
 import org.yang.iw.util.style.Color;
-
-import static org.yang.iw.util.IWEnchantmentUtil.getWorldLevelOfXpCost;
-import static org.yang.iw.util.IWRuneAbilityUtil.getAbility;
 
 public record EnergyToolDataFlag(int value)
 {
@@ -70,23 +66,23 @@ public record EnergyToolDataFlag(int value)
 			return this;
 		}
 
-		// 从 ItemStack 获取 ability_level 和 enchant_level
+		// 从 ItemStack 获取 ability_level 和 boost_level
 		public Builder updateLevelFromItemStack(ItemStack stack)
 		{
-			var ab = getAbility(stack);
-			int ability_level = (ab == IWRuneAbilities.DEFAULT_ABILITY ? -1 : ab.level());
+			var ab = stack.interestingWorld$getAbility().ability();
+			int ability_level = (ab.isEmpty() ? -1 : ab.level());
 			int upgrade_level = ((value & LEVEL_UPGRADE_FLAG) >> 4) - 1;
-			int n = stack.getOrDefault(IWComponents.ENCHANT_VALUE, -1);
-			int enchant_level = n > -1 ? getWorldLevelOfXpCost(n) : -1;
-			int maxLevel = Math.max(ability_level, Math.max(upgrade_level, enchant_level));
+			var boosts = stack.interestingWorld$getBoosts();
+			int boost_level = (boosts.isEmpty() || boosts.onlyDefault()) ? boosts.level() : -1;
+			int maxLevel = Math.max(ability_level, Math.max(upgrade_level, boost_level));
 			if (maxLevel == -1) value &= ~LEVEL_FLAG;
 			else
 			{
 				int count = 0;
 				if (ability_level >= maxLevel) count++;
 				if (upgrade_level >= maxLevel) count++;
-				if (enchant_level >= maxLevel) count++;
-				if (count > 1 && maxLevel < 8) maxLevel++;
+				if (boost_level >= maxLevel) count++;
+				if (count > 1 && maxLevel < 10) maxLevel++;
 				value = (value & ~LEVEL_FLAG) | maxLevel;
 			}
 			return this;

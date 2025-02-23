@@ -8,32 +8,44 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.yang.iw.ability.IWAbilities;
+import org.yang.iw.api.register.AfterInitializeExecutor;
+import org.yang.iw.api.register.DataGenSupplier;
+import org.yang.iw.api.register.IndependentRegister;
+import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.block.IWBlocks;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.item.IWItems;
-import org.yang.iw.rune_ability.IWRuneAbilities;
-import org.yang.iw.rune_upgrade.IWRuneUpgrades;
+import org.yang.iw.upgrade.IWUpgrades;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import static org.yang.iw.util.Base.MOD_ID;
 import static org.yang.iw.util.Base.iwlogger;
 
+@AfterInitializeExecutor
+@DataGenSupplier
+@IndependentRegister
 public class IWItemGroups
 {
+	static
+	{
+		LoadTime.assertTime(LoadTime.Type.ON_INITIALIZE);
+	}
+
 	private static Map<RegistryKey<ItemGroup>, List<BiConsumer<ItemGroup.DisplayContext, ItemGroup.Entries>>> data =
 			new HashMap<>();
-
+	private static boolean locked = false;
 
 	public static void addItemToGroup(BiConsumer<ItemGroup.DisplayContext, ItemGroup.Entries> itemInGroupInitializer,
 									  RegistryKey<ItemGroup> groupRegistryKey)
 	{
-		if (data == null)
-		{
-			data = new HashMap<>();
-		}
+		if (locked) iwlogger.fatal("ItemGroup Locked! Don't add itemStack to it!");
 		List<BiConsumer<ItemGroup.DisplayContext, ItemGroup.Entries>> l;
 		if (data.containsKey(groupRegistryKey))
 		{
@@ -42,13 +54,6 @@ public class IWItemGroups
 		else l = new ArrayList<>();
 		l.add(itemInGroupInitializer);
 		data.put(groupRegistryKey, l);
-	}
-
-	private static ItemStack getAbilityDisplay()
-	{
-		var stack = IWItems.BLOOD_HEART.getDefaultStack();
-		IWItems.BLOOD_HEART.setAbility(stack, IWRuneAbilities.EVISCERATE_ABILITY);
-		return stack;
 	}
 
 	private static void applyData(RegistryKey<ItemGroup> groupRegistryKey, ItemGroup.DisplayContext displayContext,
@@ -70,15 +75,15 @@ public class IWItemGroups
 				.entries(((displayContext, entries) -> applyData(groupRegistryKey, displayContext, entries))).build());
 	}
 
-	private static Map<RegistryKey<ItemGroup>, Supplier<ItemStack>> itemGroups = new LinkedHashMap<>();
-
 	private static RegistryKey<ItemGroup> itemGroup(String id, String translation,
 													Supplier<ItemStack> delegateItemStackGetter)
 	{
-		var r = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, id));
-		itemGroups.put(r, delegateItemStackGetter);
+		var registryKey = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, id));
+		Registry.register(Registries.ITEM_GROUP, registryKey, FabricItemGroup.builder().icon(delegateItemStackGetter)
+				.displayName(Text.translatable(registryKey.getValue().toTranslationKey()))
+				.entries(((displayContext, entries) -> applyData(registryKey, displayContext, entries))).build());
 		TranslationPool.addString("%s.%s".formatted(MOD_ID, id), translation);
-		return r;
+		return registryKey;
 	}
 
 	/**
@@ -88,25 +93,32 @@ public class IWItemGroups
 			() -> IWItems.NETHERITE_SWORD.getDefaultStack());
 	public static final RegistryKey<ItemGroup> RUNES_GROUP = itemGroup("runes_group", "IW：能力", () -> {
 		var s = IWItems.BLOOD_HEART.getDefaultStack();
-		IWItems.BLOOD_HEART.setAbility(s, IWRuneAbilities.EVISCERATE_ABILITY);
+		IWItems.BLOOD_HEART.setAbility(s, IWAbilities.EVISCERATE_ABILITY);
 		return s;
 	});
 	public static final RegistryKey<ItemGroup> UPGRADE_GROUP = itemGroup("upgrades_group", "IW：升级",
 			() -> Registries.ITEM.get(
-							Identifier.of(MOD_ID, IWRuneUpgrades.getItemIdOfUpgrade(IWRuneUpgrades.SWEEPING3_UPGRADE)))
+							Identifier.of(MOD_ID, IWUpgrades.getItemIdOfUpgrade(IWUpgrades.SWEEPING3_UPGRADE)))
 					.getDefaultStack());
 	public static final RegistryKey<ItemGroup> INGREDIENTS_GROUP = itemGroup("ingredients_group", "IW：材料",
 			() -> IWItems.HEART.getDefaultStack());
 	public static final RegistryKey<ItemGroup> BLOCKS_GROUP = itemGroup("blocks_group", "IW：方块",
 			() -> IWBlocks.FORGING_BLOCK.asItem().getDefaultStack());
 
+
 	public static void initialize()
 	{
-		for (var kv : itemGroups.entrySet())
-		{
-			initializeItemGroup(kv.getKey(), kv.getValue().get());
-		}
-		itemGroups = null;
-		data = Collections.unmodifiableMap(data);
 	}
+
+	static
+	{
+		LoadTime.setLoaded(IWItemGroups.class);
+	}
+
+	public static void afterInitialize()
+	{
+		LoadTime.assertTime(LoadTime.Type.AFTER_INITIALIZE);
+		locked = true;
+	}
+
 }

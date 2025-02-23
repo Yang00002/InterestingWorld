@@ -45,7 +45,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements In
 
 	@Override
 	@Unique
-	public IWServerPlayerData getIWServerPlayerData()
+	public IWServerPlayerData interestingWorld$getIWServerPlayerData()
 	{
 		return dataManager;
 	}

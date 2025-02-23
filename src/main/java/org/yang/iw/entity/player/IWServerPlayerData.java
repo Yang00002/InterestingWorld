@@ -6,22 +6,19 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import org.yang.iw.ability.AbstractAbility;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.network.payload.S2CAbilityDataPayload;
 import org.yang.iw.network.payload.S2CPlayerEnergyDataPayload;
-import org.yang.iw.rune_ability.AbstractRuneAbility;
-import org.yang.iw.rune_ability.IWRuneAbilities;
-import org.yang.iw.util.IWRuneAbilityUtil;
 import org.yang.iw.util.IWUtil;
 
-import static org.yang.iw.util.IWRuneAbilityUtil.getAbility;
 import static org.yang.iw.util.Return.RETURNTRUE;
 
 
 public class IWServerPlayerData
 {
-	private AbstractRuneAbility WeaponAbility = IWRuneAbilities.DEFAULT_ABILITY;
+	private AbstractAbility WeaponAbility = AbstractAbility.getDefault();
 	private float current_energy = 0;
 	private int last_energy = -1;
 	private int energyRegenTimer = 0;
@@ -103,13 +100,13 @@ public class IWServerPlayerData
 		sweeping = false;
 		if (!stack.isEmpty() && stack.getItem() instanceof EnergyToolItem)
 		{
-			var ability = getAbility(stack);
+			var ability = stack.interestingWorld$getAbility().ability();
 			if (!ability.canWork())
 			{
-				if (WeaponAbility.index != 0)
+				if (!WeaponAbility.isEmpty())
 				{
 					WeaponAbility.onLeave(player, this);
-					WeaponAbility = IWRuneAbilities.DEFAULT_ABILITY;
+					WeaponAbility = AbstractAbility.getDefault();
 					shouldSync = true;
 				}
 			}
@@ -121,10 +118,10 @@ public class IWServerPlayerData
 				shouldSync = true;
 			}
 		}
-		else if (WeaponAbility.index != 0)
+		else if (!WeaponAbility.isEmpty())
 		{
 			WeaponAbility.onLeave(player, this);
-			WeaponAbility = IWRuneAbilities.DEFAULT_ABILITY;
+			WeaponAbility = AbstractAbility.getDefault();
 			shouldSync = true;
 		}
 		WeaponAbility.serverPlayerWeaponTick(player, this, stack);
@@ -143,7 +140,7 @@ public class IWServerPlayerData
 
 	public boolean extractAutomicEnergy(ItemStack stack, float amount)
 	{
-		var ab = IWRuneAbilityUtil.getAbility(stack);
+		var ab = stack.interestingWorld$getAbility().ability();
 		if (ab.canWork())
 		{
 			var fh = new MutableFloat(amount);
@@ -177,7 +174,7 @@ public class IWServerPlayerData
 
 	public boolean tryExtractAutomicEnergy(ItemStack stack, float amount)
 	{
-		var ab = IWRuneAbilityUtil.getAbility(stack);
+		var ab = stack.interestingWorld$getAbility().ability();
 		if (ab.canWork())
 		{
 			var fh = new MutableFloat(amount);

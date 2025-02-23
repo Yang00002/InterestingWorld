@@ -4,11 +4,13 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.data.ItemModels;
 import net.minecraft.client.render.item.model.ItemModel;
-import net.minecraft.client.render.item.model.RangeDispatchItemModel;
+import net.minecraft.client.render.item.model.SelectItemModel;
+import org.yang.iw.ability.AbstractAbility;
 import org.yang.iw.datagen.itemmodel.ModelIdProvider;
-import org.yang.iw.datagen.util.AbilityToolIndexNumericProperty;
-import org.yang.iw.datagen.util.HeartEnchantedBooleanProperty;
+import org.yang.iw.datagen.property.AbilitySelectProperty;
+import org.yang.iw.datagen.property.IsBoostedBooleanProperty;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -18,18 +20,23 @@ public abstract class ItemModelDefinition
 	@Environment(EnvType.CLIENT)
 	public abstract ItemModel.Unbaked toUnbaked();
 
-	public static RangeItemModelDefinition abilityIndex(ItemModelDefinition defaultModelDefinition, Map<Float,
+	public static SelectItemModelDefinition ability(ItemModelDefinition defaultModelDefinition, Map<AbstractAbility,
 			ItemModelDefinition> predictors)
 	{
-		var m = new RangeItemModelDefinition.AbilityIndexType();
+		var m = new SelectItemModelDefinition.AbilityType();
 		m.defaultModelDefinition = defaultModelDefinition;
-		m.predictors = predictors;
+		Map<AbstractAbility, ItemModelDefinition> np = new HashMap<>();
+		predictors.forEach((ability, model) -> {
+			var p = ability.getToolRenderAbility();
+			if (p != null) np.put(p, model);
+		});
+		m.predictors = np;
 		return m;
 	}
 
-	public static BooleanItemModelDefinition heartEnchant(ItemModelDefinition t, ItemModelDefinition f)
+	public static BooleanItemModelDefinition isBoosted(ItemModelDefinition t, ItemModelDefinition f)
 	{
-		var m = new BooleanItemModelDefinition.HeartEnchantType();
+		var m = new BooleanItemModelDefinition.IsBoostedType();
 		m.onTrue = t;
 		m.onFalse = f;
 		return m;
@@ -38,20 +45,26 @@ public abstract class ItemModelDefinition
 
 	public static abstract class RangeItemModelDefinition extends ItemModelDefinition
 	{
-		static class AbilityIndexType extends RangeItemModelDefinition
+		Map<Float, ItemModelDefinition> predictors;
+
+		ItemModelDefinition defaultModelDefinition;
+	}
+
+	public static abstract class SelectItemModelDefinition extends ItemModelDefinition
+	{
+		static class AbilityType extends SelectItemModelDefinition
 		{
 			@Environment(EnvType.CLIENT)
 			@Override
 			public ItemModel.Unbaked toUnbaked()
 			{
-				List<RangeDispatchItemModel.Entry> entries = new LinkedList<>();
-				predictors.forEach((i, j) -> entries.add(new RangeDispatchItemModel.Entry(i, j.toUnbaked())));
-				return ItemModels.rangeDispatch(new AbilityToolIndexNumericProperty(),
-						defaultModelDefinition.toUnbaked(), entries);
+				List<SelectItemModel.SwitchCase<AbstractAbility>> entries = new LinkedList<>();
+				predictors.forEach((i, j) -> entries.add(new SelectItemModel.SwitchCase<>(List.of(i), j.toUnbaked())));
+				return ItemModels.select(new AbilitySelectProperty(), defaultModelDefinition.toUnbaked(), entries);
 			}
 		}
 
-		Map<Float, ItemModelDefinition> predictors;
+		Map<AbstractAbility, ItemModelDefinition> predictors;
 
 		ItemModelDefinition defaultModelDefinition;
 	}
@@ -60,13 +73,13 @@ public abstract class ItemModelDefinition
 	{
 
 
-		private static class HeartEnchantType extends BooleanItemModelDefinition
+		private static class IsBoostedType extends BooleanItemModelDefinition
 		{
 			@Environment(EnvType.CLIENT)
 			@Override
 			public ItemModel.Unbaked toUnbaked()
 			{
-				return ItemModels.condition(new HeartEnchantedBooleanProperty(), onTrue.toUnbaked(),
+				return ItemModels.condition(new IsBoostedBooleanProperty(), onTrue.toUnbaked(),
 						onFalse.toUnbaked());
 			}
 		}

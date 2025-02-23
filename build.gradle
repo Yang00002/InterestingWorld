@@ -11,6 +11,8 @@ base {
 }
 
 loom {
+
+    accessWidenerPath = file("src/main/resources/iw.accesswidener")
     runs {
         datagen {
             client()
@@ -55,7 +57,8 @@ dependencies {
     modLocalRuntime "maven.modrinth:sodium:${project.sodium_modrinth_version}"
     modLocalRuntime "me.zeroeightsix:fiber:${project.fiber_version}" // Neat 依赖
     // "curse.maven:<随便起名>-<Project ID, 右侧项目信息>:<File ID, 点进文件的 URL>"
-    modLocalRuntime "curse.maven:Neat-639987:${project:neat_curseforge_id}"
+    modLocalRuntime "curse.maven:Neat-639987:${project:
+    neat_curseforge_id}"
     modLocalRuntime "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
 }
 

@@ -5,7 +5,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 public interface InterfaceLivingEntity
 {
-	default boolean removeStatusEffectVanilla(RegistryEntry<StatusEffect> effect)
+	default boolean interestingWorld$removeStatusEffectVanilla(RegistryEntry<StatusEffect> effect)
 	{
 		return false;
 	}

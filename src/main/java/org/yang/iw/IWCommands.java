@@ -7,26 +7,32 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import org.joml.Random;
-import org.yang.iw.component.HeartDataFlag;
+import org.yang.iw.api.register.IndependentRegister;
+import org.yang.iw.api.register.LoadTime;
+import org.yang.iw.boost.pool.RandomBoostGenerator;
+import org.yang.iw.boost.pool.RandomBoostPool;
+import org.yang.iw.component.BoostableComponent;
+import org.yang.iw.component.IWComponents;
 import org.yang.iw.datagen.language.TranslationPool;
-import org.yang.iw.enchant.resource.EnchantData;
-import org.yang.iw.enchant.util.RandomEnchantGenerator;
-import org.yang.iw.item.heart.AbstractHeart;
+import org.yang.iw.item.heart.BaseHeart;
 import org.yang.iw.util.Server;
 import org.yang.iw.util.style.Color;
-
-import java.util.Objects;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static org.yang.iw.util.Base.iwlogger;
 
+@IndependentRegister
 public class IWCommands
 {
+	static
+	{
+		LoadTime.assertTime(LoadTime.Type.ON_INITIALIZE);
+	}
 
 	public static int[] TEST_NUMBER_SLOTS = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 											 0, 0, 0, 0, 0};
 
-	public static void initialize()
+	private static void registerCommands()
 	{
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
 				CommandManager.literal("iwworldlevel").requires(source -> source.hasPermissionLevel(2))
@@ -54,22 +60,6 @@ public class IWCommands
 							}
 						}))));
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
-				CommandManager.literal("iwcheckresource")
-						.then(argument("type", StringArgumentType.string()).executes(context -> {
-							final String arg = StringArgumentType.getString(context, "type");
-							if (Objects.equals(arg, "enchant_data"))
-							{
-								EnchantData.checkResource();
-								return 1;
-							}
-							else if (Objects.equals(arg, "item_value"))
-							{
-								IWResources.RuneItemValue.checkResource();
-								return 1;
-							}
-							return 0;
-						}))));
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
 				CommandManager.literal("iwenchant").requires(source -> source.hasPermissionLevel(2))
 						.then(argument("level", IntegerArgumentType.integer()).executes(context -> {
 							final int level = Math.clamp(IntegerArgumentType.getInteger(context, "level"), 0, 10);
@@ -84,16 +74,27 @@ public class IWCommands
 													p.getName()).withColor(Color.RED_RGB), false);
 									return 0;
 								}
-								if (stack.getItem() instanceof AbstractHeart heart)
+								if (stack.getItem() instanceof BaseHeart heart &&
+									stack.interestingWorld$getBoosts().isEmpty())
 								{
-									if (heart.supportEnchant() && HeartDataFlag.fromItemStack(stack).getTypeTaking() ==
-																  HeartDataFlag.HeartTypeTaking.NULL)
+									BoostableComponent boostableComponent = stack.getOrDefault(IWComponents.BOOSTABLE,
+											BoostableComponent.DEFAULT);
+									RandomBoostGenerator generator = new RandomBoostGenerator(RandomBoostPool.ALL,
+											boostableComponent.isEmpty() ? 200 : boostableComponent.remainBoostTime(),
+											level, heart.materialLevel, (int) Random.newSeed());
+									if (generator.getBoostComponent().isEmpty())
 									{
-										p.setStackInHand(Hand.MAIN_HAND,
-												RandomEnchantGenerator.generate((int) Random.newSeed(), level, heart,
-														stack));
-										return 1;
+										context.getSource().sendFeedback(() -> Text.translatable(
+														TranslationPool.FORGING_BLOCK_TIP_ENCHANT_NO_USEFUL_N,
+														p.getName())
+												.withColor(Color.RED_RGB), false);
+										return 0;
 									}
+									stack.set(IWComponents.BOOST, generator.getBoostComponent());
+									if (!boostableComponent.isEmpty()) stack.set(IWComponents.BOOSTABLE,
+											boostableComponent.hardUse(generator.getBoostTimeConsume()));
+									p.setStackInHand(Hand.MAIN_HAND, stack);
+									return 1;
 								}
 								context.getSource().sendFeedback(
 										() -> Text.translatable(TranslationPool.COMMAND_NOT_A_ENCHANT_HEART,
@@ -105,6 +106,7 @@ public class IWCommands
 											.withColor(Color.RED_RGB), false);
 							return 0;
 						}))));
+
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
 				CommandManager.literal("iwtest_setnumber")
 						.then(argument("number_index", IntegerArgumentType.integer()).then(
@@ -117,9 +119,10 @@ public class IWCommands
 										if (index >= 0 && index < TEST_NUMBER_SLOTS.length)
 										{
 											TEST_NUMBER_SLOTS[index] = value;
-											context.getSource().sendFeedback(
-													() -> Text.translatable(TranslationPool.COMMAND_SET_TEST_NUMBER_SUCCESS,
-															index, value).withColor(Color.GREEN_RGB), false);
+											context.getSource().sendFeedback(() -> Text.translatable(
+															TranslationPool.COMMAND_SET_TEST_NUMBER_SUCCESS, index,
+															value)
+													.withColor(Color.GREEN_RGB), false);
 											return 1;
 										}
 									} catch (Exception ignored)
@@ -139,5 +142,15 @@ public class IWCommands
 					iwlogger.info(builder.toString());
 					return 1;
 				})));
+	}
+
+	static
+	{
+		registerCommands();
+	}
+
+	public static void initialize()
+	{
+
 	}
 }

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.yang.iw.datagen.util.IWItemRenderingProperties;
+import org.yang.iw.datagen.property.IWItemRenderingProperties;
 
 @Mixin(BooleanProperties.class)
 public class MixinBooleanProperties

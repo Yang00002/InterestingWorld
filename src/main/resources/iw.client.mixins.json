@@ -4,13 +4,14 @@
   "package": "org.yang.iw.client.mixin.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "AccessOrderedTextTooltipComponent",
     "MixinBooleanProperties",
     "MixinClientPlayerEntity",
     "MixinDrawContext",
     "MixinInGameHud",
     "MixinModel",
     "MixinNumericProperties",
-    "AccessOrderedTextTooltipComponent"
+    "MixinSelectProperties"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -4,12 +4,11 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
+import org.yang.iw.api.register.IndependentRegister;
+import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.datagen.IWDataGen;
-import org.yang.iw.enchant.EnchantResourceReloader;
-import org.yang.iw.enchant.resource.EnchantData;
 import org.yang.iw.persistentdata.IWPersistentData;
 
 import java.util.ArrayList;
@@ -17,8 +16,14 @@ import java.util.List;
 
 import static org.yang.iw.util.Base.iwlogger;
 
+@IndependentRegister
 public class Server
 {
+	static
+	{
+		LoadTime.assertTime(LoadTime.Type.ON_INITIALIZE);
+	}
+
 	// 用于在服务器启动时自动从 registryKey 获得 registryEntry. 这样获取的 entry 应当只在服务器启动时加载一次，并且应当无论启动什么服务器都保持存在, 例如内置的伤害类型和附魔。
 	public static class LoadOnceRegistryEntry<T>
 	{
@@ -89,9 +94,6 @@ public class Server
 		{
 			entry.push(manager);
 		}
-		var ow = manager.getOptional(RegistryKeys.ENCHANTMENT);
-		ow.ifPresent(enchantmentImpl -> EnchantData.initialize(server.getResourceManager(), enchantmentImpl));
-		EnchantResourceReloader.handleReload(server.getResourceManager());
 		IWDataGen.clearPools();
 	}
 
@@ -110,7 +112,6 @@ public class Server
 				entry.pop();
 			currentServer = null;
 			persistentData = null;
-			EnchantData.clearData();
 		}
 	}
 
@@ -124,11 +125,15 @@ public class Server
 		return persistentData;
 	}
 
-	public static void initialize()
+
+	static
 	{
 		ServerLifecycleEvents.SERVER_STARTING.register(Server::onServerStarting);
 		ServerLifecycleEvents.SERVER_STOPPED.register(Server::onServerStopped);
 		ServerLifecycleEvents.SERVER_STARTED.register(Server::onServerStarted);
+	}
 
+	public static void initialize()
+	{
 	}
 }

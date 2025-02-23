@@ -1,25 +1,29 @@
 package org.yang.iw.item;
 
 import net.minecraft.item.Item;
-import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
+import org.yang.iw.api.register.DataGenSupplier;
+import org.yang.iw.api.register.RegistryCollector;
 import org.yang.iw.datagen.tag.ItemTagPool;
 import org.yang.iw.util.Base;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
+@DataGenSupplier
+@RegistryCollector
 public class IWItemTags
 {
 	public static class Includes
 	{
-		List<Item> items = null;
+		List<Supplier<Item>> items = null;
 		List<TagKey<Item>> tags = null;
 
-		public Includes add(Item item)
+		public Includes add(Supplier<Item> item)
 		{
 			if (items == null) items = new ArrayList<>();
 			items.add(item);
@@ -35,7 +39,7 @@ public class IWItemTags
 
 		public void map(Consumer<Item> itemConsumer, Consumer<TagKey<Item>> tagKeyConsumer)
 		{
-			if (items != null) items.forEach(itemConsumer);
+			if (items != null) items.forEach(i -> itemConsumer.accept(i.get()));
 			if (tags != null) tags.forEach(tagKeyConsumer);
 		}
 	}
@@ -52,12 +56,9 @@ public class IWItemTags
 		return ret;
 	}
 
-	public static final TagKey<Item> CanEnchantAsPreEnchantHeart = createTag("can_pre_enchant");
-	public static final TagKey<Item> CanRepairBlazeRod = createTag("can_repair_blazerod",
-			new Includes().add(Items.BLAZE_ROD).add(Items.BLAZE_POWDER));
+	public static final TagKey<Item> IS_BASE_HEART = createTag("is_base_heart");
 
-	public static void initialize()
+	public static void dataGenInitialize()
 	{
-
 	}
 }

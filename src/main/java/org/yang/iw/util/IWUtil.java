@@ -24,6 +24,7 @@ public class IWUtil
 		}
 		return new CustomModelDataComponent(null, flagList, null, null);
 	}
+
 	public static class Components
 	{
 		public static class MutableAttributeContainer
@@ -38,21 +39,14 @@ public class IWUtil
 
 			public boolean hideAttribute(RegistryEntry<EntityAttribute> attribute, EntityAttributeModifier modifier)
 			{
-				return ((haveBasicDamage && attributeEntryEqual(attribute, EntityAttributes.ATTACK_DAMAGE)) ||
-						(haveBasicSpeed && attributeEntryEqual(attribute, EntityAttributes.ATTACK_SPEED))) &&
-					   modifierAddByEnchantment(modifier);
-
+				return (haveBasicDamage && attributeEntryEqual(attribute, EntityAttributes.ATTACK_DAMAGE)) ||
+					   (haveBasicSpeed && attributeEntryEqual(attribute, EntityAttributes.ATTACK_SPEED));
 			}
 
 			public static boolean attributeEntryEqual(RegistryEntry<EntityAttribute> a1,
 													  RegistryEntry<EntityAttribute> a2)
 			{
 				return a1.matches(a2);
-			}
-
-			public static boolean modifierAddByEnchantment(EntityAttributeModifier modifier)
-			{
-				return modifier.id().getNamespace().equals("iwenchant");
 			}
 
 			public void findSpeed()
@@ -66,7 +60,6 @@ public class IWUtil
 				haveBasicSpeed = false;
 			}
 		}
-
 
 
 		public static float maxEnergy(ItemStack stack)

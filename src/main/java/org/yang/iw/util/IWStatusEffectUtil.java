@@ -36,7 +36,7 @@ public class IWStatusEffectUtil
 		}
 		int level = pre.getAmplifier() + 1;
 		int nextDuration = (level * duration + durationTick) / level;
-		entity.removeStatusEffectVanilla(effect);
+		entity.interestingWorld$removeStatusEffectVanilla(effect);
 		entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, level - 1, false, false));
 	}
 
@@ -57,7 +57,7 @@ public class IWStatusEffectUtil
 		}
 		int level = pre.getAmplifier() + 1;
 		int nextDuration = (level * duration + durationTick) / level;
-		entity.removeStatusEffectVanilla(effect);
+		entity.interestingWorld$removeStatusEffectVanilla(effect);
 		entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, level - 1));
 	}
 
@@ -82,7 +82,7 @@ public class IWStatusEffectUtil
 		int maxlevel = Math.max(level, amplifier);
 
 		int nextDuration = (level * duration + durationTick * amplifier) / maxlevel;
-		entity.removeStatusEffectVanilla(effect);
+		entity.interestingWorld$removeStatusEffectVanilla(effect);
 		entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, maxlevel - 1, false, false));
 	}
 
@@ -106,7 +106,7 @@ public class IWStatusEffectUtil
 		int maxlevel = Math.max(level, amplifier);
 
 		int nextDuration = (level * duration + durationTick * amplifier) / maxlevel;
-		entity.removeStatusEffectVanilla(effect);
+		entity.interestingWorld$removeStatusEffectVanilla(effect);
 		entity.addStatusEffect(new StatusEffectInstance(effect, nextDuration, maxlevel - 1));
 	}
 
@@ -127,7 +127,7 @@ public class IWStatusEffectUtil
 			return;
 		}
 		int prelevel = pre.getAmplifier() + 1;
-		entity.removeStatusEffectVanilla(effect);
+		entity.interestingWorld$removeStatusEffectVanilla(effect);
 		if (prelevel > 1)
 
 			entity.addStatusEffect(new StatusEffectInstance(effect,
@@ -154,7 +154,7 @@ public class IWStatusEffectUtil
 			return;
 		}
 		int prelevel = pre.getAmplifier() + 1;
-		entity.removeStatusEffectVanilla(effect);
+		entity.interestingWorld$removeStatusEffectVanilla(effect);
 		if (prelevel > 1)
 
 			entity.addStatusEffect(new StatusEffectInstance(effect,
@@ -179,7 +179,7 @@ public class IWStatusEffectUtil
 			return;
 		}
 		int prelevel = pre.getAmplifier() + 1;
-		entity.removeStatusEffectVanilla(effect);
+		entity.interestingWorld$removeStatusEffectVanilla(effect);
 		if (prelevel > amplifier + 1)
 		{
 			entity.addStatusEffect(new StatusEffectInstance(effect,
@@ -208,7 +208,7 @@ public class IWStatusEffectUtil
 			return;
 		}
 		int prelevel = pre.getAmplifier() + 1;
-		entity.removeStatusEffectVanilla(effect);
+		entity.interestingWorld$removeStatusEffectVanilla(effect);
 		if (prelevel > amplifier + 1)
 		{
 			entity.addStatusEffect(new StatusEffectInstance(effect,

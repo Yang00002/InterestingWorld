@@ -16,8 +16,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.item.tool.EnergyToolItem;
-import org.yang.iw.rune_ability.AbstractRuneAbility;
-import org.yang.iw.util.IWRuneAbilityUtil;
+import org.yang.iw.ability.AbstractAbility;
 import org.yang.iw.util.style.Color;
 
 import java.util.List;
@@ -56,7 +55,7 @@ public abstract class MixinDrawContext
 			float currentEnergy = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 1f);
 			if (maxEnergy <= currentEnergy) return;
 			int cl = Math.clamp((int) ((currentEnergy * 13.0f) / maxEnergy), 0, 13);
-			AbstractRuneAbility ab = IWRuneAbilityUtil.getAbility(stack);
+			AbstractAbility ab = stack.interestingWorld$getAbility().ability();
 			int l = y + 13;
 			int k = x + 2;
 			int c = ab.canWork() ? ab.getColor() : Color.GRAY_RGB;

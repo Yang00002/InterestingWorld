@@ -17,7 +17,7 @@ public abstract class RawItemModel implements ItemModelProvider
 {
 	public RawItemModel upload()
 	{
-		ItemModelPool.addModel(this);
+		ItemModelPool.addModel(() -> this);
 		return this;
 	}
 

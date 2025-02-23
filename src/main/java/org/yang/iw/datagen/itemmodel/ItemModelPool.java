@@ -6,19 +6,20 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.data.ItemModelGenerator;
 
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Queue;
+import java.util.function.Supplier;
 
 public class ItemModelPool
 {
-	static List<ItemModelProvider> providers = new LinkedList<>();
+	static Queue<Supplier<ItemModelProvider>> providers = new LinkedList<>();
 
 	@Environment(EnvType.CLIENT)
 	public static void generatePool(ItemModelGenerator generator)
 	{
-		providers.forEach(i -> i.use(generator));
+		while (!providers.isEmpty()) providers.poll().get().use(generator);
 	}
 
-	public static void addModel(ItemModelProvider provider)
+	public static void addModel(Supplier<ItemModelProvider> provider)
 	{
 		providers.add(provider);
 	}

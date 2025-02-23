@@ -9,7 +9,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.network.payload.*;
-import org.yang.iw.rune_ability.AbstractRuneAbility;
+import org.yang.iw.ability.AbstractAbility;
 
 public class IWClientNetwork
 {
@@ -48,7 +48,7 @@ public class IWClientNetwork
 	{
 		ClientPlayerEntity player = context.player();
 		IWClientPlayerData manager = player.getIWClientPlayerData();
-		AbstractRuneAbility ab = payload.ability();
+		AbstractAbility ab = payload.ability();
 		manager.WeaponAbility = ab;
 		ab.readClientRenderDataFromBuf(player, manager, payload.clientData());
 	}

@@ -9,7 +9,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import org.yang.iw.enchant.EnchantResourceReloader;
+import org.yang.iw.api.register.IndependentRegister;
+import org.yang.iw.api.register.LoadTime;
 
 import java.io.InputStream;
 import java.util.LinkedHashMap;
@@ -19,8 +20,14 @@ import java.util.Objects;
 import static org.yang.iw.util.Base.MOD_ID;
 import static org.yang.iw.util.Base.iwlogger;
 
+@IndependentRegister
 public class IWResources
 {
+	static
+	{
+		LoadTime.assertTime(LoadTime.Type.ON_INITIALIZE);
+		//ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new RuneItemValue.Listener());
+	}
 
 	public static class RuneItemValue
 	{
@@ -99,8 +106,5 @@ public class IWResources
 
 	public static void initialize()
 	{
-		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new RuneItemValue.Listener());
-		ResourceManagerHelper.get(ResourceType.SERVER_DATA)
-				.registerReloadListener(new EnchantResourceReloader());
 	}
 }

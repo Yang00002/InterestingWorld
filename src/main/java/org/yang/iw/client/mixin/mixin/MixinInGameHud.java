@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.mixin.mixin_interface.InterfaceClientPlayerEntity;
-import org.yang.iw.rune_ability.AbstractRuneAbility;
+import org.yang.iw.ability.AbstractAbility;
 import org.yang.iw.util.Base;
 
 import static org.yang.iw.util.style.Color.rgbToArgb;
@@ -73,7 +73,7 @@ public abstract class MixinInGameHud
 			}
 		}
 		RenderSystem.disableBlend();
-		AbstractRuneAbility ability = manager.WeaponAbility;
+		AbstractAbility ability = manager.WeaponAbility;
 		if (ability.shouldRenderAbilityBar(manager))
 		{
 			int j = (context.getScaledWindowWidth() - 18) / 2;

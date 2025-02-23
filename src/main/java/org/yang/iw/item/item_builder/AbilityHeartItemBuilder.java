@@ -8,27 +8,24 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import org.yang.iw.IWItemGroups;
-import org.yang.iw.component.HeartDataFlag;
-import org.yang.iw.component.IWComponents;
 import org.yang.iw.datagen.itemmodel.ItemModelPool;
 import org.yang.iw.datagen.itemmodel.ItemModelProvider;
 import org.yang.iw.datagen.itemmodel.SimpleItemModelProvider;
 import org.yang.iw.datagen.itemmodel.server.ModelParents;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.datagen.tag.ItemTagPool;
-import org.yang.iw.item.heart.common.CommonHeart;
-import org.yang.iw.rune_ability.IWRuneAbilities;
+import org.yang.iw.item.heart.AbilityHeart;
 import org.yang.iw.util.Base;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import static org.yang.iw.util.IWRuneAbilityUtil.getAbility;
 
 public class AbilityHeartItemBuilder
 {
-	private final Function<Item.Settings, CommonHeart> constructor;
+
+	private final BiFunction<Item.Settings, Identifier, AbilityHeart> constructor;
 	private final String id;
 	private RegistryKey<ItemGroup> itemGroupBelong = null;
 	private Function<Item, ItemModelProvider> modelProvider = null;
@@ -59,7 +56,7 @@ public class AbilityHeartItemBuilder
 		return this;
 	}
 
-	public AbilityHeartItemBuilder(Function<Item.Settings, CommonHeart> constructor, String id)
+	public AbilityHeartItemBuilder(BiFunction<Item.Settings, Identifier, AbilityHeart> constructor, String id)
 	{
 		this.constructor = constructor;
 		this.id = id;
@@ -71,36 +68,16 @@ public class AbilityHeartItemBuilder
 		return this;
 	}
 
-	public CommonHeart build()
+	public AbilityHeart build()
 	{
 		Item.Settings settings = new Item.Settings();
 		Identifier itemID = Identifier.of(Base.MOD_ID, id);
 		RegistryKey<Item> registryKey = RegistryKey.of(RegistryKeys.ITEM, itemID);
-		CommonHeart ret = (CommonHeart) Items.register(registryKey, constructor::apply, settings);
+		AbilityHeart ret = (AbilityHeart) Items.register(registryKey,
+				settings1 -> constructor.apply(settings1, itemID), settings);
 		if (itemGroupBelong != null)
-		{
 			IWItemGroups.addItemToGroup((context, entries) -> entries.add(ret.getDefaultStack()), itemGroupBelong);
-			for (var idx : ret.getAbilitiesSupport())
-			{
-				var ability = getAbility(idx);
-				if (ability != IWRuneAbilities.DEFAULT_ABILITY)
-				{
-					IWItemGroups.addItemToGroup((context, entries) -> {
-						var wrapperOp = context.lookup().getOptional(RegistryKeys.ENCHANTMENT);
-						wrapperOp.ifPresent(wrapper -> {
-							var stack = ret.getDefaultStack(ability.level());
-							if (ret.setAbility(stack, ability))
-							{
-								stack.set(IWComponents.HEART_FLAG,
-										HeartDataFlag.builder(stack).setMaterialLevel(ability.level()).build());
-								entries.add(stack);
-							}
-						});
-					}, itemGroupBelong);
-				}
-			}
-		}
-		if (modelProvider != null) ItemModelPool.addModel(modelProvider.apply(ret));
+		if (modelProvider != null) ItemModelPool.addModel(() -> modelProvider.apply(ret));
 		if (translation != null) TranslationPool.addItem(ret, translation);
 		tags.forEach(tag -> ItemTagPool.add(tag, ret));
 		return ret;

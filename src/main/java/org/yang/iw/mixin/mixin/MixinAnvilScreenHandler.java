@@ -1,6 +1,5 @@
 package org.yang.iw.mixin.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
@@ -8,10 +7,10 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.*;
 import net.minecraft.screen.slot.ForgingSlotsManager;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.StringHelper;
 import net.minecraft.util.math.MathHelper;
@@ -20,17 +19,16 @@ import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.yang.iw.component.BoostableComponent;
 import org.yang.iw.component.IWComponents;
-import org.yang.iw.item.heart.AbstractHeart;
+import org.yang.iw.item.IWItemTags;
 import org.yang.iw.item.tool.EnergyToolItem;
-import org.yang.iw.component.HeartDataFlag;
-import org.yang.iw.util.style.Color;
-import org.yang.iw.util.style.TextStyle;
+
+import static org.yang.iw.mixin.helper.HelperAnvilScreenHandler.hitAddBoost;
+import static org.yang.iw.util.IWCostUtil.getLevelFromExperience;
 
 @Debug(export = true)
 @Mixin(AnvilScreenHandler.class)
@@ -58,47 +56,84 @@ public abstract class MixinAnvilScreenHandler extends ForgingScreenHandler
 		return (int) Math.min((long) cost * 2L + 1L, 2147483647L);
 	}
 
-	@Accessor("newItemName")
-	abstract String accessNewItemName();
-
-	@Redirect(method = "setNewItemName", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/Text;literal" +
-																			 "(Ljava/lang/String;)" +
-																			 "Lnet/minecraft/text/MutableText;"))
-	private MutableText mixinSetNewItemName(String string, @Local ItemStack itemStack)
-	{
-		if (itemStack.getItem() instanceof EnergyToolItem) return Text.literal(string).setStyle(TextStyle.BOLD_STYLE)
-				.withColor(itemStack.getOrDefault(IWComponents.ITEM_COLOR, Color.WHITE_RGB));
-		else return Text.literal(string);
-	}
-
 	@Inject(method = "updateResult", at = @At(value = "HEAD"), cancellable = true)
 	private void mixinUpdateResult(CallbackInfo ci)
 	{
-
 		ItemStack itemStackLeft = input.getStack(0);
+		if (itemStackLeft.isEmpty()) return;
 		ItemStack itemStackRight = input.getStack(1);
-		if (itemStackLeft.isEmpty())
+		if (itemStackLeft.getItem() instanceof EnergyToolItem)
 		{
-			this.output.setStack(0, ItemStack.EMPTY);
-			this.levelCost.set(0);
+			if (itemStackRight.isEmpty()) return;
+			levelCost.set(0);
 			ci.cancel();
 			return;
 		}
-		if (itemStackLeft.getItem() instanceof EnergyToolItem)
-		{
-			this.levelCost.set(0);
-			ci.cancel();
-		}
-		else if (itemStackLeft.getItem() instanceof AbstractHeart &&
-				 HeartDataFlag.fromItemStack(itemStackLeft).getTypeTaking() ==
-				 HeartDataFlag.HeartTypeTaking.PREENCHANT)
+		if (itemStackLeft.isIn(IWItemTags.IS_BASE_HEART))
 		{
 			if (itemStackRight.isEmpty()) return;
-			if (itemStackRight.getItem() != itemStackLeft.getItem()) return;
-			if (HeartDataFlag.fromItemStack(itemStackRight).getTypeTaking() !=
-				HeartDataFlag.HeartTypeTaking.PREENCHANT) return;
-			if (HeartDataFlag.fromItemStack(itemStackRight).getMaterialLevel() !=
-				HeartDataFlag.fromItemStack(itemStackLeft).getMaterialLevel()) return;
+			if (itemStackRight.getItem() == Items.ENCHANTED_BOOK)
+			{
+				var boostComponent = hitAddBoost(itemStackLeft, itemStackRight);
+				if (boostComponent != null)
+				{
+					if (!boostComponent.isEmpty())
+					{
+						var boostable = itemStackLeft.getOrDefault(IWComponents.BOOSTABLE, BoostableComponent.DEFAULT);
+						if (!boostable.isEmpty() &&
+							boostable.remainBoostTime() < (boostComponent.level() + boostComponent.boostCount() - 1))
+						{
+							levelCost.set(0);
+							ci.cancel();
+							return;
+						}
+						ItemStack stackOut = itemStackLeft.copy();
+						int cost = boostComponent.applyTo(stackOut);
+						if (cost <= 0)
+						{
+							levelCost.set(0);
+							ci.cancel();
+							return;
+						}
+						cost = getLevelFromExperience(cost);
+						if (!boostable.isEmpty()) stackOut.set(IWComponents.BOOSTABLE,
+								boostable.hardUse(boostComponent.level() + boostComponent.boostCount() - 1));
+						if (this.newItemName != null && !StringHelper.isBlank(this.newItemName))
+						{
+							if (!this.newItemName.equals(itemStackLeft.getName().getString()))
+							{
+								cost++;
+								stackOut.set(DataComponentTypes.CUSTOM_NAME, Text.literal(this.newItemName));
+							}
+						}
+						else if (itemStackLeft.contains(DataComponentTypes.CUSTOM_NAME))
+						{
+							cost++;
+							stackOut.remove(DataComponentTypes.CUSTOM_NAME);
+						}
+						this.levelCost.set(cost);
+						this.output.setStack(0, stackOut);
+						this.sendContentUpdates();
+						ci.cancel();
+						return;
+					}
+				}
+				else
+				{
+					this.levelCost.set(0);
+					ci.cancel();
+					return;
+				}
+			}
+			else if (itemStackRight.getItem() != itemStackLeft.getItem() ||
+					 !itemStackLeft.interestingWorld$getBoosts().isEmpty() ||
+					 !itemStackRight.interestingWorld$getBoosts().isEmpty() ||
+					 itemStackLeft.getEnchantments().isEmpty() || itemStackRight.getEnchantments().isEmpty())
+			{
+				this.levelCost.set(0);
+				ci.cancel();
+				return;
+			}
 			this.levelCost.set(1);
 			int repairCostLevel = 0;
 			long l = 0L;
@@ -119,44 +154,48 @@ public abstract class MixinAnvilScreenHandler extends ForgingScreenHandler
 					itemEnchantmentsComponent.getEnchantmentEntries())
 			{
 				RegistryEntry<Enchantment> registryEntry = entry.getKey();
-				int leftLevel = builder.getLevel(registryEntry);
-				int rightLevel = entry.getIntValue();
-				rightLevel = leftLevel == rightLevel ? rightLevel + 1 : Math.max(rightLevel, leftLevel);
-				Enchantment enchantment = registryEntry.value();
-				boolean leftAcceptEnchant = enchantment.isAcceptableItem(itemStackLeft);
-				if (this.player.getAbilities().creativeMode)
+				var op = registryEntry.getKeyOrValue().right();
+				if (op.isPresent() && op.get().isPrimaryItem(itemStackLeft))
 				{
-					leftAcceptEnchant = true;
-				}
-				for (RegistryEntry<Enchantment> registryEntry2 : builder.getEnchantments())
-				{
-					if (!registryEntry2.equals(registryEntry) &&
-						!Enchantment.canBeCombined(registryEntry, registryEntry2))
+					int leftLevel = builder.getLevel(registryEntry);
+					int rightLevel = entry.getIntValue();
+					rightLevel = leftLevel == rightLevel ? rightLevel + 1 : Math.max(rightLevel, leftLevel);
+					Enchantment enchantment = registryEntry.value();
+					boolean leftAcceptEnchant = enchantment.isAcceptableItem(itemStackLeft);
+					if (this.player.getAbilities().creativeMode)
 					{
-						leftAcceptEnchant = false;
-						repairCostLevel++;
+						leftAcceptEnchant = true;
 					}
-				}
-
-				if (!leftAcceptEnchant)
-				{
-					haveCanNotAcceptEnchant = true;
-				}
-				else
-				{
-					haveAcceptEnchant = true;
-					if (rightLevel > enchantment.getMaxLevel())
+					for (RegistryEntry<Enchantment> registryEntry2 : builder.getEnchantments())
 					{
-						rightLevel = enchantment.getMaxLevel();
+						if (!registryEntry2.equals(registryEntry) &&
+							!Enchantment.canBeCombined(registryEntry, registryEntry2))
+						{
+							leftAcceptEnchant = false;
+							repairCostLevel++;
+						}
 					}
 
-					builder.set(registryEntry, rightLevel);
-					int s = enchantment.getAnvilCost();
-
-					repairCostLevel += s * rightLevel;
-					if (itemStackLeft.getCount() > 1)
+					if (!leftAcceptEnchant)
 					{
-						repairCostLevel = 40;
+						haveCanNotAcceptEnchant = true;
+					}
+					else
+					{
+						haveAcceptEnchant = true;
+						if (rightLevel > enchantment.getMaxLevel())
+						{
+							rightLevel = enchantment.getMaxLevel();
+						}
+
+						builder.set(registryEntry, rightLevel);
+						int s = enchantment.getAnvilCost();
+
+						repairCostLevel += s * rightLevel;
+						if (itemStackLeft.getCount() > 1)
+						{
+							repairCostLevel = 40;
+						}
 					}
 				}
 			}
@@ -218,7 +257,6 @@ public abstract class MixinAnvilScreenHandler extends ForgingScreenHandler
 				copyOfStackLeft.set(DataComponentTypes.REPAIR_COST, kxx);
 				EnchantmentHelper.set(copyOfStackLeft, builder.build());
 			}
-
 			this.output.setStack(0, copyOfStackLeft);
 			this.sendContentUpdates();
 			ci.cancel();

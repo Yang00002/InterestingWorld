@@ -1,33 +1,33 @@
 {
   "model": {
-    "type": "minecraft:range_dispatch",
-    "entries": [
+    "type": "minecraft:select",
+    "cases": [
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/diamond_sword/slashing"
+          "model": "iw:item/diamond_sword/infinitecurse"
         },
-        "threshold": 1.0
+        "when": "iw:infinitecurse"
       },
       {
         "model": {
           "type": "minecraft:model",
           "model": "iw:item/diamond_sword/sweetcurse"
         },
-        "threshold": 2.0
+        "when": "iw:sweetcurse"
       },
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/diamond_sword/infinitecurse"
+          "model": "iw:item/diamond_sword/slashing"
         },
-        "threshold": 3.0
+        "when": "iw:slashing"
       }
     ],
     "fallback": {
       "type": "minecraft:model",
       "model": "minecraft:item/diamond_sword"
     },
-    "property": "iw:ability_index"
+    "property": "iw:ability"
   }
 }

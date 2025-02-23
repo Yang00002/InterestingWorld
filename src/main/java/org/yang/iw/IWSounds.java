@@ -4,12 +4,19 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import org.yang.iw.api.register.IndependentRegister;
+import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.util.Base;
 
+@IndependentRegister
 public class IWSounds
 {
+	static
+	{
+		LoadTime.assertTime(LoadTime.Type.ON_INITIALIZE);
+	}
 
-	public static SoundEvent ABILITYBAR_FULL = register("abilitybar_full");
+	public static SoundEvent ABILITY_BAR_FULL = register("abilitybar_full");
 	public static SoundEvent DOUBLE_SWEEP = register("double_sweep");
 
 	private static SoundEvent register(String id)
@@ -21,6 +28,5 @@ public class IWSounds
 
 	public static void initialize()
 	{
-
 	}
 }

@@ -2,7 +2,7 @@ package org.yang.iw.client;
 
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import org.yang.iw.IWScreenHandlers;
-import org.yang.iw.client.block.forging_block.ForgingBlockScreen;
+import org.yang.iw.block.forgingblock.ForgingBlockScreen;
 
 public class IWScreens
 {

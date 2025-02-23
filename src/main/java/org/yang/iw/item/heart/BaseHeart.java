@@ -1,96 +1,74 @@
 package org.yang.iw.item.heart;
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.CustomModelDataComponent;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
-import org.yang.iw.component.HeartDataFlag;
-import org.yang.iw.item.IWItems;
+import org.yang.iw.component.BoostableComponent;
+import org.yang.iw.component.IWComponents;
+import org.yang.iw.datagen.language.TranslationPool;
+import org.yang.iw.util.style.Color;
 
-import java.util.function.Function;
+import java.util.List;
 
-public class BaseHeart extends AbstractHeart
+import static org.yang.iw.util.style.Color.getLevelColor;
+
+public class BaseHeart extends Item
 {
-	private final int nameRGB;
+	public final int nameColorRGB;
+	public final int materialLevel;
+	public final int enchantAbility;
 
-	@Override
-	public boolean hasGlint(ItemStack stack)
+	public BaseHeart(Settings settings, int materialLevel, int boostTime, int enchantAbility, int nameColorRGB)
 	{
-		var type = HeartDataFlag.fromItemStack(stack).getTypeTaking();
-		return type != HeartDataFlag.HeartTypeTaking.NULL;
-	}
-
-	@Override
-	public int getNameColorRGB()
-	{
-		return nameRGB;
-	}
-
-	public BaseHeart(Settings settings, Function<Integer, Integer> enchantAbility, int lvl, int color)
-	{
-		super(settings.component(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT),
-				enchantAbility, lvl);
-		nameRGB = color;
-	}
-
-	public static Function<Integer, Integer> handleEnchantAbility(Function<Integer, Integer> origin, int lvl)
-	{
-		int n = origin.apply(lvl);
-		return i -> n;
-	}
-
-	@Override
-	public boolean supportAbility()
-	{
-		return false;
-	}
-
-	public static BaseHeart baseHeartSupportLevel(int lvl)
-	{
-		switch (lvl)
-		{
-			case 2 ->
-			{
-				return IWItems.IRON_HEART;
-			}
-			case 3 ->
-			{
-				return IWItems.GOLD_HEART;
-			}
-			case 4 ->
-			{
-				return IWItems.DIAMOND_HEART;
-			}
-			case 5 ->
-			{
-				return IWItems.NETHERITE_HEART;
-			}
-			case 6 ->
-			{
-				return IWItems.ENDERITE_HEART;
-			}
-			case 7, 8, 9, 10 ->
-			{
-				return IWItems.VOIDALLOY_HEART;
-			}
-			default ->
-			{
-				return IWItems.COPPER_HEART;
-			}
-		}
-	}
-
-	@Override
-	public ItemStack getDefaultStack(int materialLevel)
-	{
-		return getDefaultStack();
+		super(settings.component(IWComponents.BOOSTABLE, BoostableComponent.of(boostTime))
+				.enchantable(Math.max(enchantAbility, 1)).maxCount(1));
+		this.nameColorRGB = nameColorRGB;
+		this.materialLevel = Math.clamp(materialLevel, 0, 10);
+		this.enchantAbility = Math.max(enchantAbility, 1);
 	}
 
 	@Override
 	public Text getName(ItemStack stack)
 	{
-		if (HeartDataFlag.fromItemStack(stack).getTypeTaking() == HeartDataFlag.HeartTypeTaking.ENCHANT)
-			return Text.translatable("item.iw.enchantedheart").withColor(getNameColorRGB());
-		return Text.translatable(getTranslationKey()).withColor(getNameColorRGB());
+		return Text.translatable(getTranslationKey()).withColor(nameColorRGB);
+	}
+
+	@Override
+	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type)
+	{
+		tooltip.add(Text.translatable(TranslationPool.TOOLTIP_HEART_CONTAINER_LEVEL).withColor(Color.GRAY_RGB)
+				.append(Text.literal(String.valueOf(materialLevel)).withColor(getLevelColor(materialLevel))));
+		int count = stack.getOrDefault(IWComponents.BOOSTABLE, BoostableComponent.DEFAULT).remainBoostTime();
+		if (count < 1)
+		{
+			tooltip.add(Text.translatable(TranslationPool.TOOLTIP_BOOSTTIME_OUT).withColor(Color.GRAY_RGB));
+			tooltip.add(Text.empty());
+		}
+		else
+		{
+			tooltip.add(Text.translatable(TranslationPool.TOOLTIP_REMAIN_BOOSTTIME).withColor(Color.GRAY_RGB)
+					.append(Text.literal(String.valueOf(count))
+							.withColor(getLevelColor(Math.min(materialLevel, count)))));
+			if (stack.interestingWorld$getBoosts().isEmpty())
+			{
+				if (stack.getEnchantments().isEmpty())
+				{
+					tooltip.add(Text.translatable(TranslationPool.TOOLTIP_HEART_CAN_ATTACH_BOOST)
+							.withColor(Color.GRAY_RGB));
+				}
+				else
+				{
+					tooltip.add(
+							Text.translatable(TranslationPool.TOOLTIP_HEART_ENCHANT_CONVERT).withColor(Color.GRAY_RGB));
+					tooltip.add(Text.empty());
+				}
+			}
+			else
+			{
+				tooltip.add(Text.translatable(TranslationPool.TOOLTIP_HEART_BOOST).withColor(Color.GRAY_RGB));
+				tooltip.add(Text.empty());
+			}
+		}
 	}
 }

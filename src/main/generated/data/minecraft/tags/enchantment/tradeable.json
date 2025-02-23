@@ -5,10 +5,6 @@
       "required": false
     },
     {
-      "id": "iw:plentiful",
-      "required": false
-    },
-    {
       "id": "iw:rune_boost",
       "required": false
     },
