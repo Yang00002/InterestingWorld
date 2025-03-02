@@ -20,6 +20,16 @@ public class TextStyle
 		return s;
 	}
 
+	public static String cosineTo2Angle(double cosine)
+	{
+		return numberToString(Math.toDegrees(Math.acos(cosine)) * 2);
+	}
+
+	public static String tickToSecond(int tick)
+	{
+		return numberToString(tick / 20f);
+	}
+
 	public static String numberToString(double f)
 	{
 		String s = String.format("%.1f", f);

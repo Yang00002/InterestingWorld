@@ -29,7 +29,7 @@ public record BoostableComponent(int max, int current)
 
 	public boolean isEmpty()
 	{
-		return max <= 0;
+		return this == DEFAULT;
 	}
 
 	public int remainBoostTime()

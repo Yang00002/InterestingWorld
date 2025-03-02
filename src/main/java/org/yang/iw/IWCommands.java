@@ -3,6 +3,7 @@ package org.yang.iw;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
@@ -59,6 +60,7 @@ public class IWCommands
 								return 0;
 							}
 						}))));
+
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
 				CommandManager.literal("iwenchant").requires(source -> source.hasPermissionLevel(2))
 						.then(argument("level", IntegerArgumentType.integer()).executes(context -> {
@@ -131,6 +133,7 @@ public class IWCommands
 									}
 									return 0;
 								})))));
+
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
 				CommandManager.literal("iwtest_getnumber").executes(context -> {
 					int size = TEST_NUMBER_SLOTS.length;
@@ -140,6 +143,22 @@ public class IWCommands
 						builder.append(i).append(" ").append(Integer.toHexString(TEST_NUMBER_SLOTS[i])).append('\n');
 					}
 					iwlogger.info(builder.toString());
+					return 1;
+				})));
+
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
+				CommandManager.literal("iwtest_item").executes(context -> {
+					var player = context.getSource().getPlayer();
+					if (player != null)
+					{
+						var stack = player.getStackInHand(Hand.MAIN_HAND);
+						if (!stack.isEmpty())
+						{
+							iwlogger.info("isEnchantable: " + stack.isEnchantable());
+							var component = stack.getOrDefault(DataComponentTypes.ENCHANTABLE, null);
+							if (component != null) iwlogger.info("value: " + component.value());
+						}
+					}
 					return 1;
 				})));
 	}

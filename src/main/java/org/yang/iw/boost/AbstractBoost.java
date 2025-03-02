@@ -6,21 +6,40 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import org.apache.commons.lang3.mutable.MutableFloat;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
-import org.yang.iw.ability.AbstractAbility;
+import org.yang.iw.boost.function.BoostFunctionMap;
 import org.yang.iw.boost.pool.RandomBoostEntry;
 import org.yang.iw.boost.pool.RandomBoostGenerator;
 import org.yang.iw.util.Base;
 
-public class AbstractBoost implements Comparable<AbstractBoost>
+public abstract class AbstractBoost implements Comparable<AbstractBoost>
 {
+
 	private static final AbstractBoost DEFAULT = createInstance();
 
 	public final Identifier identifier;
 
+	public abstract BoostFunctionMap getFunctions(int level);
+
 	private static AbstractBoost createInstance()
 	{
-		return new AbstractBoost(Identifier.of(Base.MOD_ID, "empty"));
+		return new AbstractBoost(Identifier.of(Base.MOD_ID, "empty"))
+		{
+
+			@Override
+			public BoostFunctionMap getFunctions(int level)
+			{
+				return BoostFunctionMap.DEFAULT;
+			}
+
+			@Override
+			public int xpCostOfLevel(short level)
+			{
+				return level;
+			}
+		};
 	}
 
 	public static AbstractBoost getDefault()
@@ -33,34 +52,29 @@ public class AbstractBoost implements Comparable<AbstractBoost>
 		this.identifier = identifier;
 	}
 
-	public void applyLocationBasedEffects(int level, ServerWorld world, ItemStack stack, LivingEntity user,
-										  EquipmentSlot slot)
-	{
-	}
 
-	public int xpCostOfLevel(short level)
-	{
-		return 0;
-	}
+	public abstract int xpCostOfLevel(short level);
 
-	public short costAchieveLevel(short from, int costAll)
+	public short costAchieveLevel(short from, short to, int costAll)
 	{
-		while (xpCostOfLevel(++from) <= costAll) ;
+		if (xpCostOfLevel(to) <= costAll) return to;
+		to--;
+		from++;
+		while (from <= to)
+		{
+			short mid = (short) ((from + to) >> 1);
+			int cost = xpCostOfLevel(mid);
+			if (cost > costAll) to = (short) (mid - 1);
+			else if (cost < costAll) from = (short) (mid + 1);
+			else return mid;
+		}
 		return (short) (from - 1);
 	}
+
 
 	public int xpCostBetweenLevels(short low, short high)
 	{
 		return xpCostOfLevel(high) - xpCostOfLevel(low);
-	}
-
-	public void removeLocationBasedEffects(int level, ItemStack stack, LivingEntity user, EquipmentSlot slot)
-	{
-	}
-
-	public void onTargetDamaged(int level, ServerWorld world, LivingEntity target, DamageSource damageSource)
-	{
-
 	}
 
 	@Override

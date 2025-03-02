@@ -7,9 +7,15 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
-import org.yang.iw.entity.player.IWClientPlayerData;
-import org.yang.iw.network.payload.*;
+import org.yang.iw.IWSounds;
 import org.yang.iw.ability.AbstractAbility;
+import org.yang.iw.entity.player.AbilityBarType;
+import org.yang.iw.entity.player.IWClientPlayerData;
+import org.yang.iw.network.bitio.BitReader;
+import org.yang.iw.network.payload.S2CDeferSoundPayload;
+import org.yang.iw.network.payload.S2CItemBreakParticlePayload;
+import org.yang.iw.network.payload.S2CPlayerDataInitializePayload;
+import org.yang.iw.network.payload.S2CPlayerDataPayload;
 
 public class IWClientNetwork
 {
@@ -35,22 +41,49 @@ public class IWClientNetwork
 		}
 	}
 
-	private static void handlePlayerEnergyPayload(S2CPlayerEnergyDataPayload payload,
-												  ClientPlayNetworking.Context context)
-	{
-		ClientPlayerEntity player = context.player();
-		IWClientPlayerData manager = player.getIWClientPlayerData();
-		manager.shown_energy = payload.energy();
-	}
-
-	private static void handlePlayerAbilityBarPayload(S2CAbilityDataPayload payload,
+	private static void handlePlayerAbilityBarPayload(S2CPlayerDataPayload payload,
 													  ClientPlayNetworking.Context context)
 	{
+		AbstractAbility ab = payload.ability();
 		ClientPlayerEntity player = context.player();
 		IWClientPlayerData manager = player.getIWClientPlayerData();
-		AbstractAbility ab = payload.ability();
-		manager.WeaponAbility = ab;
-		ab.readClientRenderDataFromBuf(player, manager, payload.clientData());
+		BitReader clientData = payload.clientData();
+		if (clientData.readBoolean()) manager.setEnergy(clientData.readUnsignedInt(5));
+		if (ab == null || ab.isEmpty())
+		{
+			manager.WeaponAbility = AbstractAbility.getDefault();
+			manager.setNotCooldown();
+		}
+		else
+		{
+			manager.setAbilityOn(payload.clientData().readBoolean());
+			boolean tickOver = payload.clientData().readBoolean();
+			boolean isCooldown = payload.clientData().readBoolean();
+			if (tickOver) ab.onClientTickOver(player, manager);
+			if (isCooldown) manager.setCooldown(payload.clientData().readUnsignedInt(5));
+			else
+			{
+				if (manager.isCooldown() && manager.WeaponAbility == ab) player.playSound(IWSounds.ABILITY_BAR_FULL);
+				manager.setNotCooldown();
+				AbilityBarType type = AbilityBarType.values()[clientData.readUnsignedInt(AbilityBarType.radixs)];
+				switch (type)
+				{
+					case TICK ->
+					{
+						var n = clientData.readUnsignedInt(5);
+						manager.setTickStep(n);
+					}
+					case TICK_REVERSE ->
+					{
+						var n = clientData.readUnsignedInt(5);
+						manager.setTickStep(16 - n);
+					}
+				}
+				manager.setBarType(type);
+				ab.readClientRenderDataFromBuf(player, manager, payload.clientData());
+			}
+			manager.WeaponAbility = ab;
+		}
 	}
 
 	private static void handleDeferSoundPayload(S2CDeferSoundPayload payload, ClientPlayNetworking.Context context)
@@ -83,11 +116,8 @@ public class IWClientNetwork
 		ClientPlayNetworking.registerGlobalReceiver(S2CItemBreakParticlePayload.ID,
 				(payload, context) -> context.client().execute(() -> handleItemBreakParticlePayload(payload,
 						context)));
-		PayloadTypeRegistry.playS2C().register(S2CPlayerEnergyDataPayload.ID, S2CPlayerEnergyDataPayload.CODEC);
-		ClientPlayNetworking.registerGlobalReceiver(S2CPlayerEnergyDataPayload.ID,
-				(payload, context) -> context.client().execute(() -> handlePlayerEnergyPayload(payload, context)));
-		PayloadTypeRegistry.playS2C().register(S2CAbilityDataPayload.ID, S2CAbilityDataPayload.CODEC);
-		ClientPlayNetworking.registerGlobalReceiver(S2CAbilityDataPayload.ID,
+		PayloadTypeRegistry.playS2C().register(S2CPlayerDataPayload.ID, S2CPlayerDataPayload.CODEC);
+		ClientPlayNetworking.registerGlobalReceiver(S2CPlayerDataPayload.ID,
 				(payload, context) -> context.client().execute(() -> handlePlayerAbilityBarPayload(payload, context)));
 		PayloadTypeRegistry.playS2C().register(S2CDeferSoundPayload.ID, S2CDeferSoundPayload.CODEC);
 		ClientPlayNetworking.registerGlobalReceiver(S2CDeferSoundPayload.ID,

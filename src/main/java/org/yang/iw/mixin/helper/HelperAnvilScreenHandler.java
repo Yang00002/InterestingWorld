@@ -4,20 +4,19 @@ import it.unimi.dsi.fastutil.objects.Object2ShortOpenHashMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
 import org.yang.iw.boost.AbstractBoost;
-import org.yang.iw.boost.IWBoosts;
+import org.yang.iw.boost.EnchantmentToBoostFunction;
 import org.yang.iw.component.BoostComponent;
 
 public class HelperAnvilScreenHandler
 {
-	public static AbstractBoost fromEnchantToBoost(RegistryEntry<Enchantment> registryKey)
+
+
+	public static boolean entryMatch(RegistryEntry<Enchantment> entry, ItemStack target)
 	{
-		if (registryKey.matchesKey(Enchantments.SHARPNESS)) return IWBoosts.SHARPNESS;
-		if (registryKey.matchesKey(Enchantments.FIRE_ASPECT)) return IWBoosts.FIRE_ASPECT;
-		return null;
+		return entry.value().isPrimaryItem(target);
 	}
 
 	public static BoostComponent hitAddBoost(ItemStack left, ItemStack right)
@@ -30,9 +29,8 @@ public class HelperAnvilScreenHandler
 			for (var entry : entries)
 			{
 				var key = entry.getKey();
-				var op = key.getKeyOrValue().right();
-				if (op.isPresent() && op.get().isPrimaryItem(left)) continue;
-				var boost = fromEnchantToBoost(key);
+				if (entryMatch(key, left)) continue;
+				var boost = EnchantmentToBoostFunction.fromEnchantToBoost(key);
 				if (boost == null) continue;
 				int lvl = Math.clamp(entry.getIntValue(), 1, boost.maxAllowLevel());
 				boostObject2ShortOpenHashMap.put(boost, (short) lvl);
@@ -47,8 +45,7 @@ public class HelperAnvilScreenHandler
 			for (var entry : entries)
 			{
 				var key = entry.getKey();
-				var op = key.getKeyOrValue().right();
-				if (op.isPresent() && op.get().isPrimaryItem(left)) return BoostComponent.DEFAULT;
+				if (entryMatch(key, left)) return BoostComponent.DEFAULT;
 			}
 			return null;
 		}
@@ -58,13 +55,12 @@ public class HelperAnvilScreenHandler
 		for (var entry : entries)
 		{
 			var key = entry.getKey();
-			var op = key.getKeyOrValue().right();
-			if (op.isPresent() && op.get().isPrimaryItem(left))
+			if (entryMatch(key, left))
 			{
 				append = true;
 				continue;
 			}
-			var boost = fromEnchantToBoost(key);
+			var boost = EnchantmentToBoostFunction.fromEnchantToBoost(key);
 			if (boost == null) continue;
 			int lvl = Math.clamp(entry.getIntValue(), 1, boost.maxAllowLevel());
 			boostObject2ShortOpenHashMap.put(boost, (short) lvl);

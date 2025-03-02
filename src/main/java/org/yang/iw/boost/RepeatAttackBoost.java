@@ -9,23 +9,43 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import org.yang.iw.IWEntityAttributes;
+import org.yang.iw.boost.function.AttributeModifierFunction;
+import org.yang.iw.boost.function.BoostFunctionMap;
+import org.yang.iw.util.constants.AttributeModifierIds;
 
-public class RepeatAttackBoost extends CertainSlotAttributeBoost
+public class RepeatAttackBoost extends AbstractBoost
 {
-	RepeatAttackBoost(Identifier identifier)
+	@Override
+	public BoostFunctionMap getFunctions(int level)
 	{
-		super(identifier, EquipmentSlot.MAINHAND, AttributeModifierSlot.MAINHAND);
+		return BoostFunctionMap.builder().add(AttributeModifierSlot.MAINHAND, new AttributeModifierFunction()
+		{
+			@Override
+			protected HashMultimap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> getModifiers(StringIdentifiable slot)
+			{
+				HashMultimap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> modifierMultiMap =
+						HashMultimap.create();
+				modifierMultiMap.put(IWEntityAttributes.ATTACK_DURATION_NEGLECT,
+						new EntityAttributeModifier(AttributeModifierIds.of(identifier, slot), level,
+								EntityAttributeModifier.Operation.ADD_VALUE));
+				return modifierMultiMap;
+			}
+		}).build();
 	}
 
-	@Override
-	protected HashMultimap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> getModifiers(int level,
-																								 StringIdentifiable slot)
+	RepeatAttackBoost(Identifier identifier)
 	{
-		HashMultimap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> modifierMultimap = HashMultimap.create();
-		modifierMultimap.put(IWEntityAttributes.ATTACK_DURATION_NEGLECT,
-				new EntityAttributeModifier(attributeModifierID(slot), level,
-						EntityAttributeModifier.Operation.ADD_VALUE));
-		return modifierMultimap;
+		super(identifier);
+	}
+
+	public short maxTableLevel()
+	{
+		return 4;
+	}
+
+	public short maxRandomLevel()
+	{
+		return 9;
 	}
 
 	@Override
@@ -38,5 +58,11 @@ public class RepeatAttackBoost extends CertainSlotAttributeBoost
 	public int xpCostBetweenLevels(short low, short high)
 	{
 		return low > 0 ? 80 * (high - low) : (high > 0 ? 120 + 80 * high : 0);
+	}
+
+	@Override
+	public short costAchieveLevel(short from, short to, int costAll)
+	{
+		return (short) Math.clamp((costAll - 120) / 80, from, to);
 	}
 }

@@ -1,23 +1,26 @@
 package org.yang.iw.ability;
 
-import io.netty.buffer.ByteBuf;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
+import org.yang.iw.api.tag.IntrusiveTag;
 import org.yang.iw.component.EnergyToolDataFlag;
+import org.yang.iw.entity.player.AbilityBarType;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.entity.player.IWServerPlayerData;
-import org.yang.iw.api.tag.IntrusiveTag;
 import org.yang.iw.item.heart.AbilityHeart;
+import org.yang.iw.network.bitio.BitReader;
+import org.yang.iw.network.bitio.BitWriter;
 import org.yang.iw.util.IWLivingEntityUtil;
 import org.yang.iw.util.IWParticleUtil;
 import org.yang.iw.util.IWSoundUtil;
@@ -70,39 +73,28 @@ public class RepeatSlashingAbility extends CommonAbility
 	}
 
 	@Override
-	public void serverPlayerWeaponTick(PlayerEntity entity, IWServerPlayerData data, ItemStack stack)
+	public void onClientTickOver(ClientPlayerEntity player, IWClientPlayerData data)
 	{
-		switch (data.chargeStep)
+		player.playSound(SoundEvents.BLOCK_ANVIL_LAND);
+	}
+
+	@Override
+	public void onServerTickOver(ServerPlayerEntity player, IWServerPlayerData data)
+	{
+		int step = step(data);
+		switch (step)
 		{
-			case 3 ->
-			{
-				if (data.chargeRate < AbilityCooldown)
-				{
-					data.chargeRate++;
-					data.shouldSync = true;
-				}
-			}
-			case 2 ->
-			{
-				if (data.chargeRate > 0) data.chargeRate--;
-				else
-				{
-					data.returnEnergyToTool(stack, FirstAttackReturnEnergy);
-					data.chargeStep = 3;
-				}
-				data.shouldSync = true;
-			}
-			case 1 ->
-			{
-				if (data.chargeRate > 0) data.chargeRate--;
-				else
-				{
-					data.returnEnergyToTool(stack, SecondAttackReturnEnergy);
-					data.chargeStep = 3;
-				}
-				data.shouldSync = true;
-			}
+			case 2 -> data.returnEnergyToTool(player.getWeaponStack(), FirstAttackReturnEnergy);
+			case 1 -> data.returnEnergyToTool(player.getWeaponStack(), SecondAttackReturnEnergy);
 		}
+		data.setCooldown(this, AbilityCooldown);
+		setStep(data, 3);
+	}
+
+	@Override
+	public AbilityCooldownGroup getCooldownGroup()
+	{
+		return AbilityCooldownGroup.ATTACK;
 	}
 
 	@Override
@@ -111,15 +103,13 @@ public class RepeatSlashingAbility extends CommonAbility
 		if (attacker instanceof ServerPlayerEntity player)
 		{
 			var manager = player.interestingWorld$getIWServerPlayerData();
-			if (manager.isAbilityOn() && manager.sweeping && (manager.chargeStep < 3 ||
-															  (manager.chargeRate >= AbilityCooldown &&
-															   manager.extractAutomicEnergy(stack, EnergyConsume))))
+			int step = step(manager);
+			if (manager.isAbilityOn() && manager.sweeping && !manager.isInCooldown(this) &&
+				(step < 3 || manager.extractAtomicEnergy(stack, EnergyConsume)))
 			{
 				int damage;
 				int range;
 				float angle;
-				int step = manager.chargeStep;
-				manager.chargeStep--;
 				switch (step)
 				{
 					case 3 ->
@@ -127,22 +117,22 @@ public class RepeatSlashingAbility extends CommonAbility
 						damage = FirstAttackDamage;
 						range = FirstAttackRange;
 						angle = FirstAttackAngleCosine;
-						manager.chargeRate = SecondAttackTimeLimit;
+						setStep(manager, 2);
 					}
 					case 2 ->
 					{
 						damage = SecondAttackDamage;
 						range = SecondAttackRange;
 						angle = SecondAttackAngleCosine;
-						manager.chargeRate = ThirdAttackTimeLimit;
+						setStep(manager, 1);
 					}
 					case 1 ->
 					{
 						damage = ThirdAttackDamage;
 						range = ThirdAttackRange;
 						angle = ThirdAttackAngleCosine;
-						manager.chargeStep = 3;
-						manager.chargeRate = 0;
+						setStep(manager, 3);
+						manager.setCooldown(this, AbilityCooldown);
 					}
 					default ->
 					{
@@ -151,7 +141,6 @@ public class RepeatSlashingAbility extends CommonAbility
 						angle = 0.0f;
 					}
 				}
-				manager.shouldSync = true;
 				ServerWorld world = (ServerWorld) player.getWorld();
 				var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
 				var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
@@ -170,78 +159,67 @@ public class RepeatSlashingAbility extends CommonAbility
 		}
 	}
 
+	private int step(IWServerPlayerData data)
+	{
+		return data.loadRegister(0);
+	}
+
+	private void setStep(IWServerPlayerData data, int step)
+	{
+		data.setRegister(0, step);
+		switch (step)
+		{
+			case 1 ->
+			{
+				data.setBarType(AbilityBarType.TICK_REVERSE);
+				data.getTickManager().resetAndStart(ThirdAttackTimeLimit);
+			}
+			case 2 ->
+			{
+				data.setBarType(AbilityBarType.TICK_REVERSE);
+				data.getTickManager().resetAndStart(SecondAttackTimeLimit);
+			}
+			case 3 ->
+			{
+				data.setBarType(AbilityBarType.EMPTY);
+				data.getTickManager().pause();
+			}
+		}
+		data.sync();
+	}
+
 	@Override
 	public void onEnter(PlayerEntity entity, IWServerPlayerData manager)
 	{
-		manager.chargeRate = 0;
-		manager.chargeStep = 3;
+		setStep(manager, 3);
 	}
 
 	@Override
 	public void onLeave(PlayerEntity entity, IWServerPlayerData manager)
 	{
-		manager.chargeRate = -1;
-		manager.chargeStep = -1;
-	}
-
-	@Override
-	public int abilityBarForegroundColor(IWClientPlayerData data)
-	{
-		return data.server_ability_on_opt ? Color.RED_RGB : Color.GRAY_RGB;
-	}
-
-	@Override
-	public int abilityProcess(IWClientPlayerData data)
-	{
-		return data.charge_rate16;
-	}
-
-	@Override
-	public void writeClientRenderDataToBuf(IWServerPlayerData data, RegistryByteBuf buf)
-	{
-		buf.writeInt(data.chargeRate);
-		buf.writeInt(data.chargeStep);
-		buf.writeBoolean(data.isAbilityOn());
-	}
-
-	@Override
-	public void readClientRenderDataFromBuf(PlayerEntity entity, IWClientPlayerData data, ByteBuf buf)
-	{
-		int chargeRate = buf.readInt();
-		int chargeStep = buf.readInt();
-		data.server_ability_on_opt = buf.readBoolean();
-		int c;
-		switch (chargeStep)
+		if (step(manager) < 3)
 		{
-			case 3 -> c = Math.clamp(chargeRate * 16L / AbilityCooldown, 0, 16);
-			case 2 -> c = Math.clamp(chargeRate * 16L / SecondAttackTimeLimit, 0, 16);
-			case 1 -> c = Math.clamp(chargeRate * 16L / ThirdAttackTimeLimit, 0, 16);
-			default -> c = 0;
+			manager.setCooldown(this, AbilityCooldown);
+			setStep(manager, 3);
 		}
-		if (data.server_ability_on_opt && chargeStep == 3 && c == 16 && data.charge_rate16 != 16)
-		{
-			playChargedOverSound(entity);
-		}
-		data.charge_rate16 = c;
-		data.shown_number = chargeStep;
 	}
 
 	@Override
-	public boolean shouldRenderAbilityBar(IWClientPlayerData data)
+	public void writeClientRenderDataToBuf(IWServerPlayerData data, BitWriter buf)
 	{
-		return data.server_ability_on_opt || data.charge_rate16 < 16;
+		buf.writeUnsignedInt(step(data), 2);
 	}
 
 	@Override
-	public boolean shouldRenderAbilityText(IWClientPlayerData data)
+	public void readClientRenderDataFromBuf(PlayerEntity entity, IWClientPlayerData data, BitReader buf)
 	{
-		return data.server_ability_on_opt && (data.shown_number < 3 || data.charge_rate16 == 16);
+		data.setRegister(0, buf.readUnsignedInt(2));
 	}
 
 	@Override
 	public String abilityText(IWClientPlayerData data)
 	{
-		return String.valueOf(data.shown_number);
+		return String.valueOf(data.loadRegister(0));
 	}
 
 	@Override
@@ -250,30 +228,22 @@ public class RepeatSlashingAbility extends CommonAbility
 		ItemStack weaponStack = player.getWeaponStack();
 		if (!weaponStack.isEmpty())
 		{
-			switch (data.chargeStep)
+			switch (step(data))
 			{
 				case 2 ->
 				{
-					data.chargeRate = 0;
-					data.chargeStep = 3;
-					data.shouldSync = true;
 					data.returnEnergyToTool(weaponStack, FirstAttackReturnEnergy);
+					data.setCooldown(this, AbilityCooldown);
+					setStep(data, 3);
 				}
 				case 1 ->
 				{
-					data.chargeRate = 0;
-					data.chargeStep = 3;
-					data.shouldSync = true;
 					data.returnEnergyToTool(weaponStack, SecondAttackReturnEnergy);
+					data.setCooldown(this, AbilityCooldown);
+					setStep(data, 3);
 				}
 			}
 		}
-		data.shouldSync = true;
-	}
-
-	public void onServerAbilityOpen(ServerPlayerEntity player, IWServerPlayerData data)
-	{
-		data.shouldSync = true;
 	}
 
 	@Override
@@ -283,7 +253,7 @@ public class RepeatSlashingAbility extends CommonAbility
 	}
 
 	@Override
-	public  AbstractAbility getToolRenderAbility()
+	public AbstractAbility getToolRenderAbility()
 	{
 		return IWAbilities.SLASHING_ABILITY;
 	}

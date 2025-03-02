@@ -23,15 +23,6 @@ public class RandomBoostGenerator
 	final int maxWorldLevel;
 	final BoostComponent boostComponent;
 
-	public int triangleInt(int max)
-	{
-		if (max < 2) return max - 1;
-		int b = random.nextInt(max) + random.nextInt(max);
-		int n = b >> 1;
-		if ((b & 1) == 0) return n;
-		return random.nextInt(1) + n;
-	}
-
 	public RandomBoostGenerator(RandomBoostPool pool, int boostTime, int worldLevel, int materialLevel, int seed)
 	{
 		maxBoostTime = boostTime;
@@ -66,8 +57,14 @@ public class RandomBoostGenerator
 				complete = null;
 				return;
 			}
-			maxBoostCount = 1 + triangleInt(entryCount);
-			costUnit = (maxCost + (maxBoostCount >> 1)) / maxBoostCount;
+			if (entryCount > 1)
+			{
+				int c1 = 1 + Math.max(random.nextInt(entryCount), random.nextInt(entryCount));
+				int c2 = 1 + random.nextInt(entryCount);
+				maxBoostCount = Math.min(c1, c2);
+			}
+			else maxBoostCount = 1;
+			costUnit = (maxCost + maxBoostCount) / (maxBoostCount << 1);
 			boostComponent = generateBoosts();
 		}
 		else
@@ -101,6 +98,15 @@ public class RandomBoostGenerator
 			it.next = current;
 			next.pre = current;
 		}
+	}
+
+	private int getLeft(int nextLevelCost)
+	{
+		if (leftCost <= costUnit) return leftCost;
+		if (nextLevelCost >= costUnit * 2) return nextLevelCost;
+		int maxGate = Math.min(leftCost, costUnit * 2);
+		int minGate = Math.max(nextLevelCost, costUnit);
+		return Math.min(random.nextInt(minGate, maxGate + 1), random.nextInt(minGate, maxGate + 1));
 	}
 
 	private void add(RandomBoostEntry entry)
@@ -301,7 +307,7 @@ public class RandomBoostGenerator
 				int nextMaxCost = Math.min(maxCost, getMaxAllowXpCostOfWorldLevel(maxBoostTime - boostTime));
 				leftCost = leftCost - maxCost + nextMaxCost;
 				maxCost = nextMaxCost;
-				int left = Math.max(Math.min(leftCost, costUnit), entry.nextLevelCost_B);
+				int left = getLeft(entry.nextLevelCost_B);
 				leftCost -= entry.setLevel(entry.costAchieveLevel(left));
 				sortAndApplyConflicts(entry);
 			}
@@ -312,7 +318,7 @@ public class RandomBoostGenerator
 
 	private void advance(RandomBoostEntry entry)
 	{
-		int left = Math.max(Math.min(leftCost, costUnit), entry.nextLevelCost_B);
+		int left = getLeft(entry.nextLevelCost_B);
 		leftCost -= entry.setLevel(entry.costAchieveLevel(left));
 		sort(entry);
 	}

@@ -12,16 +12,16 @@
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/blaze_rod/sweetcurse"
+          "model": "iw:item/blaze_rod/slashing"
         },
-        "when": "iw:sweetcurse"
+        "when": "iw:slashing"
       },
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/blaze_rod/slashing"
+          "model": "iw:item/blaze_rod/sweetcurse"
         },
-        "when": "iw:slashing"
+        "when": "iw:sweetcurse"
       }
     ],
     "fallback": {

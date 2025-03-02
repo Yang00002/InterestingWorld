@@ -12,16 +12,16 @@
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/stick/sweetcurse"
+          "model": "iw:item/stick/slashing"
         },
-        "when": "iw:sweetcurse"
+        "when": "iw:slashing"
       },
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/stick/slashing"
+          "model": "iw:item/stick/sweetcurse"
         },
-        "when": "iw:slashing"
+        "when": "iw:sweetcurse"
       }
     ],
     "fallback": {

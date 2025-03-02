@@ -2,9 +2,12 @@ package org.yang.iw.mixin.mixin_interface;
 
 import org.jetbrains.annotations.Nullable;
 import org.yang.iw.boost.BoostContainer;
+import org.yang.iw.boost.function.BoostFunctionMap;
 import org.yang.iw.component.AbilityComponent;
 import org.yang.iw.component.BoostComponent;
 import org.yang.iw.component.UpgradeComponent;
+
+import java.util.function.Function;
 
 public interface InterfaceItemStack
 {
@@ -23,7 +26,7 @@ public interface InterfaceItemStack
 		return UpgradeComponent.DEFAULT;
 	}
 
-	default @Nullable BoostContainer interestingWorld$uniqueBoost()
+	default @Nullable BoostFunctionMap interestingWorld$uniqueBoost()
 	{
 		return null;
 	}

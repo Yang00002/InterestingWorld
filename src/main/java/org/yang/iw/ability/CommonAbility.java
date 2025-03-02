@@ -6,7 +6,6 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import org.yang.iw.IWSounds;
 import org.yang.iw.api.tag.IntrusiveTag;
-import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.item.heart.AbilityHeart;
 import org.yang.iw.persistentdata.IWPersistentData;
 import org.yang.iw.util.Server;
@@ -63,12 +62,6 @@ public class CommonAbility extends AbstractAbility
 	{
 		IWPersistentData data = Server.getPersistentData();
 		return data != null && level() <= data.worldEnergyLevel;
-	}
-
-	@Override
-	public boolean shouldRenderAbilityBar(IWClientPlayerData data)
-	{
-		return data.client_ability_on || data.charge_rate16 < 16;
 	}
 
 	public void playChargedOverSound(PlayerEntity entity)

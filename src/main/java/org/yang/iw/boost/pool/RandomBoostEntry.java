@@ -45,7 +45,7 @@ public class RandomBoostEntry
 		if (maxLevel <= currentLevel) return currentLevel;
 		cost_B += currentCost_B;
 		int tryCost_s = (int) ((cost_B - baseCost) / costMultiplier);
-		int lvl = boost.costAchieveLevel(currentLevel, tryCost_s);
+		int lvl = boost.costAchieveLevel(currentLevel, maxLevel, tryCost_s);
 		if (lvl < maxLevel && boost.xpCostOfLevel((short) (lvl + 1)) <= cost_B) return (short) (lvl + 1);
 		return (short) lvl;
 	}

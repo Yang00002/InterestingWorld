@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.yang.iw.mixin.helper.HelperEnchantmentHelper;
 
 import java.util.function.BiConsumer;
@@ -23,7 +24,6 @@ import java.util.function.BiConsumer;
 @Mixin(EnchantmentHelper.class)
 public abstract class MixinEnchantmentHelper
 {
-
 	@Inject(method =
 			"applyLocationBasedEffects(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/item/ItemStack;" +
 			"Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/entity/EquipmentSlot;)V", at = @At(value = "TAIL"))
@@ -82,5 +82,21 @@ public abstract class MixinEnchantmentHelper
 										  CallbackInfo ci)
 	{
 		HelperEnchantmentHelper.onTargetDamaged(world, target, damageSource, weapon);
+	}
+
+	@Inject(method = "getItemDamage", at = @At("RETURN"), cancellable = true)
+	private static void modifyGetItemDamage(ServerWorld world, ItemStack stack, int baseItemDamage,
+											CallbackInfoReturnable<Integer> cir)
+	{
+		cir.setReturnValue(HelperEnchantmentHelper.getItemDamage(world, stack, cir.getReturnValue()));
+	}
+
+	@Inject(method = "getEquipmentDropChance", at = @At("RETURN"), cancellable = true)
+	private static void modifyGetEquipmentDropChance(ServerWorld world, LivingEntity attacker,
+													 DamageSource damageSource, float baseEquipmentDropChance,
+													 CallbackInfoReturnable<Float> cir)
+	{
+		var ret = HelperEnchantmentHelper.getEquipmentDropChance(world, attacker, damageSource, cir.getReturnValue());
+		cir.setReturnValue(ret);
 	}
 }

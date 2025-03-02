@@ -205,7 +205,8 @@ public class RandomBoostPool
 
 	public static final RandomBoostPool ALL = pool(
 			page(1, entry(5, IWBoosts.FIRE_ASPECT), entry(2, IWBoosts.REPEAT_ATTACK), entry(9, IWBoosts.SHARPNESS),
-					entry(9, IWBoosts.FAST_ATTACK)));
+					entry(9, IWBoosts.FAST_ATTACK), entry(10, IWBoosts.UNBREAKING), entry(5, IWBoosts.SWEEPING_EDGE),
+					entry(1, IWBoosts.MENDING)));
 
 	static
 	{

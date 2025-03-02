@@ -25,7 +25,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.yang.iw.IWEntityAttributes;
-import org.yang.iw.effect.IWEffects;
 import org.yang.iw.mixin.mixin_interface.InterfaceLivingEntity;
 
 import java.util.Collection;
@@ -82,7 +81,6 @@ public abstract class MixinLivingEntity extends Entity implements Attackable, In
 		}
 	}
 
-
 	// timeUR 在受伤时被设置为 20. 其每刻减小，减到 <= 10 则可受伤
 	@ModifyConstant(method = "damage", constant = @Constant(floatValue = 10.0f, ordinal = 0))
 	private float neglectInvulnerableTicks(float cooldownGate, @Local(argsOnly = true) DamageSource source)
@@ -100,8 +98,9 @@ public abstract class MixinLivingEntity extends Entity implements Attackable, In
 	{
 		if (source.isIn(DamageTypeTags.BYPASSES_COOLDOWN)) return timeUntilRegen;
 		LivingEntity entity = (LivingEntity) (Object) this;
-		StatusEffectInstance ins = entity.getStatusEffect(IWEffects.COOLDOWN);
-		invulnerableTicks = ins == null ? 10 : Math.max(1, 10 - ins.getAmplifier());
+		if (!(entity instanceof LivingEntity livingEntity) ||
+			!livingEntity.getAttributes().hasAttribute(IWEntityAttributes.HURT_DURATION)) return 20;
+		invulnerableTicks = (int) entity.getAttributeValue(IWEntityAttributes.HURT_DURATION);
 		return 10 + invulnerableTicks;
 	}
 
@@ -172,6 +171,6 @@ public abstract class MixinLivingEntity extends Entity implements Attackable, In
 	private static void addAttributes(CallbackInfoReturnable<DefaultAttributeContainer.Builder> cir)
 	{
 		cir.setReturnValue(cir.getReturnValue().add(IWEntityAttributes.ATTACK_DURATION_NEGLECT)
-				.add(IWEntityAttributes.HURT_DAMAGE_MULTIPLIER));
+				.add(IWEntityAttributes.HURT_DAMAGE_MULTIPLIER).add(IWEntityAttributes.HURT_DURATION));
 	}
 }

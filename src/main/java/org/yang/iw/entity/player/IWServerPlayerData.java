@@ -3,94 +3,212 @@ package org.yang.iw.entity.player;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import org.yang.iw.IWEntityAttributes;
 import org.yang.iw.ability.AbstractAbility;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.item.tool.EnergyToolItem;
-import org.yang.iw.network.payload.S2CAbilityDataPayload;
-import org.yang.iw.network.payload.S2CPlayerEnergyDataPayload;
+import org.yang.iw.network.bitio.BitWriter;
+import org.yang.iw.network.payload.S2CPlayerDataPayload;
 import org.yang.iw.util.IWUtil;
+import org.yang.iw.util.constants.Numbers;
 
 import static org.yang.iw.util.Return.RETURNTRUE;
 
 
 public class IWServerPlayerData
 {
+	public final ServerPlayerEntity player;
 	private AbstractAbility WeaponAbility = AbstractAbility.getDefault();
 	private float current_energy = 0;
 	private int last_energy = -1;
-	private int energyRegenTimer = 0;
+	private float energyRegenPool = 0;
 	private boolean ability_on = true;
+	private final AbilityCooldownManager cooldownManager = new AbilityCooldownManager(this);
+	private final AbilityTickManager tickManager = new AbilityTickManager(this);
+	private final int[] registers = new int[16];
+	AbilityBarType barType = AbilityBarType.EMPTY;
+	int clientStep = 0;
 
 	public boolean sweeping = false;
-	public int chargeStep = -1;
-	public int chargeRate = -1;
-	public boolean isCharging = false;
-	public boolean shouldSync = false;
-	public boolean used = false;
+	private boolean shouldSync = true;
 	public int forging_seed = 0;
-	public boolean isCharged = false;
+	private boolean tickOver = false;
+
+	public IWServerPlayerData(ServerPlayerEntity player)
+	{
+		this.player = player;
+	}
+
+	public void sync()
+	{
+		shouldSync = true;
+	}
 
 	public boolean isAbilityOn()
 	{
 		return ability_on;
 	}
 
+	public AbstractAbility getWeaponAbility()
+	{
+		return WeaponAbility;
+	}
+
 	public void readNbt(NbtCompound nbt)
 	{
-		current_energy = nbt.getFloat("current_energy");
-		energyRegenTimer = nbt.getInt("energyregentimer");
-		forging_seed = nbt.getInt("forging_seed");
-		ability_on = nbt.getBoolean("ability_on");
+		var component = nbt.getCompound("iw_player_data");
+		current_energy = component.getFloat("current_energy");
+		energyRegenPool = component.getFloat("energy_regen_pool");
+		forging_seed = component.getInt("forging_seed");
+		ability_on = component.getBoolean("ability_on");
+		sweeping = component.getBoolean("sweeping");
+		barType = AbilityBarType.values()[component.getInt("bar_type")];
+		cooldownManager.readNbt(component.getCompound("cooldown"));
+		tickManager.readNbt(component.getCompound("tick"));
+		WeaponAbility = AbstractAbility.readNbt(component, "weapon_ability");
+		importRegisters(component.getByteArray("ability_registers"));
+	}
+
+	public void copyPlayerData(IWServerPlayerData oldPlayerData, boolean alive, boolean keepInventory)
+	{
+		WeaponAbility = oldPlayerData.WeaponAbility;
+		current_energy = (alive || keepInventory) ? oldPlayerData.current_energy
+												  : Math.min(20, oldPlayerData.current_energy + 20); // TODO
+		energyRegenPool = oldPlayerData.energyRegenPool;
+		ability_on = oldPlayerData.ability_on;
+		cooldownManager.copy(oldPlayerData.cooldownManager);
+		tickManager.copy(oldPlayerData.tickManager);
+		System.arraycopy(oldPlayerData.registers, 0, registers, 0, 16);
+		barType = oldPlayerData.barType;
+		clientStep = oldPlayerData.clientStep;
+		sweeping = false;
+		shouldSync = true;
+		forging_seed = oldPlayerData.forging_seed;
+		tickOver = oldPlayerData.tickOver;
 	}
 
 	public void writeNbt(NbtCompound nbt)
 	{
-		nbt.putFloat("current_energy", current_energy);
-		nbt.putInt("energyregentimer", energyRegenTimer);
-		nbt.putInt("forging_seed", forging_seed);
-		nbt.putBoolean("ability_on", ability_on);
+		var component = new NbtCompound();
+		component.putFloat("current_energy", current_energy);
+		component.putFloat("energy_regen_pool", energyRegenPool);
+		component.putInt("forging_seed", forging_seed);
+		component.putBoolean("ability_on", ability_on);
+		component.putBoolean("sweeping", sweeping);
+		component.putInt("bar_type", barType.ordinal());
+		component.put("cooldown", cooldownManager.writeNbt());
+		component.put("tick", tickManager.writeNbt());
+		WeaponAbility.writeNbt(component, "weapon_ability");
+		component.putByteArray("ability_registers", exportRegisters());
+		nbt.put("iw_player_data", component);
+	}
+
+	private void importRegisters(byte[] pre)
+	{
+		int len = Math.min(pre.length / 4, 16);
+		for (int i = 0; i < len; i++)
+		{
+			int offset = i * 4;
+			registers[i] = (((pre[offset] & 0xFF) << 24) | ((pre[offset + 1] & 0xFF) << 16) |
+							((pre[offset + 2] & 0xFF) << 8) | (pre[offset + 3] & 0xFF));
+		}
+	}
+
+	private byte[] exportRegisters()
+	{
+		byte[] byteArray = new byte[64];
+		for (int i = 0; i < 16; i++)
+		{
+			int value = registers[i];
+			int offset = i * 4;
+			byteArray[offset] = (byte) ((value >> 24) & 0xFF);
+			byteArray[offset + 1] = (byte) ((value >> 16) & 0xFF);
+			byteArray[offset + 2] = (byte) ((value >> 8) & 0xFF);
+			byteArray[offset + 3] = (byte) (value & 0xFF);
+		}
+		return byteArray;
+	}
+
+	public int loadRegister(int i)
+	{
+		return i >= 16 ? 0 : registers[i];
+	}
+
+	public void setRegister(int i, int value)
+	{
+		if (i >= 16) return;
+		registers[i] = value;
 	}
 
 	public void updateEnergy(ServerPlayerEntity player, ItemStack stack)
 	{
-		if (energyRegenTimer < Integer.MAX_VALUE) energyRegenTimer++;
-		if (player.getHealth() >= player.getMaxHealth())
+		if (player.getHungerManager().getFoodLevel() <= 6) return;
+		float attr = ((float) player.getAttributeValue(IWEntityAttributes.ENERGY_REGENERATION)) * 0.05f;
+		if (attr >= Numbers.FLOAT_EPSILON)
 		{
-			if (current_energy < 20)
+			if (player.getHealth() >= player.getMaxHealth()) current_energy += attr;
+			else current_energy += attr * 0.5f;
+			if (current_energy > 20f)
 			{
-				if (energyRegenTimer >= 5)
+				energyRegenPool += current_energy - 20f;
+				if (energyRegenPool >= 1f)
 				{
-					var hunger = player.getHungerManager();
-					int food = hunger.getFoodLevel();
-					if (food < 18) return;
-					float saturation = hunger.getSaturationLevel();
-					if (energyRegenTimer < 45 - (int) saturation * 2) return;
-					if (saturation >= 1.0f) hunger.setSaturationLevel(saturation - 1.0f);
-					else hunger.setFoodLevel(food - 1);
-					current_energy++;
-					energyRegenTimer = 0;
+					if (!stack.isEmpty() && stack.contains(IWComponents.MAX_ENERGY))
+					{
+						float max = IWUtil.Components.maxEnergy(stack);
+						float cur = IWUtil.Components.currentEnergy(stack);
+						float rate = stack.getOrDefault(IWComponents.ENERGY_REGEN_RATE, 0.0f);
+						if (max > cur && rate >= Numbers.FLOAT_EPSILON)
+							stack.set(IWComponents.CURRENT_ENERGY, Math.min(max, cur + rate * energyRegenPool));
+					}
+					energyRegenPool = 0f;
 				}
-			}
-			else if (!stack.isEmpty())
-			{
-				float max = IWUtil.Components.maxEnergy(stack);
-				float cur = IWUtil.Components.currentEnergy(stack);
-				float rate = stack.getOrDefault(IWComponents.ENERGY_REGEN_RATE, 0.0f);
-				if (max > cur && rate != 0.0f)
-				{
-					var hunger = player.getHungerManager();
-					int food = hunger.getFoodLevel();
-					if (food < 18) return;
-					float saturation = hunger.getSaturationLevel();
-					if (energyRegenTimer * rate < 45 - (int) saturation * 2) return;
-					stack.set(IWComponents.CURRENT_ENERGY, Math.min(max, cur + 1));
-					energyRegenTimer = 0;
-				}
+				current_energy = 20f;
 			}
 		}
+	}
+
+	public void setCooldown(AbstractAbility identifier, int duration)
+	{
+		cooldownManager.setCooldown(identifier, duration);
+	}
+
+	public boolean isInCooldown(AbstractAbility identifier)
+	{
+		return cooldownManager.isInCooldown(identifier);
+	}
+
+	public int coolDownStep(AbstractAbility ability)
+	{
+		return cooldownManager.cooldownStep(ability);
+	}
+
+	public void setBarType(AbilityBarType type)
+	{
+		barType = type;
+		shouldSync = true;
+	}
+
+	public boolean tickOver()
+	{
+		return tickOver;
+	}
+
+	public void setTickOver(boolean t)
+	{
+		tickOver = t;
+		if (tickOver)
+		{
+			shouldSync = true;
+			WeaponAbility.onServerTickOver(player, this);
+		}
+	}
+
+	public AbilityTickManager getTickManager()
+	{
+		return tickManager;
 	}
 
 	public void tick(ServerPlayerEntity player)
@@ -98,9 +216,10 @@ public class IWServerPlayerData
 		ItemStack stack = player.getWeaponStack();
 		updateEnergy(player, stack);
 		sweeping = false;
-		if (!stack.isEmpty() && stack.getItem() instanceof EnergyToolItem)
+		if (!stack.isEmpty())
 		{
-			var ability = stack.interestingWorld$getAbility().ability();
+			var ability = stack.getItem() instanceof EnergyToolItem ? stack.interestingWorld$getAbility().ability()
+																	: AbstractAbility.getDefault();
 			if (!ability.canWork())
 			{
 				if (!WeaponAbility.isEmpty())
@@ -124,21 +243,36 @@ public class IWServerPlayerData
 			WeaponAbility = AbstractAbility.getDefault();
 			shouldSync = true;
 		}
+		if (!cooldownManager.tick(WeaponAbility)) tickManager.tick();
 		WeaponAbility.serverPlayerWeaponTick(player, this, stack);
 		int ce = (int) current_energy;
-		if (last_energy != ce)
-		{
-			last_energy = ce;
-			ServerPlayNetworking.send(player, new S2CPlayerEnergyDataPayload(last_energy));
-		}
+		if (last_energy != ce) shouldSync = true;
 		if (shouldSync)
 		{
 			shouldSync = false;
-			ServerPlayNetworking.send(player, new S2CAbilityDataPayload(WeaponAbility, this, null));
+			ServerPlayNetworking.send(player, new S2CPlayerDataPayload(WeaponAbility, this, null));
 		}
 	}
 
-	public boolean extractAutomicEnergy(ItemStack stack, float amount)
+	public AbilityBarType abilityBarType()
+	{
+		return barType;
+	}
+
+	public int getTickManagerStep()
+	{
+		return tickManager.tickProgress();
+	}
+
+	public boolean syncEnergy()
+	{
+		int cur = (int) current_energy;
+		boolean ret = (cur != last_energy);
+		last_energy = cur;
+		return ret;
+	}
+
+	public boolean extractAtomicEnergy(ItemStack stack, float amount)
 	{
 		var ab = stack.interestingWorld$getAbility().ability();
 		if (ab.canWork())
@@ -222,7 +356,12 @@ public class IWServerPlayerData
 		return current_energy;
 	}
 
-	public void writeS2CInitializeDataToBuffer(RegistryByteBuf buf)
+	public int getLastEnergy()
+	{
+		return last_energy;
+	}
+
+	public void writeS2CInitializeDataToBuffer(BitWriter buf)
 	{
 		buf.writeBoolean(ability_on);
 	}
@@ -231,6 +370,7 @@ public class IWServerPlayerData
 	{
 		if (ability_on != next)
 		{
+			if (!WeaponAbility.isEmpty()) shouldSync = true;
 			if (next) WeaponAbility.onServerAbilityOpen(player, this);
 			else WeaponAbility.onServerAbilityClose(player, this);
 		}

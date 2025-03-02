@@ -1,11 +1,8 @@
 package org.yang.iw.ability;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -13,17 +10,14 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
+import org.yang.iw.api.tag.IntrusiveTag;
 import org.yang.iw.component.EnergyToolDataFlag;
 import org.yang.iw.effect.IWEffects;
-import org.yang.iw.entity.player.IWClientPlayerData;
-import org.yang.iw.entity.player.IWServerPlayerData;
-import org.yang.iw.api.tag.IntrusiveTag;
 import org.yang.iw.item.heart.AbilityHeart;
 import org.yang.iw.util.IWLivingEntityUtil;
 import org.yang.iw.util.IWParticleUtil;
 import org.yang.iw.util.IWSoundUtil;
 import org.yang.iw.util.IWStatusEffectUtil;
-import org.yang.iw.util.style.Color;
 
 public class InfiniteEviscerateAbility extends InfiniteAbility
 {
@@ -52,13 +46,9 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 	}
 
 	@Override
-	public void serverPlayerWeaponTick(PlayerEntity entity, IWServerPlayerData data, ItemStack stack)
+	public AbilityCooldownGroup getCooldownGroup()
 	{
-		if (data.chargeRate < AbilityCooldown)
-		{
-			data.chargeRate++;
-			data.shouldSync = true;
-		}
+		return AbilityCooldownGroup.ATTACK;
 	}
 
 	@Override
@@ -71,10 +61,8 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 			{
 				ServerWorld world = (ServerWorld) player.getWorld();
 				var damageSource = new DamageSource(IWDamageTypes.BLOOD_EFFECT_ENTRY.get(), attacker);
-				if (manager.chargeRate >= AbilityCooldown)
+				if (!manager.isInCooldown(this))
 				{
-					manager.chargeRate = 0;
-					manager.shouldSync = true;
 					IWSoundUtil.playSoundToPlayer(player, IWSounds.DOUBLE_SWEEP, SoundCategory.PLAYERS);
 					var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
 					var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
@@ -96,6 +84,7 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 								IWParticleUtil.spawnParticlesAtPos(world, ParticleTypes.SWEEP_ATTACK, x, y, z, 3, 0.5,
 										0.5, 0.5);
 							});
+					manager.setCooldown(this, AbilityCooldown);
 				}
 				else
 				{
@@ -108,50 +97,9 @@ public class InfiniteEviscerateAbility extends InfiniteAbility
 	}
 
 	@Override
-	public void onEnter(PlayerEntity entity, IWServerPlayerData manager)
-	{
-		manager.chargeRate = 0;
-	}
-
-	@Override
-	public void onLeave(PlayerEntity entity, IWServerPlayerData manager)
-	{
-		manager.chargeRate = -1;
-	}
-
-	@Override
-	public int abilityBarForegroundColor(IWClientPlayerData data)
-	{
-		return data.client_ability_on ? Color.CYAN_RGB : Color.GRAY_RGB;
-	}
-
-	@Override
-	public int abilityProcess(IWClientPlayerData data)
-	{
-		return data.charge_rate16;
-	}
-
-	@Override
-	public void writeClientRenderDataToBuf(IWServerPlayerData data, RegistryByteBuf buf)
-	{
-		buf.writeInt(data.chargeRate);
-	}
-
-	@Override
 	public AbstractAbility getToolRenderAbility()
 	{
 		return IWAbilities.SLASHING_ABILITY;
 	}
 
-	@Override
-	public void readClientRenderDataFromBuf(PlayerEntity entity, IWClientPlayerData data, ByteBuf buf)
-	{
-		int chargeRate = buf.readInt();
-		int c = Math.clamp(chargeRate * 16L / AbilityCooldown, 0, 16);
-		if (data.client_ability_on && c == 16 && data.charge_rate16 != 16)
-		{
-			playChargedOverSound(entity);
-		}
-		data.charge_rate16 = c;
-	}
 }

@@ -1,4 +1,4 @@
-package org.yang.iw.mixin.mixin;
+package org.yang.iw.mixin.mixin.grindstone;
 
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;

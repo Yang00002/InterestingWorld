@@ -12,16 +12,16 @@
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/golden_sword/sweetcurse"
+          "model": "iw:item/golden_sword/slashing"
         },
-        "when": "iw:sweetcurse"
+        "when": "iw:slashing"
       },
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/golden_sword/slashing"
+          "model": "iw:item/golden_sword/sweetcurse"
         },
-        "when": "iw:slashing"
+        "when": "iw:sweetcurse"
       }
     ],
     "fallback": {

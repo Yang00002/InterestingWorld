@@ -30,10 +30,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.yang.iw.boost.BoostContainer;
-import org.yang.iw.component.AbilityComponent;
-import org.yang.iw.component.BoostComponent;
-import org.yang.iw.component.IWComponents;
-import org.yang.iw.component.UpgradeComponent;
+import org.yang.iw.boost.function.BoostFunctionMap;
+import org.yang.iw.component.*;
 import org.yang.iw.item.heart.HideAbilityTooltip;
 import org.yang.iw.item.upgrade.HideUpgradeTooltip;
 import org.yang.iw.mixin.helper.HelperItemStack;
@@ -52,7 +50,7 @@ public abstract class MixinItemStack implements ComponentHolder, InterfaceItemSt
 {
 	@Override
 	@Unique
-	public @Nullable BoostContainer interestingWorld$uniqueBoost()
+	public @Nullable BoostFunctionMap interestingWorld$uniqueBoost()
 	{
 		return getItem().interestingWorld$uniqueBoostFor((ItemStack) (Object) this);
 	}
@@ -163,5 +161,21 @@ public abstract class MixinItemStack implements ComponentHolder, InterfaceItemSt
 		}
 		if (!nset) list.add(Text.empty());
 		getOrDefault(IWComponents.BOOST, BoostComponent.DEFAULT).appendTooltip(context, list::add, type);
+	}
+
+	@Inject(method = "isEnchantable", at = @At(value = "RETURN"), cancellable = true)
+	private void setBaseHeartNotEnchantable(CallbackInfoReturnable<Boolean> cir)
+	{
+		var r = cir.getReturnValue();
+		if (r)
+		{
+			if (!interestingWorld$getBoosts().isEmpty())
+			{
+				cir.setReturnValue(false);
+				return;
+			}
+			var boostable = getOrDefault(IWComponents.BOOSTABLE, BoostableComponent.DEFAULT);
+			if (!boostable.isEmpty() && boostable.remainBoostTime() <= 0) cir.setReturnValue(false);
+		}
 	}
 }

@@ -6,10 +6,7 @@
   "mixins": [
     "MixinAnvilScreenHandler",
     "MixinEnchantmentHelper",
-    "MixinGrindstoneScreenHandler",
-    "MixinGrindstoneScreenHandlerInner2",
-    "MixinGrindstoneScreenHandlerInner3",
-    "MixinGrindstoneScreenHandlerInner4",
+    "MixinExperienceOrbEntity",
     "MixinItem",
     "MixinItemStack",
     "MixinLivingEntity",
@@ -18,7 +15,15 @@
     "MixinRegistryKeys",
     "MixinServerPlayerEntity",
     "MixinStatusEffect",
-    "MixinStatusEffectInstance"
+    "MixinStatusEffectInstance",
+    "grindstone.MixinGrindstoneScreenHandler",
+    "grindstone.MixinGrindstoneScreenHandlerInner2",
+    "grindstone.MixinGrindstoneScreenHandlerInner3",
+    "grindstone.MixinGrindstoneScreenHandlerInner4",
+    "loot_table.MixinApplyBonusLootFunction",
+    "loot_table.MixinEnchantedCountIncreaseLootFunction",
+    "loot_table.MixinRandomChanceWithEnchantedBonusLootCondition",
+    "loot_table.MixinTableBonusLootCondition"
   ],
   "injectors": {
     "defaultRequire": 1

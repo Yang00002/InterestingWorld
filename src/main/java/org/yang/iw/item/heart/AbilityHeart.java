@@ -6,8 +6,7 @@ import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.yang.iw.ability.AbstractAbility;
-import org.yang.iw.boost.AbstractBoost;
-import org.yang.iw.boost.BoostContainer;
+import org.yang.iw.boost.function.BoostFunctionMap;
 import org.yang.iw.component.AbilityComponent;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.datagen.language.TranslationPool;
@@ -16,20 +15,22 @@ import org.yang.iw.util.Server;
 import org.yang.iw.util.style.Color;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class AbilityHeart extends Item implements HideAbilityTooltip
 {
 
 	public final Identifier identifier;
 	public final int nameColorRGB;
-	private final AbstractBoost uniqueBoost;
+	private final Function<Integer, BoostFunctionMap> uniqueBoost;
 
 	public boolean supportAbility(AbstractAbility ability)
 	{
 		return ability.include(this);
 	}
 
-	public AbilityHeart(Settings settings, int nameColorRGB, Identifier identifier, AbstractBoost uniqueBoost)
+	public AbilityHeart(Settings settings, int nameColorRGB, Identifier identifier, Function<Integer,
+			BoostFunctionMap> uniqueBoost)
 	{
 		super(settings.maxCount(1));
 		this.nameColorRGB = nameColorRGB;
@@ -87,9 +88,9 @@ public class AbilityHeart extends Item implements HideAbilityTooltip
 	}
 
 	@Override
-	public BoostContainer interestingWorld$uniqueBoostFor(ItemStack stack)
+	public BoostFunctionMap interestingWorld$uniqueBoostFor(ItemStack stack)
 	{
 		var component = stack.interestingWorld$getAbility();
-		return component.isEmpty() ? null : new BoostContainer(uniqueBoost, component.ability().level());
+		return component.isEmpty() ? null : uniqueBoost.apply(component.ability().level());
 	}
 }

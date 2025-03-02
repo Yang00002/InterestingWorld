@@ -9,25 +9,35 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
+import org.yang.iw.boost.function.AttributeModifierFunction;
+import org.yang.iw.boost.function.BoostFunctionMap;
 import org.yang.iw.boost.pool.RandomBoostEntry;
 import org.yang.iw.boost.pool.RandomBoostGenerator;
+import org.yang.iw.util.constants.AttributeModifierIds;
 
-public class FastAttackBoost extends CertainSlotAttributeBoost
+public class FastAttackBoost extends AbstractBoost
 {
-	FastAttackBoost(Identifier identifier)
+	@Override
+	public BoostFunctionMap getFunctions(int level)
 	{
-		super(identifier, EquipmentSlot.MAINHAND, AttributeModifierSlot.MAINHAND);
+		return BoostFunctionMap.builder().add(AttributeModifierSlot.MAINHAND, new AttributeModifierFunction()
+		{
+			@Override
+			protected HashMultimap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> getModifiers(StringIdentifiable slot)
+			{
+				HashMultimap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> modifierMultiMap =
+						HashMultimap.create();
+				modifierMultiMap.put(EntityAttributes.ATTACK_SPEED,
+						new EntityAttributeModifier(AttributeModifierIds.of(identifier, slot), level * 0.1,
+								EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+				return modifierMultiMap;
+			}
+		}).build();
 	}
 
-	@Override
-	protected HashMultimap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> getModifiers(int level,
-																								 StringIdentifiable slot)
+	FastAttackBoost(Identifier identifier)
 	{
-		HashMultimap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> modifierMultimap = HashMultimap.create();
-		modifierMultimap.put(EntityAttributes.ATTACK_SPEED,
-				new EntityAttributeModifier(attributeModifierID(slot), level * 0.1,
-						EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
-		return modifierMultimap;
+		super(identifier);
 	}
 
 	@Override
@@ -43,15 +53,25 @@ public class FastAttackBoost extends CertainSlotAttributeBoost
 	}
 
 	@Override
-	public short costAchieveLevel(short from, int costAll)
+	public short costAchieveLevel(short from, short to, int costAll)
 	{
-		return (short) (costAll / 100);
+		return (short) Math.clamp((costAll / 100), from, to);
 	}
 
 	@Override
 	public boolean conflictWith(AbstractBoost boost)
 	{
-		return IWBoostTags.SHARPNESS_FAMILY.include(this);
+		return IWBoostTags.SHARPNESS_FAMILY.include(boost);
+	}
+
+	public short maxTableLevel()
+	{
+		return 6;
+	}
+
+	public short maxRandomLevel()
+	{
+		return 12;
 	}
 
 	@Override

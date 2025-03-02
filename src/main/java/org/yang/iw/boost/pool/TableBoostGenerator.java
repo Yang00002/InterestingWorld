@@ -15,6 +15,7 @@ import static org.yang.iw.util.IWCostUtil.getWorldLevelOfXpCost;
 
 public class TableBoostGenerator
 {
+	private static final boolean DEBUG = true;
 	boolean unlimited = false;
 	TableBoostEntry root = new TableBoostEntry();
 	TableBoostEntry complete = new TableBoostEntry();
@@ -30,6 +31,15 @@ public class TableBoostGenerator
 	final int costPerLazurite;
 	final int maxWorldLevel;
 	final BoostComponent boostComponent;
+
+	public int triangleInt(int min, int max)
+	{
+		if (min == max) return max;
+		if (min == max - 1) return min + random.nextInt(2);
+		int a = (random.nextInt(min, max + 1) + random.nextInt(min, max + 1));
+		if ((a & 1) == 1) return (a >> 1) + random.nextInt(2);
+		return a >> 1;
+	}
 
 	public TableBoostGenerator(TableBoostPool pool, ItemEnchantmentsComponent enchants, int boostTime,
 							   int lazuriteCount, int worldLevel, int materialLevel, int seed)
@@ -94,15 +104,21 @@ public class TableBoostGenerator
 			freeBoostCount = 1 + luckyLevel.getValue();
 			if (balance.getValue())
 			{
-				maxBoostCount =
-						entryCount > 1 ? 1 + Math.max(random.nextInt(entryCount), random.nextInt(entryCount)) : 1;
-				costUnit = maxCost / maxBoostCount;
+				if (entryCount > 1)
+				{
+					int c1 = 1 + Math.max(random.nextInt(entryCount), random.nextInt(entryCount));
+					int c2 = 1 + Math.max(random.nextInt(entryCount), random.nextInt(entryCount));
+					maxBoostCount = Math.min(c1, c2);
+				}
+				else maxBoostCount = 1;
+				costUnit = maxCost / (maxBoostCount << 1);
 			}
 			else
 			{
 				maxBoostCount =
 						entryCount > 1 ? 1 + Math.min(random.nextInt(entryCount), random.nextInt(entryCount)) : 1;
-				costUnit = (maxCost + maxBoostCount - 1) / maxBoostCount;
+				int div = maxBoostCount << 1;
+				costUnit = (maxCost + div - 1) / div;
 			}
 			boostComponent = generateBoosts();
 		}
@@ -138,6 +154,15 @@ public class TableBoostGenerator
 			it.next = current;
 			next.pre = current;
 		}
+	}
+
+	private int getLeft(int nextLevelCost)
+	{
+		if (leftCost <= costUnit) return leftCost;
+		if (nextLevelCost >= costUnit * 2) return nextLevelCost;
+		int maxGate = Math.min(leftCost, costUnit * 2);
+		int minGate = Math.max(nextLevelCost, costUnit);
+		return Math.min(random.nextInt(minGate, maxGate + 1), random.nextInt(minGate, maxGate + 1));
 	}
 
 	private TableBoostEntry selectBoost()
@@ -266,7 +291,7 @@ public class TableBoostGenerator
 			{
 				freeBoostCount--;
 				maxBoostCount--;
-				int left = Math.max(Math.min(leftCost, costUnit), entry.nextLevelCost);
+				int left = getLeft(entry.nextLevelCost);
 				if (unlimited && entry.setUnlimit()) unlimited = false;
 				leftCost -= entry.setLevel(entry.costAchieveLevel(left));
 				sort(entry);
@@ -279,7 +304,7 @@ public class TableBoostGenerator
 				int nextMaxCost = Math.min(maxCost, getMaxAllowXpCostOfWorldLevel(maxBoostTime - boostTime));
 				leftCost = leftCost - maxCost + nextMaxCost;
 				maxCost = nextMaxCost;
-				int left = Math.max(Math.min(leftCost, costUnit), entry.nextLevelCost);
+				int left = getLeft(entry.nextLevelCost);
 				if (unlimited && entry.setUnlimit()) unlimited = false;
 				leftCost -= entry.setLevel(entry.costAchieveLevel(left));
 				sort(entry);
@@ -297,7 +322,7 @@ public class TableBoostGenerator
 
 	private void advance(TableBoostEntry entry)
 	{
-		int left = Math.max(Math.min(leftCost, costUnit), entry.nextLevelCost);
+		int left = getLeft(entry.nextLevelCost);
 		if (unlimited && entry.setUnlimit()) unlimited = false;
 		leftCost -= entry.setLevel(entry.costAchieveLevel(left));
 		sort(entry);

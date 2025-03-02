@@ -2,8 +2,10 @@ package org.yang.iw.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2ShortAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2ShortOpenHashMap;
 import net.minecraft.component.type.AttributeModifierSlot;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
@@ -19,16 +21,18 @@ import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import org.apache.commons.lang3.mutable.MutableFloat;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.yang.iw.IWRegistries;
 import org.yang.iw.IWRegistryKeys;
 import org.yang.iw.boost.AbstractBoost;
-import org.yang.iw.boost.AttributeBoost;
+import org.yang.iw.boost.function.BoostFunctionMap;
+import org.yang.iw.boost.function.LeveledSignalFunction;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.util.style.Color;
 import org.yang.iw.util.style.TextStyle;
 
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -38,16 +42,17 @@ import static org.yang.iw.util.style.Color.GRAY_RGB;
 import static org.yang.iw.util.style.Color.getLevelColor;
 import static org.yang.iw.util.style.TextStyle.getNumberString;
 
-public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, byte flag,
+public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, BoostFunctionMap functions, byte flag,
 							 int cost) implements TooltipAppender
 {
-	public static final BoostComponent DEFAULT = new BoostComponent(new Object2ShortOpenHashMap<>(), (byte) 0, 0);
+	public static final BoostComponent DEFAULT = new BoostComponent(new Object2ShortOpenHashMap<>(),
+			BoostFunctionMap.DEFAULT, (byte) 0, 0);
 	private static final Codec<Object2ShortOpenHashMap<AbstractBoost>> VALUE_CODEC = Codec.unboundedMap(
 			IWRegistries.BOOST.getCodec(), Codec.SHORT).xmap(Object2ShortOpenHashMap::new, Function.identity());
 	private static final Codec<BoostComponent> FULL_CODEC = RecordCodecBuilder.create(
 			instance -> instance.group(VALUE_CODEC.fieldOf("value").forGetter(component -> component.value),
 							Codec.BOOL.optionalFieldOf("is_store", false).forGetter(component -> ((component.flag & 1) == 0)),
-							Codec.INT.optionalFieldOf("cost", 0).forGetter(component -> -1))
+							Codec.INT.optionalFieldOf("cost", 0).forGetter(component -> component.cost))
 					.apply(instance, BoostComponent::createLegalWithCost));
 
 	public static final Codec<BoostComponent> CODEC = Codec.withAlternative(FULL_CODEC, VALUE_CODEC,
@@ -55,13 +60,80 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, byte 
 	public static final PacketCodec<RegistryByteBuf, BoostComponent> PACKET_CODEC = PacketCodec.tuple(
 			PacketCodecs.map(Object2ShortOpenHashMap::new, PacketCodecs.registryValue(IWRegistryKeys.BOOST),
 					PacketCodecs.SHORT), component -> component.value, PacketCodecs.BYTE, component -> component.flag,
-			PacketCodecs.INTEGER, component -> component.cost, BoostComponent::new);
+			PacketCodecs.INTEGER, component -> component.cost, BoostComponent::createAsIfLegal);
+
+	private static BoostComponent createAsIfLegal(Object2ShortOpenHashMap<AbstractBoost> value, byte flag, int cost)
+	{
+		if ((flag & 1) == 0) return new BoostComponent(value, BoostFunctionMap.DEFAULT, flag, cost);
+		Object2ShortAVLTreeMap<AbstractBoost> treeMap = new Object2ShortAVLTreeMap<>(value);
+		BoostFunctionMap.Builder map = new BoostFunctionMap.Builder();
+		treeMap.forEach((i, j) -> map.add(i.getFunctions(j & 0xff)));
+		return new BoostComponent(value, map.build(), flag, cost);
+	}
 
 	public void onTargetDamaged(ItemStack stack, ServerWorld world, LivingEntity target, DamageSource damageSource)
 	{
-		if ((flag & 1) > 0) value.forEach((i, j) -> i.onTargetDamaged(j & 0XFF, world, target, damageSource));
+		if (!is_store()) functions.applyForSlot(EquipmentSlot.MAINHAND,
+				l -> l.applyTargetDamagedFunctions(f -> f.onTargetDamaged(stack, world, target, damageSource)));
 		var ub = stack.interestingWorld$uniqueBoost();
-		if (ub != null) ub.boost().onTargetDamaged(ub.level(), world, target, damageSource);
+		if (ub != null) ub.applyForSlot(EquipmentSlot.MAINHAND,
+				l -> l.applyTargetDamagedFunctions(f -> f.onTargetDamaged(stack, world, target, damageSource)));
+	}
+
+	public int signalValue(LeveledSignalFunction.Signal signal, ItemStack stack, EquipmentSlot slot)
+	{
+		MutableInt mutableInt = new MutableInt();
+		if (!is_store())
+		{
+			functions.applyForSlot(slot, l -> l.applyLeveledSignalFunctions(f -> {
+				if (f.type() == signal) mutableInt.add(f.level());
+			}));
+		}
+		var ub = stack.interestingWorld$uniqueBoost();
+		if (ub != null) ub.applyForSlot(slot, l -> l.applyLeveledSignalFunctions(f -> {
+			if (f.type() == signal) mutableInt.add(f.level());
+		}));
+		return mutableInt.getValue();
+	}
+
+	public int pretendedLevel(RegistryEntry<Enchantment> registryEntry, ItemStack stack, EquipmentSlot slot)
+	{
+		MutableFloat mutableFloat = new MutableFloat(0);
+		if (!is_store())
+		{
+			functions.applyForSlot(EquipmentSlot.MAINHAND, l -> l.applyPretendEnchantInLootTableFunctions(f -> {
+				if (registryEntry.matchesKey(f.type())) mutableFloat.add(f.level());
+			}));
+		}
+		var ub = stack.interestingWorld$uniqueBoost();
+		if (ub != null) ub.applyForSlot(EquipmentSlot.MAINHAND, l -> l.applyPretendEnchantInLootTableFunctions(f -> {
+			if (registryEntry.matchesKey(f.type())) mutableFloat.add(f.level());
+		}));
+		return (int) mutableFloat.getValue().floatValue();
+	}
+
+	public static int pretendedLevel(RegistryEntry<Enchantment> registryEntry, LivingEntity entity)
+	{
+		MutableFloat mutableFloat = new MutableFloat(0);
+		for (var slot : EquipmentSlot.values())
+		{
+			var stack = entity.getEquippedStack(slot);
+			if (!stack.isEmpty())
+			{
+				var component = stack.interestingWorld$getBoosts();
+				if (!component.is_store())
+				{
+					component.functions.applyForSlot(slot, l -> l.applyPretendEnchantInLootTableFunctions(f -> {
+						if (registryEntry.matchesKey(f.type())) mutableFloat.add(f.level());
+					}));
+				}
+				var ub = stack.interestingWorld$uniqueBoost();
+				if (ub != null) ub.applyForSlot(slot, l -> l.applyPretendEnchantInLootTableFunctions(f -> {
+					if (registryEntry.matchesKey(f.type())) mutableFloat.add(f.level());
+				}));
+			}
+		}
+		return (int) mutableFloat.getValue().floatValue();
 	}
 
 	public int level()
@@ -124,7 +196,7 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, byte 
 				if (def < level) od = 2;
 			}
 		}
-		return new BoostComponent(value, (byte) ((getWorldLevelOfXpCost(cost) << 2) | od | (is_store ? 0 : 1)), cost);
+		return createAsIfLegal(value, (byte) ((getWorldLevelOfXpCost(cost) << 2) | od | (is_store ? 0 : 1)), cost);
 	}
 
 	public static BoostComponent createLegalWithCost(Object2ShortOpenHashMap<AbstractBoost> value, boolean is_store,
@@ -169,7 +241,7 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, byte 
 				if (def < level) od = 2;
 			}
 		}
-		return new BoostComponent(value, (byte) ((getWorldLevelOfXpCost(cost) << 2) | od | (is_store ? 0 : 1)),
+		return createAsIfLegal(value, (byte) ((getWorldLevelOfXpCost(cost) << 2) | od | (is_store ? 0 : 1)),
 				Math.max(custom_cost, cost));
 	}
 
@@ -181,7 +253,7 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, byte 
 			if (j < 1 || j > i.maxAllowLevel()) return;
 			map.put(i, (short) ((j << 8) | j));
 		});
-		return new BoostComponent(map, (byte) 1, 0);
+		return createAsIfLegal(map, (byte) 1, 0);
 	}
 
 	public Text randomEntryText(int seed)
@@ -201,8 +273,6 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, byte 
 	public void appendTooltip(Item.TooltipContext context, Consumer<Text> tooltip, TooltipType type)
 	{
 		if (value.isEmpty()) return;
-		TreeMap<AbstractBoost, Short> treeMap = new TreeMap<>();
-		value.forEach((i, j) -> treeMap.put(i, (short) (j & 0XFF)));
 		int color;
 		if (onlyDefault())
 		{
@@ -210,8 +280,8 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, byte 
 			color = GRAY_RGB;
 		}
 		else color = getLevelColor(level());
-		treeMap.forEach((i, j) -> tooltip.accept(
-				Text.translatable(i.translationKey()).append(" " + getNumberString(j)).withColor(color)));
+		new Object2ShortAVLTreeMap<>(value).forEach((i, j) -> tooltip.accept(
+				Text.translatable(i.translationKey()).append(" " + getNumberString(j & 0xFF)).withColor(color)));
 	}
 
 	public boolean isEmpty()
@@ -222,43 +292,52 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, byte 
 	public void applyAttributeModifiers(ItemStack stack, EquipmentSlot slot, BiConsumer<RegistryEntry<EntityAttribute>
 			, EntityAttributeModifier> attributeModifierConsumer)
 	{
-		if (!is_store()) value.forEach((i, j) -> {
-			if (i instanceof AttributeBoost a)
-			{
-				a.applyAttributeModifiers(j & 0XFF, attributeModifierConsumer, slot);
-			}
-		});
+		if (!is_store()) functions.applyForSlot(slot,
+				l -> l.applyAttributeModifierFunctions(f -> f.applyAttributeModifier(attributeModifierConsumer,
+						slot)));
 		var ub = stack.interestingWorld$uniqueBoost();
-		if (ub != null && ub.boost() instanceof AttributeBoost a)
-			a.applyAttributeModifiers(ub.level(), attributeModifierConsumer, slot);
+		if (ub != null) ub.applyForSlot(slot,
+				l -> l.applyAttributeModifierFunctions(f -> f.applyAttributeModifier(attributeModifierConsumer,
+						slot)));
+	}
+
+	public int getItemDamage(ServerWorld world, ItemStack stack, int damage)
+	{
+		MutableInt mutableInt = new MutableInt(damage);
+		if (!is_store()) functions.applyForSlot(AttributeModifierSlot.ANY,
+				l -> l.applyItemDamageFunctions(f -> f.getItemDamage(world, mutableInt)));
+		var ub = stack.interestingWorld$uniqueBoost();
+		if (ub != null) ub.applyForSlot(AttributeModifierSlot.ANY,
+				l -> l.applyItemDamageFunctions(f -> f.getItemDamage(world, mutableInt)));
+		return mutableInt.getValue();
 	}
 
 	public void applyAttributeModifiers(ItemStack stack, AttributeModifierSlot slot,
 										BiConsumer<RegistryEntry<EntityAttribute>, EntityAttributeModifier> attributeModifierConsumer)
 	{
-		if (!is_store()) value.forEach((i, j) -> {
-			if (i instanceof AttributeBoost a)
-			{
-				a.applyAttributeModifiers(j & 0XFF, attributeModifierConsumer, slot);
-			}
-		});
+		if (!is_store()) functions.applyForSlot(slot, l -> l.applyAttributeModifierFunctions(
+				f -> f.attributeModifierForDisplay(attributeModifierConsumer, slot)));
 		var ub = stack.interestingWorld$uniqueBoost();
-		if (ub != null && ub.boost() instanceof AttributeBoost a)
-			a.applyAttributeModifiers(ub.level(), attributeModifierConsumer, slot);
+		if (ub != null) ub.applyForSlot(slot, l -> l.applyAttributeModifierFunctions(
+				f -> f.attributeModifierForDisplay(attributeModifierConsumer, slot)));
 	}
 
 	public void removeLocationBasedEffects(ItemStack stack, LivingEntity user, EquipmentSlot slot)
 	{
-		if (!is_store()) value.forEach((i, j) -> i.removeLocationBasedEffects(j & 0XFF, stack, user, slot));
+		if (!is_store()) functions.applyForSlot(slot,
+				l -> l.applyAttributeModifierFunctions(f -> f.removeAttributeModifier(stack, user, slot)));
 		var ub = stack.interestingWorld$uniqueBoost();
-		if (ub != null) ub.boost().removeLocationBasedEffects(ub.level(), stack, user, slot);
+		if (ub != null) ub.applyForSlot(slot,
+				l -> l.applyAttributeModifierFunctions(f -> f.removeAttributeModifier(stack, user, slot)));
 	}
 
 	public void applyLocationBasedEffects(ItemStack stack, ServerWorld world, LivingEntity user, EquipmentSlot slot)
 	{
-		if (!is_store()) value.forEach((i, j) -> i.applyLocationBasedEffects(j & 0XFF, world, stack, user, slot));
+		if (!is_store()) functions.applyForSlot(slot,
+				l -> l.applyAttributeModifierFunctions(f -> f.applyAttributeModifier(world, stack, user, slot)));
 		var ub = stack.interestingWorld$uniqueBoost();
-		if (ub != null) ub.boost().applyLocationBasedEffects(ub.level(), world, stack, user, slot);
+		if (ub != null) ub.applyForSlot(slot,
+				l -> l.applyAttributeModifierFunctions(f -> f.applyAttributeModifier(world, stack, user, slot)));
 	}
 
 	public boolean conflictWith(AbstractBoost boost)
@@ -268,7 +347,7 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, byte 
 			var key = entry.getKey();
 			if (boost.fatalConflictWith(key)) return true;
 			var value = entry.getShortValue();
-			if ((value >> 8) < (value & 0XFF) && boost.fatalConflictWith(key)) return true;
+			if ((value >> 8) < (value & 0XFF) && boost.conflictWith(key)) return true;
 		}
 		return false;
 	}
@@ -337,8 +416,19 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, byte 
 			var abstractBoost = entry.getKey();
 			var lvl = entry.getShortValue();
 			int l = (lvl & 0XFF) - (lvl >> 8);
-			if (l > 0) cost += l * Math.min(100, (int) (0.8f * (abstractBoost.xpCostOfLevel((short) l) / l)));
+			if (l > 0) cost += l * Math.min(is_store() ? 50 : 100,
+					(int) ((is_store() ? 0.4f : 0.8f) * (abstractBoost.xpCostOfLevel((short) l) / l)));
 		}
 		return cost;
+	}
+
+	public void getEquipmentDropChance(ItemStack stack, EquipmentSlot slot, ServerWorld world, LivingEntity attacker,
+									   DamageSource damageSource, MutableFloat baseEquipmentDropChance)
+	{
+		if (!is_store()) functions.applyForSlot(slot, l -> l.applyEquipmentDropChanceFunctions(
+				f -> f.getEquipmentDropChance(world, attacker, damageSource, baseEquipmentDropChance)));
+		var ub = stack.interestingWorld$uniqueBoost();
+		if (ub != null) ub.applyForSlot(slot, l -> l.applyEquipmentDropChanceFunctions(
+				f -> f.getEquipmentDropChance(world, attacker, damageSource, baseEquipmentDropChance)));
 	}
 }

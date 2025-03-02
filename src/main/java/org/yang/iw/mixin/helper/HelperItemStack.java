@@ -93,12 +93,14 @@ public class HelperItemStack
 	public static void appendAttributeModifierToolTip(Consumer<Text> textConsumer, @Nullable PlayerEntity player,
 													  Map<RegistryEntry<EntityAttribute>, ModifierSummarizer> attributeMap, AttributeModifierSlot slot)
 	{
-		if (player != null && (slot == AttributeModifierSlot.HAND || slot == AttributeModifierSlot.MAINHAND))
+		if (player != null && slot == AttributeModifierSlot.MAINHAND)
 		{
-			if (attributeMap.containsKey(EntityAttributes.ATTACK_DAMAGE))
+			if (attributeMap.containsKey(EntityAttributes.ATTACK_DAMAGE) &&
+				attributeMap.get(EntityAttributes.ATTACK_DAMAGE).base != 0)
 				appendBasicToolTip(textConsumer, player, attributeMap.get(EntityAttributes.ATTACK_DAMAGE),
 						EntityAttributes.ATTACK_DAMAGE);
-			if (attributeMap.containsKey(EntityAttributes.ATTACK_SPEED))
+			if (attributeMap.containsKey(EntityAttributes.ATTACK_SPEED) &&
+				attributeMap.get(EntityAttributes.ATTACK_SPEED).base != 0)
 				appendBasicToolTip(textConsumer, player, attributeMap.get(EntityAttributes.ATTACK_SPEED),
 						EntityAttributes.ATTACK_SPEED);
 		}

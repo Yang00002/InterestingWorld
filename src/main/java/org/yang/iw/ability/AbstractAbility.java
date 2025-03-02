@@ -1,25 +1,33 @@
 package org.yang.iw.ability;
 
-import io.netty.buffer.ByteBuf;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.consume.UseAction;
-import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import org.yang.iw.IWRegistries;
+import org.yang.iw.api.io.BytesReader;
+import org.yang.iw.api.io.BytesWriter;
 import org.yang.iw.api.tag.IntrusiveTag;
 import org.yang.iw.api.tag.IntrusiveTagHolder;
+import org.yang.iw.entity.player.AbilityBarType;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.entity.player.IWServerPlayerData;
 import org.yang.iw.item.heart.AbilityHeart;
+import org.yang.iw.network.bitio.BitReader;
+import org.yang.iw.network.bitio.BitWriter;
 import org.yang.iw.util.Base;
 import org.yang.iw.util.style.Color;
+
+import java.io.IOException;
 
 import static org.yang.iw.util.Return.IGNORE;
 
@@ -43,6 +51,11 @@ public class AbstractAbility implements IntrusiveTagHolder<AbilityHeart>
 		return DEFAULT;
 	}
 
+	public AbilityCooldownGroup getCooldownGroup()
+	{
+		return AbilityCooldownGroup.EMPTY;
+	}
+
 	AbstractAbility(IntrusiveTag<AbilityHeart> delegator)
 	{
 		tag = delegator;
@@ -51,6 +64,42 @@ public class AbstractAbility implements IntrusiveTagHolder<AbilityHeart>
 	public String id()
 	{
 		return "empty";
+	}
+
+	public void onClientTickOver(ClientPlayerEntity player, IWClientPlayerData data)
+	{
+
+	}
+
+	public void onServerTickOver(ServerPlayerEntity player, IWServerPlayerData data)
+	{
+
+	}
+
+	public static AbstractAbility readNbt(NbtCompound compound, String key)
+	{
+		var ar = compound.getByteArray(key);
+		if (ar.length == 0) return AbstractAbility.getDefault();
+		BytesReader reader = new BytesReader(ar);
+		var id = reader.readIdentifier();
+		var ret = IWRegistries.ABILITY.get(id);
+		return ret == null ? AbstractAbility.getDefault() : ret;
+	}
+
+	public final void writeNbt(NbtCompound compound, String key)
+	{
+		Identifier identifier = identifier();
+		String namespace = identifier.getNamespace();
+		String path = identifier.getPath();
+		int length = namespace.length() + path.length() + 1;
+		BytesWriter writer = new BytesWriter(length);
+		try
+		{
+			writer.writeIdentifier(identifier);
+			compound.putByteArray(key, writer.toByteArray());
+		} catch (IOException ignored)
+		{
+		}
 	}
 
 	public Identifier identifier()
@@ -76,15 +125,6 @@ public class AbstractAbility implements IntrusiveTagHolder<AbilityHeart>
 	{
 	}
 
-	/**
-	 * TwoSide
-	 * <p>
-	 * CallSequence:
-	 * <p>
-	 * use(setCurrentItem) -> usageTick... -> onStoppedUsing -> usageTick...
-	 *
-	 * @param remainingUseTicks (-INF, getMaxUseTime]
-	 */
 	public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks)
 	{
 
@@ -126,7 +166,6 @@ public class AbstractAbility implements IntrusiveTagHolder<AbilityHeart>
 
 	public void onSetAbility(ItemStack stack)
 	{
-
 	}
 
 	public void onEnter(PlayerEntity entity, IWServerPlayerData manager)
@@ -219,39 +258,29 @@ public class AbstractAbility implements IntrusiveTagHolder<AbilityHeart>
 
 	}
 
-	public void writeClientRenderDataToBuf(IWServerPlayerData data, RegistryByteBuf buf)
+	public void writeClientRenderDataToBuf(IWServerPlayerData data, BitWriter buf)
 	{
 
 	}
 
-	public void readClientRenderDataFromBuf(PlayerEntity entity, IWClientPlayerData data, ByteBuf buf)
+	public void readClientRenderDataFromBuf(PlayerEntity entity, IWClientPlayerData data, BitReader buf)
 	{
 
-	}
-
-	public boolean shouldRenderAbilityBar(IWClientPlayerData data)
-	{
-		return false;
 	}
 
 	public int abilityBarForegroundColor(IWClientPlayerData data)
 	{
-		return 0x282828;
+		return getColor();
 	}
 
 	public int abilityProcess(IWClientPlayerData data)
 	{
-		return 0;
-	}
-
-	public boolean shouldRenderAbilityText(IWClientPlayerData data)
-	{
-		return false;
+		return 16;
 	}
 
 	public String abilityText(IWClientPlayerData data)
 	{
-		return "";
+		return null;
 	}
 
 	public int abilityTextColor()

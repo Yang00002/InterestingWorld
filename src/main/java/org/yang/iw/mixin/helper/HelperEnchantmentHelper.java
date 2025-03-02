@@ -10,6 +10,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
@@ -63,5 +64,23 @@ public class HelperEnchantmentHelper
 											   BiConsumer<RegistryEntry<EntityAttribute>, EntityAttributeModifier> attributeModifierConsumer)
 	{
 		stack.interestingWorld$getBoosts().applyAttributeModifiers(stack, slot, attributeModifierConsumer);
+	}
+
+	public static int getItemDamage(ServerWorld world, ItemStack stack, int damage)
+	{
+		return stack.interestingWorld$getBoosts().getItemDamage(world, stack, damage);
+	}
+
+	public static float getEquipmentDropChance(ServerWorld world, LivingEntity attacker, DamageSource damageSource,
+											   float baseEquipmentDropChance)
+	{
+		MutableFloat mutableFloat = new MutableFloat(baseEquipmentDropChance);
+		for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES)
+		{
+			ItemStack stack = attacker.getEquippedStack(equipmentSlot);
+			stack.interestingWorld$getBoosts()
+					.getEquipmentDropChance(stack, equipmentSlot, world, attacker, damageSource, mutableFloat);
+		}
+		return mutableFloat.floatValue();
 	}
 }

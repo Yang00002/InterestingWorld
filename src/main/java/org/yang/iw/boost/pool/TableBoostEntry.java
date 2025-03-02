@@ -42,7 +42,7 @@ public class TableBoostEntry
 	public short costAchieveLevel(int cost)
 	{
 		if (maxLevel <= currentLevel) return currentLevel;
-		return boost.costAchieveLevel((short) (currentLevel + 1), cost + currentCost);
+		return boost.costAchieveLevel((short) (currentLevel + 1), maxLevel, cost + currentCost);
 	}
 
 	public int setLevel(short level)

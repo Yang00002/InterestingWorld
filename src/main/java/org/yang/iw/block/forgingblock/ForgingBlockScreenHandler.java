@@ -31,11 +31,11 @@ import org.yang.iw.item.heart.AbilityHeart;
 import org.yang.iw.item.heart.BaseHeart;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.item.upgrade.UpgradeTemplate;
-import org.yang.iw.util.Rand;
 import org.yang.iw.util.Server;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import static org.yang.iw.util.IWCostUtil.getExperienceFromLevel;
 
@@ -61,7 +61,6 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 	private final Property experienceCost;
 	private RepairableComponent repairIngredient;
 	private final Property repairCount;
-	private final Rand rand = new Rand();
 
 	// </editor-fold>
 
@@ -427,8 +426,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				setOutput(stackOut);
 				experienceCost.set((stackUp.interestingWorld$getUpgrade().upgrade().level() +
 									stackUp.interestingWorld$getBoosts().level() +
-									stackUp.interestingWorld$getAbility().ability().level()) * 100 * rp /
-								   repairNeedMax);
+									stackUp.interestingWorld$getAbility().ability().level()) * 100 * currentDamage /
+								   maxDamage);
 			}
 			else
 			{
@@ -474,7 +473,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					updateGlobalState(ForgingBlockState.APPEND_BOOST);
 					ItemStack stackOut = stackDown.copy();
 					stackOut.set(IWComponents.BOOST, component);
-					stackOut.remove(DataComponentTypes.ENCHANTMENTS);
+					stackOut.set(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
 					if (!boostableComponent.isEmpty()) stackOut.set(IWComponents.BOOSTABLE,
 							boostableComponent.hardUse(generator.getBoostTimeConsume()));
 					setOutput(stackOut);
@@ -645,7 +644,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				{
 					updateGlobalState(ForgingBlockState.REPAIR);
 					int damage = stackUp.getDamage();
-					int perRepair = (stackUp.getMaxDamage() + repairNeedMax - 1) / repairNeedMax;
+					int maxDamage = stackUp.getMaxDamage();
+					int perRepair = (maxDamage + repairNeedMax - 1) / repairNeedMax;
 					int rp = Math.min(haveCount, (damage + perRepair - 1) / perRepair);
 					repairCount.set(rp);
 					int currentDamage = Math.max(0, damage - rp * perRepair);
@@ -654,8 +654,8 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 					setOutput(stackOut);
 					experienceCost.set((stackUp.interestingWorld$getUpgrade().upgrade().level() +
 										stackUp.interestingWorld$getBoosts().level() +
-										stackUp.interestingWorld$getAbility().ability().level()) * 100 * rp /
-									   repairNeedMax);
+										stackUp.interestingWorld$getAbility().ability().level()) * 100 * damage /
+									   maxDamage);
 				}
 				else
 				{
@@ -692,7 +692,7 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				updateGlobalState(ForgingBlockState.APPEND_BOOST);
 				ItemStack stackOut = stackDown.copy();
 				stackOut.set(IWComponents.BOOST, component);
-				stackOut.remove(DataComponentTypes.ENCHANTMENTS);
+				stackOut.set(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
 				if (!boostableComponent.isEmpty())
 					stackOut.set(IWComponents.BOOSTABLE, boostableComponent.hardUse(generator.getBoostTimeConsume()));
 				setOutput(stackOut);
@@ -910,7 +910,10 @@ public class ForgingBlockScreenHandler extends ScreenHandler
 				inventoryDown.setStack(0, ItemStack.EMPTY);
 				int lp = repairCount.get();
 				if (lp > 0) extractIngredient(Items.LAPIS_LAZULI, lp);
-				random_seed = rand.nextInt();
+				Random random = new Random(random_seed);
+				random_seed = random.nextInt();
+				if (player instanceof ServerPlayerEntity serverPlayerEntity)
+					serverPlayerEntity.interestingWorld$getIWServerPlayerData().forging_seed = random_seed;
 				inventoryIngredient.setActive();
 				inventoryDown.setActive();
 			}

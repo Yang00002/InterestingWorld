@@ -2,15 +2,45 @@ package org.yang.iw.boost.pool;
 
 import org.yang.iw.boost.AbstractBoost;
 import org.yang.iw.boost.IWBoosts;
+import org.yang.iw.util.ConsoleStringBuilder;
 
 import java.util.*;
 
 public class TableBoostPool
 {
+	@Override
+	public String toString()
+	{
+		ConsoleStringBuilder builder = new ConsoleStringBuilder();
+		builder.append("TableBoostPool of %s pages.".formatted(pages.length));
+		builder.tab();
+		for (Page page : pages)
+		{
+			builder.newLine();
+			builder.append(page.toString());
+		}
+		return builder.toString();
+	}
+
 	Page[] pages;
 
 	public static class Page
 	{
+		@Override
+		public String toString()
+		{
+			ConsoleStringBuilder builder = new ConsoleStringBuilder();
+			builder.append("Page of %s entries. Weight %s, minLevel %s, maxLevel %s".formatted(entries.length, weight,
+					minAppearWorldLevel, maxAppearWorldLevel));
+			builder.tab();
+			for (Entry entry : entries)
+			{
+				builder.newLine();
+				builder.append(entry.toString());
+			}
+			return builder.toString();
+		}
+
 		Page(int weight, int min, int max, Entry[] entries)
 		{
 			if (weight < 1)
@@ -73,6 +103,12 @@ public class TableBoostPool
 		{
 			this.boost = boost;
 			this.weight = weight;
+		}
+
+		@Override
+		public String toString()
+		{
+			return "Entry of %s, weight %s.".formatted(boost.getClass(), weight);
 		}
 
 		public static Entry create(int weight, AbstractBoost boost)
@@ -167,13 +203,14 @@ public class TableBoostPool
 	}
 
 	public static final TableBoostPool POOL_ROD = pool(
-			page(1, entry(5, IWBoosts.FIRE_ASPECT), entry(2, IWBoosts.REPEAT_ATTACK), entry(10,
-					IWBoosts.FAST_ATTACK)));
+			page(1, entry(5, IWBoosts.FIRE_ASPECT), entry(2, IWBoosts.REPEAT_ATTACK), entry(10, IWBoosts.FAST_ATTACK),
+					entry(10, IWBoosts.UNBREAKING)));
 
 	public static final TableBoostPool POOL_SWORD = pool(
-			page(1, entry(5, IWBoosts.FIRE_ASPECT), entry(2, IWBoosts.REPEAT_ATTACK), entry(10, IWBoosts.SHARPNESS)),
-			page(1, entry(5, IWBoosts.FIRE_ASPECT), entry(2, IWBoosts.REPEAT_ATTACK), entry(10,
-					IWBoosts.FAST_ATTACK)));
+			page(1, entry(5, IWBoosts.FIRE_ASPECT), entry(2, IWBoosts.REPEAT_ATTACK), entry(10, IWBoosts.SHARPNESS),
+					entry(10, IWBoosts.UNBREAKING), entry(5, IWBoosts.SWEEPING_EDGE)),
+			page(1, entry(5, IWBoosts.FIRE_ASPECT), entry(2, IWBoosts.REPEAT_ATTACK), entry(10, IWBoosts.FAST_ATTACK),
+					entry(10, IWBoosts.UNBREAKING), entry(5, IWBoosts.SWEEPING_EDGE)));
 
 	static
 	{

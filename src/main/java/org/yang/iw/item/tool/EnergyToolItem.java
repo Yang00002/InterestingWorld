@@ -39,7 +39,8 @@ public class EnergyToolItem extends Item implements TableBoostPoolProvider
 	public boolean allowComponentsUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack,
 												  ItemStack newStack)
 	{
-		return !ItemStack.areItemsEqual(oldStack, newStack);
+		return !ItemStack.areItemsEqual(oldStack, newStack) ||
+			   oldStack.interestingWorld$getAbility().ability() != newStack.interestingWorld$getAbility().ability();
 	}
 
 	@Override
@@ -156,7 +157,7 @@ public class EnergyToolItem extends Item implements TableBoostPoolProvider
 		stack.damage(1, attacker, EquipmentSlot.MAINHAND);
 	}
 
-	private static void appendEneryText(MutableText text, ItemStack stack)
+	private static void appendEnergyText(MutableText text, ItemStack stack)
 	{
 		int max = (int) maxEnergy(stack);
 		int cur = Math.clamp((int) currentEnergy(stack), 0, max);
@@ -176,7 +177,7 @@ public class EnergyToolItem extends Item implements TableBoostPoolProvider
 		{
 			text.append(Text.translatable(TranslationPool.TOOLTIP_ENERGYTOOL_COMMON_ENERGY).formatted(Formatting.GRAY))
 					.append(" ");
-			appendEneryText(text, stack);
+			appendEnergyText(text, stack);
 			tooltip.add(text);
 			add = true;
 		}

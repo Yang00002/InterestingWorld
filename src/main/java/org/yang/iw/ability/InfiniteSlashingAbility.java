@@ -1,11 +1,10 @@
 package org.yang.iw.ability;
 
-import io.netty.buffer.ByteBuf;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -16,28 +15,31 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
+import org.yang.iw.api.tag.IntrusiveTag;
 import org.yang.iw.component.EnergyToolDataFlag;
+import org.yang.iw.entity.player.AbilityBarType;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.entity.player.IWServerPlayerData;
-import org.yang.iw.api.tag.IntrusiveTag;
 import org.yang.iw.item.heart.AbilityHeart;
+import org.yang.iw.network.bitio.BitReader;
+import org.yang.iw.network.bitio.BitWriter;
 import org.yang.iw.util.IWLivingEntityUtil;
 import org.yang.iw.util.IWParticleUtil;
 import org.yang.iw.util.IWSoundUtil;
-import org.yang.iw.util.style.Color;
 
-import static org.yang.iw.util.Return.*;
+import static org.yang.iw.util.Return.FAIL;
+import static org.yang.iw.util.Return.IGNORE;
 
 public class InfiniteSlashingAbility extends InfiniteAbility
 {
 	public static final short MaxAbilityDuration = 20;
-	public static final short MinAbilityDuration = 10;
+	public static final short MaxChargeStep = 5;
 	public static final short AbilityDurationDownPerHit = 2;
 	public static final float AbilityDamage = 28;
 	public static final float AttackMaxAngleCosine = 0.3f;
 	public static final float AttackMaxLength = 5;
 	public static final float KnockbackDistance = 0.8f;
-	public static final short ChargeTime = 40;
+	public static final short ChargeTime = 60;
 	public static final short ChargedTime = 60;
 	public static final float ChargedAttackDamage = 15;
 	public static final float ChargedSweepDamage = 40;
@@ -53,39 +55,55 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 		super(intrusiveTag);
 	}
 
+	@Override
+	public AbilityCooldownGroup getCooldownGroup()
+	{
+		return AbilityCooldownGroup.ATTACK;
+	}
+
 	public String id()
 	{
 		return "infiniteslashing";
 	}
 
-	public static int getAbilityDuration(IWServerPlayerData data)
+	public int getAbilityDuration(IWServerPlayerData data)
 	{
-		return Math.max(MaxAbilityDuration - data.chargeStep * AbilityDurationDownPerHit, MinAbilityDuration);
+		return MaxAbilityDuration - step(data) * AbilityDurationDownPerHit;
+	}
+
+	private int step(IWServerPlayerData data)
+	{
+		return data.loadRegister(0);
+	}
+
+	private void setStep(IWServerPlayerData data, int step)
+	{
+		if (step <= MaxChargeStep)
+		{
+			data.setRegister(0, step);
+		}
+	}
+
+	private boolean charged(IWServerPlayerData data)
+	{
+		return data.loadRegister(1) > 0;
+	}
+
+	private void setCharged(IWServerPlayerData data, boolean c)
+	{
+		data.setRegister(1, c ? 1 : 0);
+		data.sync();
+		if (!c)
+		{
+			data.setBarType(AbilityBarType.EMPTY);
+			data.getTickManager().pause();
+		}
 	}
 
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
 		return EnergyToolDataFlag.fromItemStack(stack).canSweep();
-	}
-
-	@Override
-	public void serverPlayerWeaponTick(PlayerEntity entity, IWServerPlayerData data, ItemStack stack)
-	{
-		if (data.isCharged && data.used)
-		{
-			if (data.chargeRate > 0)
-			{
-				data.chargeRate--;
-				if (data.chargeRate == 0) data.isCharged = false;
-				data.shouldSync = true;
-			}
-		}
-		else if (!data.isCharging && data.chargeRate < getAbilityDuration(data))
-		{
-			data.chargeRate++;
-			data.shouldSync = true;
-		}
 	}
 
 	public static void damage(ServerPlayerEntity player, LivingEntity target, float damage, float knockback,
@@ -114,33 +132,34 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 			var manager = player.interestingWorld$getIWServerPlayerData();
 			if (manager.isAbilityOn())
 			{
-				if (manager.isCharged)
+				if (!manager.isInCooldown(this))
 				{
-					manager.used = true;
-					if (manager.sweeping)
-						damage(player, target, ChargedSweepDamage, ChargedSweepKnockback, ChargedSweepMaxAngleCosine,
-								ChargedSweepMaxLength);
+					if (charged(manager))
+					{
+						if (!manager.getTickManager().isOn())
+						{
+							manager.getTickManager().resetAndStart(ChargedTime);
+							manager.setBarType(AbilityBarType.TICK_REVERSE);
+						}
+						if (manager.sweeping) damage(player, target, ChargedSweepDamage, ChargedSweepKnockback,
+								ChargedSweepMaxAngleCosine, ChargedSweepMaxLength);
+						else damage(player, target, ChargedAttackDamage, ChargedAttackKnockback,
+								ChargedAttackMaxAngleCosine, ChargedAttackMaxLength);
+					}
 					else
-						damage(player, target, ChargedAttackDamage, ChargedAttackKnockback,
-								ChargedAttackMaxAngleCosine,
-								ChargedAttackMaxLength);
-				}
-				else
-				{
-					int duration = getAbilityDuration(manager);
-					if (manager.chargeRate >= duration)
 					{
 						if (manager.sweeping)
 						{
-							if (duration > MinAbilityDuration) manager.chargeStep++;
-							manager.chargeRate = 0;
+							int step = step(manager);
+							if (step < MaxChargeStep) setStep(manager, step + 1);
+							manager.setCooldown(this, getAbilityDuration(manager));
 							damage(player, target, AbilityDamage, KnockbackDistance, AttackMaxAngleCosine,
 									AttackMaxLength);
 						}
-						else manager.chargeStep = 0;
-						manager.shouldSync = true;
+						else setStep(manager, 0);
 					}
 				}
+				else if (!manager.sweeping) setStep(manager, 0);
 			}
 		}
 	}
@@ -148,78 +167,45 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	@Override
 	public void onEnter(PlayerEntity entity, IWServerPlayerData manager)
 	{
-		manager.chargeRate = 0;
-		manager.isCharged = false;
-		manager.chargeStep = 0;
-		manager.isCharging = false;
-		manager.used = false;
+		setStep(manager, 0);
+		setCharged(manager, false);
 	}
 
 	@Override
 	public void onLeave(PlayerEntity entity, IWServerPlayerData manager)
 	{
-		manager.chargeRate = -1;
-		manager.isCharged = false;
-		manager.chargeStep = -1;
-		manager.isCharging = false;
-		manager.used = false;
+		if (charged(manager))
+		{
+			setCharged(manager, false);
+			manager.setCooldown(this, ChargeTime);
+		}
 	}
 
 	@Override
-	public  AbstractAbility getToolRenderAbility()
+	public AbstractAbility getToolRenderAbility()
 	{
 		return IWAbilities.SLASHING_ABILITY;
 	}
+
 	@Override
-	public int abilityBarForegroundColor(IWClientPlayerData data)
+	public void writeClientRenderDataToBuf(IWServerPlayerData data, BitWriter buf)
 	{
-		return data.client_ability_on ? Color.CYAN_RGB : Color.GRAY_RGB;
+		buf.writeBoolean(charged(data));
 	}
 
 	@Override
-	public int abilityProcess(IWClientPlayerData data)
+	public void readClientRenderDataFromBuf(PlayerEntity entity, IWClientPlayerData data, BitReader buf)
 	{
-		return data.charge_rate16;
-	}
-
-	@Override
-	public void writeClientRenderDataToBuf(IWServerPlayerData data, RegistryByteBuf buf)
-	{
-		buf.writeInt(data.chargeRate);
-		buf.writeInt(data.isCharged ? ChargedTime : (data.isCharging ? ChargeTime : getAbilityDuration(data)));
-		buf.writeBoolean(data.isCharged);
-	}
-
-	@Override
-	public void readClientRenderDataFromBuf(PlayerEntity entity, IWClientPlayerData data, ByteBuf buf)
-	{
-		int chargeRate = buf.readInt();
-		int maxRate = buf.readInt();
-		boolean charged = buf.readBoolean();
-		int c = Math.clamp(chargeRate * 16L / maxRate, 0, 16);
-		if (data.client_ability_on)
-		{
-			if (c == 16 && data.charge_rate16 != 16) playChargedOverSound(entity);
-			if (!data.is_charged && charged) entity.playSound(SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, 1.0f, 1.0f);
-			else if (data.is_charged && !charged) entity.playSound(SoundEvents.BLOCK_ANVIL_LAND, 1.0f, 1.0f);
-		}
-		data.charge_rate16 = c;
-		data.is_charged = charged;
+		data.setRegister(0, buf.readBoolean() ? 1 : 0);
 	}
 
 	@Override
 	public void onServerAbilityClose(ServerPlayerEntity player, IWServerPlayerData data)
 	{
-		if (data.isCharged)
+		if (charged(data))
 		{
-			data.isCharged = false;
-			data.isCharging = false;
-			data.chargeStep = 0;
-			data.shouldSync = true;
-		}
-		else if (data.isCharging)
-		{
-			player.stopUsingItem();
+			setCharged(data, false);
+			data.setCooldown(this, ChargeTime);
 		}
 	}
 
@@ -232,13 +218,7 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	@Override
 	public String abilityText(IWClientPlayerData data)
 	{
-		return "o";
-	}
-
-	@Override
-	public boolean shouldRenderAbilityText(IWClientPlayerData data)
-	{
-		return data.client_ability_on && data.is_charged;
+		return data.loadRegister(0) > 0 ? "o" : null;
 	}
 
 	@Override
@@ -248,67 +228,24 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 		{
 			ServerPlayerEntity player = (ServerPlayerEntity) user;
 			IWServerPlayerData data = player.interestingWorld$getIWServerPlayerData();
-			if (!data.isAbilityOn() || data.isCharged) return IGNORE;
-			if (data.chargeRate >= getAbilityDuration(data))
-			{
-				data.chargeRate = 0;
-				data.chargeStep = 0;
-				data.isCharging = true;
-				data.shouldSync = true;
-				data.used = false;
-				return CONSUME;
-			}
-			else return FAIL;
+			if (!data.isAbilityOn() || charged(data) || data.isInCooldown(this)) return IGNORE;
+			IWSoundUtil.playSoundToPlayer(player, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS);
+			setCharged(data, true);
+			setStep(data, 0);
 		}
 		return FAIL;
 	}
 
-	public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks)
+	@Override
+	public void onClientTickOver(ClientPlayerEntity player, IWClientPlayerData data)
 	{
-		if (!world.isClient && user instanceof ServerPlayerEntity player)
-		{
-			var data = player.interestingWorld$getIWServerPlayerData();
-			if (data.isCharging)
-			{
-				data.shouldSync = true;
-				data.chargeRate = ChargeTime - remainingUseTicks;
-			}
-		}
+		player.playSound(SoundEvents.BLOCK_ANVIL_LAND);
 	}
 
 	@Override
-	public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
+	public void onServerTickOver(ServerPlayerEntity player, IWServerPlayerData data)
 	{
-		if (!world.isClient && user instanceof ServerPlayerEntity player)
-		{
-			IWServerPlayerData data = player.interestingWorld$getIWServerPlayerData();
-			data.shouldSync = true;
-			data.isCharging = false;
-			data.chargeRate = 0;
-		}
-		return false;
+		setCharged(data, false);
+		data.setCooldown(this, ChargeTime);
 	}
-
-	@Override
-	public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user)
-	{
-		if (!world.isClient && user instanceof ServerPlayerEntity player)
-		{
-			IWServerPlayerData data = player.interestingWorld$getIWServerPlayerData();
-			if (data.isCharging)
-			{
-				data.shouldSync = true;
-				data.isCharging = false;
-				data.isCharged = true;
-				data.chargeRate = ChargedTime;
-			}
-		}
-		return stack;
-	}
-
-	public int getMaxUseTime(ItemStack stack, LivingEntity user, int before)
-	{
-		return ChargeTime;
-	}
-
 }

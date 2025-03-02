@@ -26,6 +26,7 @@ import org.yang.iw.component.BoostableComponent;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.item.IWItemTags;
 import org.yang.iw.item.tool.EnergyToolItem;
+import org.yang.iw.mixin.helper.HelperAnvilScreenHandler;
 
 import static org.yang.iw.mixin.helper.HelperAnvilScreenHandler.hitAddBoost;
 import static org.yang.iw.util.IWCostUtil.getLevelFromExperience;
@@ -154,8 +155,7 @@ public abstract class MixinAnvilScreenHandler extends ForgingScreenHandler
 					itemEnchantmentsComponent.getEnchantmentEntries())
 			{
 				RegistryEntry<Enchantment> registryEntry = entry.getKey();
-				var op = registryEntry.getKeyOrValue().right();
-				if (op.isPresent() && op.get().isPrimaryItem(itemStackLeft))
+				if (HelperAnvilScreenHandler.entryMatch(registryEntry, itemStackLeft))
 				{
 					int leftLevel = builder.getLevel(registryEntry);
 					int rightLevel = entry.getIntValue();

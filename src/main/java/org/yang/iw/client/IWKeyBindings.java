@@ -10,14 +10,14 @@ import org.yang.iw.datagen.language.TranslationPool;
 public class IWKeyBindings
 {
 	public static final KeyBinding ABILITY_OPEN_CLOSE_KEYBIND = KeyBindingHelper.registerKeyBinding(
-			new KeyBinding(TranslationPool.ABILITY_OPEN_CLOSE_KEYBIND_N, InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V,
-					TranslationPool.IW_KEYBINDING_CATAGORY_N));
+			new KeyBinding(TranslationPool.ABILITY_OPEN_CLOSE_KEYBINDING_N, InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V,
+					TranslationPool.IW_KEYBINDING_CATEGORY_N));
 
 	public static void initialize()
 	{
 		ClientTickEvents.START_CLIENT_TICK.register(client -> {
 			if (ABILITY_OPEN_CLOSE_KEYBIND.wasPressed() && client.player != null)
-				client.player.getIWClientPlayerData().switchAbilityOpen();
+				client.player.getIWClientPlayerData().switchClientAbilityOpen();
 		});
 	}
 }

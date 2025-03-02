@@ -13,10 +13,9 @@ import org.yang.iw.api.register.IndependentRegister;
 import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.util.Base;
+import org.yang.iw.util.style.Color;
 
 import java.util.function.Function;
-
-import static org.yang.iw.util.Base.iwlogger;
 
 @DataGenSupplier
 @IndependentRegister
@@ -28,7 +27,10 @@ public class IWEffects
 	}
 
 	public static final RegistryEntry<StatusEffect> BLOOD = registerEffect("blood", "流血", new BloodEffect());
-	public static final RegistryEntry<StatusEffect> COOLDOWN = registerEffect("cooldown", "受击", new CooldownEffect());
+	public static final RegistryEntry<StatusEffect> COOLDOWN = registerCommonEffect("cooldown", "受击",
+			identifier -> new CommonEffect(StatusEffectCategory.HARMFUL, Color.YELLOW_RGB).addAttributeModifier(
+					IWEntityAttributes.HURT_DURATION, identifier, -1,
+					EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
 	public static final RegistryEntry<StatusEffect> HURTING = registerCommonEffect("hurting", "易伤",
 			identifier -> new CommonEffect(StatusEffectCategory.HARMFUL, 0X000000).addAttributeModifier(
 					IWEntityAttributes.HURT_DAMAGE_MULTIPLIER, identifier, 0.1,

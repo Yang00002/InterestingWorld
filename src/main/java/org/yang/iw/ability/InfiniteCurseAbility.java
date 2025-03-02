@@ -1,11 +1,9 @@
 package org.yang.iw.ability;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.consume.UseAction;
-import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -13,16 +11,17 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import org.yang.iw.api.tag.IntrusiveTag;
 import org.yang.iw.effect.IWEffects;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.entity.player.IWServerPlayerData;
-import org.yang.iw.api.tag.IntrusiveTag;
 import org.yang.iw.item.heart.AbilityHeart;
+import org.yang.iw.network.bitio.BitReader;
+import org.yang.iw.network.bitio.BitWriter;
 import org.yang.iw.particle_type.IWParticleTypes;
 import org.yang.iw.util.IWLivingEntityUtil;
 import org.yang.iw.util.IWParticleUtil;
 import org.yang.iw.util.IWSoundUtil;
-import org.yang.iw.util.style.Color;
 
 import static org.yang.iw.util.Return.FAIL;
 import static org.yang.iw.util.Return.PASS;
@@ -48,14 +47,18 @@ public class InfiniteCurseAbility extends InfiniteAbility
 	}
 
 	@Override
+	public AbilityCooldownGroup getCooldownGroup()
+	{
+		return AbilityCooldownGroup.ASSISTANCE;
+	}
+
+	@Override
 	public byte use(World world, PlayerEntity user, Hand hand, ItemStack stack)
 	{
 		if (user instanceof ServerPlayerEntity player)
 		{
 			var data = player.interestingWorld$getIWServerPlayerData();
-			if (!data.isAbilityOn() || data.chargeRate < AbilityDuration) return FAIL;
-			data.chargeRate = 0;
-			data.shouldSync = true;
+			if (!data.isAbilityOn() || data.isInCooldown(this)) return FAIL;
 			IWSoundUtil.playSoundToPlayer(player, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS);
 			double x = user.getX();
 			double y = user.getY();
@@ -63,8 +66,6 @@ public class InfiniteCurseAbility extends InfiniteAbility
 			IWParticleUtil.spawnParticleAtPos(world, IWParticleTypes.INFINITECURSE_CYCLE, x, y + 0.001, z);
 			IWParticleUtil.spawnParticleAtPos(world, new DustParticleEffect(0X323232, 1.0f), x, y + 0.5, z, 48, 2.8,
 					2.3, 2.8, 0);
-			data.chargeRate = 0;
-			data.shouldSync = true;
 			var atx = user.getX();
 			var atz = user.getZ();
 			var knox = MathHelper.sin(user.getYaw() * 0.017453292F);
@@ -86,19 +87,10 @@ public class InfiniteCurseAbility extends InfiniteAbility
 				entity.addStatusEffect(
 						new StatusEffectInstance(IWEffects.COOLDOWN, -1, CooldownAmplifier, false, false));
 			});
+			data.setCooldown(this, AbilityDuration);
 			return FAIL;
 		}
 		return PASS;
-	}
-
-	@Override
-	public void serverPlayerWeaponTick(PlayerEntity entity, IWServerPlayerData data, ItemStack stack)
-	{
-		if (data.chargeRate < AbilityDuration)
-		{
-			data.chargeRate++;
-			data.shouldSync = true;
-		}
 	}
 
 	@Override
@@ -108,49 +100,7 @@ public class InfiniteCurseAbility extends InfiniteAbility
 	}
 
 	@Override
-	public void onEnter(PlayerEntity entity, IWServerPlayerData manager)
-	{
-		manager.chargeRate = 0;
-	}
-
-	@Override
-	public void onLeave(PlayerEntity entity, IWServerPlayerData manager)
-	{
-		manager.chargeRate = -1;
-	}
-
-	@Override
-	public int abilityBarForegroundColor(IWClientPlayerData data)
-	{
-		return data.client_ability_on ? Color.CYAN_RGB : Color.GRAY_RGB;
-	}
-
-	@Override
-	public int abilityProcess(IWClientPlayerData data)
-	{
-		return data.charge_rate16;
-	}
-
-	@Override
-	public void writeClientRenderDataToBuf(IWServerPlayerData data, RegistryByteBuf buf)
-	{
-		buf.writeInt(data.chargeRate);
-	}
-
-	@Override
-	public void readClientRenderDataFromBuf(PlayerEntity entity, IWClientPlayerData data, ByteBuf buf)
-	{
-		int chargeRate = buf.readInt();
-		int c = Math.clamp(chargeRate * 16L / AbilityDuration, 0, 16);
-		if (data.client_ability_on && c == 16 && data.charge_rate16 != 16)
-		{
-			playChargedOverSound(entity);
-		}
-		data.charge_rate16 = c;
-	}
-
-	@Override
-	public  AbstractAbility getToolRenderAbility()
+	public AbstractAbility getToolRenderAbility()
 	{
 		return IWAbilities.INFINITECURSE_ABILITY;
 	}
