@@ -5,7 +5,6 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import org.yang.iw.IWRegistries;
 import org.yang.iw.IWRegistryKeys;
-import org.yang.iw.api.register.DataGenSupplier;
 import org.yang.iw.api.register.IndependentRegister;
 import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.datagen.language.TranslationPool;
@@ -13,7 +12,6 @@ import org.yang.iw.util.Base;
 
 import java.util.function.Function;
 
-@DataGenSupplier
 @IndependentRegister
 public class IWBoosts
 {
@@ -30,6 +28,13 @@ public class IWBoosts
 	public static final AbstractBoost SWEEPING_EDGE = register(SweepingEdgeBoost::new, "sweeping_edge", "横扫之刃");
 	public static final AbstractBoost MENDING = register(MendingBoost::new, "mending", "经验修补");
 	public static final AbstractBoost LOOTING = register(LootingBoost::new, "looting", "抢夺");
+	public static final AbstractBoost SMITE = register(SmiteBoost::new, "smite", "亡灵杀手");
+	public static final AbstractBoost BANE_OF_ARTHROPODS = register(BaneOfArthropodsBoost::new, "bane_of_arthropods",
+			"节肢杀手");
+	public static final AbstractBoost BIG_NOSE_LOVER = register(BigNoseLoverBoost::new, "big_nose_lover", "村民之友");
+	public static final AbstractBoost KNOCKBACK = register(KnockbackBoost::new, "knockback", "击退");
+	public static final AbstractBoost ENERGY_SAVING = register(EnergySavingBoost::new, "energy_saving", "节能");
+	public static final AbstractBoost FAST_TRANSFER = register(FastTransferBoost::new, "fast_transfer", "快速传输");
 
 	public static AbstractBoost register(Function<Identifier, AbstractBoost> boostFunction, String id, String name)
 	{

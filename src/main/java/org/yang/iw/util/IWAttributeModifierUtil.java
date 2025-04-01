@@ -11,6 +11,7 @@ import net.minecraft.util.Identifier;
 
 public class IWAttributeModifierUtil
 {
+
 	public static void addModifier(AttributeModifiersComponent.Builder builder,
 								   RegistryEntry<EntityAttribute> attributeRegistryEntry, Identifier id, double value,
 								   EntityAttributeModifier.Operation operation, AttributeModifierSlot slot)

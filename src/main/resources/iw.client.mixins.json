@@ -8,6 +8,7 @@
     "MixinBooleanProperties",
     "MixinClientPlayerEntity",
     "MixinDrawContext",
+    "MixinHandledScreen",
     "MixinInGameHud",
     "MixinModel",
     "MixinNumericProperties",

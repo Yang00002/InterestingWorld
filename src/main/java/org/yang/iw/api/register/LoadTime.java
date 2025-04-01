@@ -8,7 +8,7 @@ public class LoadTime
 
 	public enum Type
 	{
-		BEFORE_INITIALIZE, ON_INITIALIZE, AFTER_INITIALIZE
+		BEFORE_INITIALIZE, ON_INITIALIZE, AFTER_INITIALIZE, SERVER_STARTING, SERVER_STARTED
 	}
 
 	private static Type CURRENT = Type.BEFORE_INITIALIZE;
@@ -23,6 +23,16 @@ public class LoadTime
 	public static void finishInitialize()
 	{
 		CURRENT = Type.AFTER_INITIALIZE;
+	}
+
+	public static void serverStarting()
+	{
+		CURRENT = Type.SERVER_STARTING;
+	}
+
+	public static void serverStarted()
+	{
+		CURRENT = Type.SERVER_STARTED;
 	}
 
 	public static void startInitialize()

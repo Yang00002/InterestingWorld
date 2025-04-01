@@ -4,7 +4,7 @@ public abstract class LeveledSignalFunction
 {
 	public enum Signal
 	{
-		MENDING
+		MENDING, ENERGY_SAVING
 	}
 
 	public abstract Signal type();

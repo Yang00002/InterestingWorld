@@ -5,9 +5,9 @@
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/netherite_sword/infinitecurse"
+          "model": "iw:item/netherite_sword/sweetcurse"
         },
-        "when": "iw:infinitecurse"
+        "when": "iw:sweetcurse"
       },
       {
         "model": {
@@ -19,9 +19,9 @@
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/netherite_sword/sweetcurse"
+          "model": "iw:item/netherite_sword/infinitecurse"
         },
-        "when": "iw:sweetcurse"
+        "when": "iw:infinitecurse"
       }
     ],
     "fallback": {

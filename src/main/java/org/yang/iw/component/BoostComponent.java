@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ShortAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2ShortOpenHashMap;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
@@ -25,6 +26,7 @@ import org.apache.commons.lang3.mutable.MutableFloat;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.yang.iw.IWRegistries;
 import org.yang.iw.IWRegistryKeys;
+import org.yang.iw.api.util.MutableAttributeValueDetail;
 import org.yang.iw.boost.AbstractBoost;
 import org.yang.iw.boost.function.BoostFunctionMap;
 import org.yang.iw.boost.function.LeveledSignalFunction;
@@ -45,6 +47,16 @@ import static org.yang.iw.util.style.TextStyle.getNumberString;
 public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, BoostFunctionMap functions, byte flag,
 							 int cost) implements TooltipAppender
 {
+	// equal 函数比较值而非地址, 可以解决打开容器时手上和物品栏显示同样物品的问题
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		BoostComponent that = (BoostComponent) o;
+		return flag == that.flag && cost == that.cost && value.equals(that.value);
+	}
+
 	public static final BoostComponent DEFAULT = new BoostComponent(new Object2ShortOpenHashMap<>(),
 			BoostFunctionMap.DEFAULT, (byte) 0, 0);
 	private static final Codec<Object2ShortOpenHashMap<AbstractBoost>> VALUE_CODEC = Codec.unboundedMap(
@@ -110,6 +122,35 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, Boost
 			if (registryEntry.matchesKey(f.type())) mutableFloat.add(f.level());
 		}));
 		return (int) mutableFloat.getValue().floatValue();
+	}
+
+	public float modifyKnockback(ServerWorld world, ItemStack stack, Entity target, DamageSource damageSource,
+								 float baseKnockback)
+	{
+		MutableAttributeValueDetail detail = new MutableAttributeValueDetail(baseKnockback);
+		if (!is_store())
+		{
+			functions.applyForSlot(EquipmentSlot.MAINHAND, l -> l.applyModifyKnockbackFunctions(
+					f -> f.modifyKnockback(world, stack, target, damageSource, detail)));
+		}
+		var ub = stack.interestingWorld$uniqueBoost();
+		if (ub != null) ub.applyForSlot(EquipmentSlot.MAINHAND, l -> l.applyModifyKnockbackFunctions(
+				f -> f.modifyKnockback(world, stack, target, damageSource, detail)));
+		return detail.value();
+	}
+
+	public void modifyDamage(ServerWorld world, ItemStack stack, Entity target, DamageSource damageSource,
+							 MutableAttributeValueDetail damage)
+	{
+		if (!is_store())
+		{
+			functions.applyForSlot(EquipmentSlot.MAINHAND,
+					l -> l.applyModifyDamageFunctions(f -> f.modifyDamage(world, stack, target, damageSource,
+							damage)));
+		}
+		var ub = stack.interestingWorld$uniqueBoost();
+		if (ub != null) ub.applyForSlot(EquipmentSlot.MAINHAND,
+				l -> l.applyModifyDamageFunctions(f -> f.modifyDamage(world, stack, target, damageSource, damage)));
 	}
 
 	public static int pretendedLevel(RegistryEntry<Enchantment> registryEntry, LivingEntity entity)
@@ -197,6 +238,24 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, Boost
 			}
 		}
 		return createAsIfLegal(value, (byte) ((getWorldLevelOfXpCost(cost) << 2) | od | (is_store ? 0 : 1)), cost);
+	}
+
+	public static BoostComponent createDefault(Object2ShortOpenHashMap<AbstractBoost> value)
+	{
+		Object2ShortOpenHashMap<AbstractBoost> map = new Object2ShortOpenHashMap<>();
+		for (Object2ShortOpenHashMap.Entry<AbstractBoost> entry : value.object2ShortEntrySet())
+		{
+			var boost = entry.getKey();
+			short i = entry.getShortValue();
+			int level = i & 0XFF;
+			if (level > 0)
+			{
+				short maxLevel = boost.maxAllowLevel();
+				if (level > maxLevel) map.put(boost, (short) (maxLevel | (maxLevel << 8)));
+				else map.put(boost, (short) (level | (level << 8)));
+			}
+		}
+		return createAsIfLegal(map, (byte) 3, 0);
 	}
 
 	public static BoostComponent createLegalWithCost(Object2ShortOpenHashMap<AbstractBoost> value, boolean is_store,
@@ -310,6 +369,18 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, Boost
 		if (ub != null) ub.applyForSlot(AttributeModifierSlot.ANY,
 				l -> l.applyItemDamageFunctions(f -> f.getItemDamage(world, mutableInt)));
 		return mutableInt.getValue();
+	}
+
+	public float getAcceleratedEnergyTransferRate(ItemStack stack)
+	{
+		float original = stack.getOrDefault(IWComponents.ENERGY_REGEN_RATE, 0f);
+		MutableAttributeValueDetail detail = new MutableAttributeValueDetail(original);
+		if (!is_store()) functions.applyForSlot(AttributeModifierSlot.ANY,
+				l -> l.applyAccelerateEnergyTransferFunctions(f -> f.accelerateTransfer(detail)));
+		var ub = stack.interestingWorld$uniqueBoost();
+		if (ub != null) ub.applyForSlot(AttributeModifierSlot.ANY,
+				l -> l.applyAccelerateEnergyTransferFunctions(f -> f.accelerateTransfer(detail)));
+		return Math.clamp(detail.value(), 0f, 1f);
 	}
 
 	public void applyAttributeModifiers(ItemStack stack, AttributeModifierSlot slot,

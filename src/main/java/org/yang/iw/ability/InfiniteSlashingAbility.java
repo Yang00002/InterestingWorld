@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
 import org.yang.iw.api.tag.IntrusiveTag;
-import org.yang.iw.component.EnergyToolDataFlag;
+import org.yang.iw.component.ToolFlagComponent;
 import org.yang.iw.entity.player.AbilityBarType;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.entity.player.IWServerPlayerData;
@@ -103,7 +103,7 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
-		return EnergyToolDataFlag.fromItemStack(stack).canSweep();
+		return ToolFlagComponent.fromItemStack(stack).canSweep();
 	}
 
 	public static void damage(ServerPlayerEntity player, LivingEntity target, float damage, float knockback,
@@ -112,7 +112,7 @@ public class InfiniteSlashingAbility extends InfiniteAbility
 		ServerWorld world = (ServerWorld) player.getWorld();
 		var knox = MathHelper.sin(player.getYaw() * 0.017453292F);
 		var knoz = -MathHelper.cos(player.getYaw() * 0.017453292F);
-		var damageSource = new DamageSource(IWDamageTypes.ENERGY_MELEE_ENTRY.get(), player);
+		var damageSource = new DamageSource(IWDamageTypes.ENERGY_MELEE.entry(), player);
 		IWSoundUtil.playSoundToPlayer(player, IWSounds.DOUBLE_SWEEP, SoundCategory.PLAYERS);
 		IWLivingEntityUtil.sweepEntity(player, angleCosine, range, target, (attacker1, entity, distance) -> {
 			entity.takeKnockback(knockback, knox, knoz);

@@ -6,6 +6,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.component.type.ToolComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.entry.RegistryEntryList;
@@ -13,9 +14,10 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.yang.iw.boost.pool.TableBoostPool;
-import org.yang.iw.component.EnergyToolDataFlag;
 import org.yang.iw.component.IWComponents;
+import org.yang.iw.component.ToolFlagComponent;
 import org.yang.iw.item.tool.EnergyToolItem;
+import org.yang.iw.tool.material.ToolMaterial;
 import org.yang.iw.util.constants.Numbers;
 
 import java.util.List;
@@ -26,7 +28,7 @@ public class EnergySwordItem extends EnergyToolItem
 
 	public EnergySwordItem(Item.Settings settings, TableBoostPool pool)
 	{
-		super(settings.component(IWComponents.TOOL_FLAG, EnergyToolDataFlag.builder().setCanSweep().build()), pool);
+		super(settings.component(IWComponents.TOOL_FLAG, ToolFlagComponent.builder().setCanSweep().build()), pool);
 	}
 
 

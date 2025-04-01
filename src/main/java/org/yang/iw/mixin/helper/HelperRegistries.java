@@ -6,6 +6,7 @@ import net.minecraft.util.Identifier;
 import org.yang.iw.IWRegistryKeys;
 import org.yang.iw.ability.AbstractAbility;
 import org.yang.iw.boost.AbstractBoost;
+import org.yang.iw.tool.material.ToolMaterial;
 import org.yang.iw.upgrade.AbstractUpgrade;
 import org.yang.iw.util.Base;
 
@@ -28,5 +29,11 @@ public class HelperRegistries
 		var ret = AbstractUpgrade.getDefault();
 		return Registry.register(registry,
 				RegistryKey.of(IWRegistryKeys.UPGRADE, Identifier.of(Base.MOD_ID, ret.identifier())), ret);
+	}
+
+	public static ToolMaterial registerDefaultToolMaterial(Registry<ToolMaterial> registry)
+	{
+		var ret = ToolMaterial.getDefault();
+		return Registry.register(registry, RegistryKey.of(IWRegistryKeys.TOOL_MATERIAL, ret.identifier()), ret);
 	}
 }

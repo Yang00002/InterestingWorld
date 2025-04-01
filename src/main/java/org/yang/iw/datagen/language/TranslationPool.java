@@ -6,9 +6,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.Item;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class TranslationPool
@@ -51,6 +54,18 @@ public class TranslationPool
 		return ori;
 	}
 
+	public static Text translatable(String ori, String trans)
+	{
+		if (providers != null) providers.put(ori, () -> trans);
+		return Text.translatable(ori);
+	}
+
+	public static Text translatable(String ori, String trans, Function<MutableText, Text> func)
+	{
+		if (providers != null) providers.put(ori, () -> trans);
+		return func.apply(Text.translatable(ori));
+	}
+
 	public static String addString(String ori, Supplier<String> trans)
 	{
 		if (providers != null) providers.put(ori, trans);
@@ -69,6 +84,7 @@ public class TranslationPool
 	public static final String FORGING_BLOCK_TIP_ENCHANT_NO_USEFUL_N = add("forgingblock.text.enchant.4",
 			"没有可用的强化");
 	public static final String TOOLTIP_ENERGYTOOL_COMMON_ENERGY = add("tooltip.energy.count", "储存能量");
+	public static final String TOOLTIP_ENERGYTOOL_ENERGY_RATE = add("tooltip.energy.rate", "恢复速率");
 	public static final String TOOLTIP_UPGRADE_NEED_BEGIN = add("upgrade.need.txet", "需求：");
 	public static final String TOOLTIP_DEFAULT_ENCHANT = add("tooltip.defaultenchantment", "自带：");
 	public static final String COMMAND_SET_WORLD_LEVEL = add("iw.worldlevel_set_success", "世界等级已设置为 %s。");
@@ -89,5 +105,20 @@ public class TranslationPool
 	public static final String COMMAND_NOT_A_ENCHANT_HEART = add("command.noaheart", "%s手持物品不是可附魔的心类物品");
 	public static final String COMMAND_SET_TEST_NUMBER_SUCCESS = add("command.settestnumber.s", "成功将数字%s设置为%s");
 	public static final String COMMAND_NOT_A_PLAYER = add("command.noaplayer", "执行者不是玩家");
+	public static final String TOOLTIP_PROVIDE_MATERIAL_1 = add("tooltip.provide.material1", "材料");
+	public static final String TOOLTIP_PROVIDE_MATERIAL_B = add("tooltip.provide.material_b", "块");
+	public static final String TOOLTIP_PROVIDE_MATERIAL_I = add("tooltip.provide.material_i", "锭");
+	public static final String TOOLTIP_PROVIDE_MATERIAL_N = add("tooltip.provide.material_n", "粒");
+	public static final String TOOLTIP_PROVIDE_MATERIAL_2 = add("tooltip.provide.material2", "单位");
+	public static final String TOOLTIP_MATERIAL_NEED = add("tooltip.material_need", "需要");
+	public static final String TOOLTIP_MATERIAL_WRONG = add("tooltip.material_wrong", "材料不适用");
+	public static final String TOOL_PART_DAMAGE = add("tooltip.tool_part.damage", "攻击伤害：");
+	public static final String TOOL_PART_SPEED = add("tooltip.tool_part.speed", "攻击速度：");
+	public static final String TOOL_PART_DURABILITY = add("tooltip.tool_part.durability", "耐久：");
+	public static final String TOOL_PART_BOOST_TIME = add("tooltip.tool_part.boost_time", "强化次数：");
+	public static final String TOOL_PART_BOOST_MAX_ENERGY = add("tooltip.tool_part.max_energy", "最大能量：");
+	public static final String TOOL_PART_BOOST_ENERGY_RENGEN_RATE = add("tooltip.tool_part.energy_regen_rate",
+			"能量恢复速率：");
+	public static final String TOOL_PART_PROOF_FIRE = add("tooltip.tool_part.proof_fire", "防火");
 
 }

@@ -1,0 +1,69 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:select",
+        "cases": [
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/material_packet/diamond"
+            },
+            "when": "iw:diamond"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/material_packet/iron"
+            },
+            "when": "iw:iron"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/material_packet/wood"
+            },
+            "when": "iw:wood"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/material_packet/stone"
+            },
+            "when": "iw:stone"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/material_packet/gold"
+            },
+            "when": "iw:gold"
+          }
+        ],
+        "fallback": {
+          "type": "minecraft:model",
+          "model": "iw:item/material_packet"
+        },
+        "property": "iw:repair_packet"
+      },
+      {
+        "type": "minecraft:select",
+        "cases": [
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/material_packet/overlay/netherite"
+            },
+            "when": "iw:netherite"
+          }
+        ],
+        "fallback": {
+          "type": "minecraft:empty"
+        },
+        "overlay": true,
+        "property": "iw:repair_packet"
+      }
+    ]
+  }
+}

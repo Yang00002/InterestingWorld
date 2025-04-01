@@ -5,18 +5,29 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.yang.iw.component.IWComponents;
+import org.yang.iw.component.RepairPacketComponent;
+import org.yang.iw.datagen.language.TranslationPool;
+import org.yang.iw.item.IWItems;
+import org.yang.iw.resource.MaterialProvider;
+import org.yang.iw.tool.material.ToolMaterial;
 import org.yang.iw.util.Base;
 import org.yang.iw.util.IWCostUtil;
+import org.yang.iw.util.style.Color;
+import org.yang.iw.util.style.TextStyle;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.function.Predicate;
 
@@ -30,6 +41,7 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 			"textures/gui/container/forging_block/main.png");
 	private static final Identifier EXPERIENCE = Identifier.of(Base.MOD_ID,
 			"textures/gui/container/forging_block/experience.png");
+
 
 	public ForgingBlockScreen(ForgingBlockScreenHandler handler, PlayerInventory inventory, Text title)
 	{
@@ -138,9 +150,7 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 					int xpHave = IWCostUtil.getExperienceFromLevel(player.experienceLevel, player.experienceProgress);
 					drawer.addText(state.tipStatics[0], 4, xpHave >= xpCost);
 					drawer.addXpTexture(IWCostUtil.getWorldLevelOfXpCost(xpCost), 0);
-					drawer.addText(Text.translatable(state.tipDynamics[0], xpCost, xpHave, handler.getRepairCount())
-							, 4,
-							xpHave >= xpCost);
+					drawer.addText(Text.translatable(state.tipDynamics[0], xpCost, xpHave), 4, xpHave >= xpCost);
 				}
 				drawer.draw();
 			}
@@ -149,7 +159,8 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 					EXTRACT_ABILITY_NO_TOOL, EXTRACT_ABILITY_NO_ABILITY, EXTRACT_ABILITY_NOT_SUPPORT,
 					APPEND_ABILITY_NO_TOOL, APPEND_ABILITY_NOT_SUITABLE, APPEND_ABILITY_ALREADY_HAVE,
 					UPGRADE_LEVEL_LOW, UPGRADE_NEED_TOOL, UPGRADE_LACK_INGREDIENTS, UPGRADE_NOT_SUITABLE,
-					UPGRADE_ALREADY_HAVE ->
+					UPGRADE_ALREADY_HAVE, FORGE_NEED_MATERIALS, FORGE_NOT_A_MATERIAL, FORGE_MATERIAL_UNSUITABLE,
+					FORGE_MATERIAL_NOT_ENOUGH, FORGE_OVERLAY_MATERIAL_NOT_ENOUGH, FORGE_REFUSE_OVERLAY_ALONE ->
 			{
 				TipDrawer drawer = new TipDrawer(context, 2, 2);
 				drawer.addText(state.tipStatics[0], 4, false);
@@ -193,14 +204,142 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 	@Override
 	protected void drawMouseoverTooltip(DrawContext context, int x, int y)
 	{
-		if (this.handler.getCursorStack().isEmpty() && this.focusedSlot != null && this.focusedSlot.hasStack())
+		if (this.focusedSlot != null && this.focusedSlot.hasStack())
 		{
 			ItemStack itemStack = this.focusedSlot.getStack();
-			if (this.getScreenHandler().isOutputInventory(this.focusedSlot.inventory) &&
-				handler.getGlobalState() == ForgingBlockState.APPEND_BOOST) return;
-			context.drawTooltip(this.textRenderer, this.getTooltipFromItem(itemStack), itemStack.getTooltipData(), x,
-					y);
+			if (this.handler.getCursorStack().isEmpty() || isItemTooltipSticky(itemStack))
+			{
+				int id = focusedSlot.id;
+				if (id == 2 && handler.getGlobalState() == ForgingBlockState.APPEND_BOOST) return;
+				List<Text> tooltip = this.getTooltipFromItem(itemStack);
+				var pair = MaterialProvider.get(itemStack);
+				if (pair != null)
+				{
+					var material = pair.material();
+					int worth = pair.value() * itemStack.getCount();
+					boolean packet = itemStack.getItem() == IWItems.MATERIAL_PACKET;
+					switch (handler.getGlobalState())
+					{
+						case FORGE_NEED_MATERIALS, FORGE, FORGE_MATERIAL_UNSUITABLE, FORGE_NOT_A_MATERIAL,
+								FORGE_MATERIAL_NOT_ENOUGH, FORGE_OVERLAY_MATERIAL_NOT_ENOUGH,
+								FORGE_REFUSE_OVERLAY_ALONE ->
+						{
+							if (id >= 3 && id <= 11)
+							{
+								var template = handler.getForgeTemplate();
+								tooltip = template.slotTooltip(id, tooltip, material, worth, handler, packet,
+										itemStack);
+							}
+							else if (!packet) appendMaterialWorthTooltip(tooltip, material, worth);
+						}
+						default ->
+						{
+							if (!packet) appendMaterialWorthTooltip(tooltip, material, worth);
+						}
+					}
+				}
+				else
+				{
+					var state = this.handler.getGlobalState();
+					switch (state)
+					{
+						case REPAIR_LACK_INGREDIENT ->
+						{
+							if (id == 0)
+							{
+								ItemStack stack = handler.getSlot(0).getStack();
+								stack.getOrDefault(IWComponents.REPAIR_PACKET, RepairPacketComponent.DEFAULT)
+										.appendHalfToolTip(tooltip,
+												(float) stack.getOrDefault(DataComponentTypes.DAMAGE, 0) /
+												stack.getOrDefault(DataComponentTypes.MAX_DAMAGE, 1));
+							}
+						}
+						case REPAIR ->
+						{
+							if (id == 0)
+							{
+								ItemStack stack = handler.getSlot(0).getStack();
+								stack.getOrDefault(IWComponents.REPAIR_PACKET, RepairPacketComponent.DEFAULT)
+										.appendHalfToolTip(tooltip,
+												(float) stack.getOrDefault(DataComponentTypes.DAMAGE, 0) /
+												stack.getOrDefault(DataComponentTypes.MAX_DAMAGE, 1));
+							}
+							else if (id == 2)
+							{
+								var stack = handler.getSlot(0).getStack();
+								stack.getOrDefault(IWComponents.REPAIR_PACKET, RepairPacketComponent.DEFAULT)
+										.appendHalfToolTip(tooltip, handler.getRepairCount());
+							}
+						}
+					}
+
+				}
+				context.drawTooltip(this.textRenderer, tooltip, itemStack.getTooltipData(), x, y);
+			}
 		}
+	}
+
+	public static MutableText appendNeedText(int worth, boolean meet)
+	{
+		int block = worth / 8100;
+		int ingot = (worth % 8100) / 900;
+		int nuggetX = worth % 900;
+		MutableText text = Text.translatable(TranslationPool.TOOLTIP_MATERIAL_NEED);
+		if (block > 0) text.append(Text.literal(" " + block + " "))
+				.append(Text.translatable(TranslationPool.TOOLTIP_PROVIDE_MATERIAL_B));
+		if (ingot > 0) text.append(Text.literal(" " + ingot + " "))
+				.append(Text.translatable(TranslationPool.TOOLTIP_PROVIDE_MATERIAL_I));
+		if (nuggetX > 0) text.append(Text.literal(" " + TextStyle.FLOAT_FORMAT.format(nuggetX * 0.01f) + " "))
+				.append(Text.translatable(TranslationPool.TOOLTIP_PROVIDE_MATERIAL_N));
+		return text.withColor(meet ? Color.GREEN_RGB : Color.RED_RGB);
+	}
+
+	public static MutableText appendMaterialWorthText(MutableText original, ToolMaterial material, int worth)
+	{
+		int block = worth / 8100;
+		int ingot = (worth % 8100) / 900;
+		int nuggetX = worth % 900;
+		original.append(Text.translatable(material.translateKey())
+				.append(Text.translatable(TranslationPool.TOOLTIP_PROVIDE_MATERIAL_1))
+				.withColor(material.materialColor()));
+		if (block > 0) original.append(Text.literal(" " + block + " ").withColor(Color.YELLOW_RGB))
+				.append(Text.translatable(TranslationPool.TOOLTIP_PROVIDE_MATERIAL_B)
+						.withColor(material.materialColor()));
+		if (ingot > 0) original.append(Text.literal(" " + ingot + " ").withColor(Color.YELLOW_RGB))
+				.append(Text.translatable(TranslationPool.TOOLTIP_PROVIDE_MATERIAL_I)
+						.withColor(material.materialColor()));
+		if (nuggetX > 0) original.append(
+						Text.literal(" " + TextStyle.FLOAT_FORMAT.format(nuggetX * 0.01f) + " ").withColor(Color.YELLOW_RGB))
+				.append(Text.translatable(TranslationPool.TOOLTIP_PROVIDE_MATERIAL_N)
+						.withColor(material.materialColor()));
+		return original;
+	}
+
+	public static MutableText appendMaterialWorthText(MutableText original, ToolMaterial material, int worth,
+													  int taking, boolean useTaking)
+	{
+		int block = worth / 8100;
+		int ingot = (worth % 8100) / 900;
+		int nuggetX = worth % 900;
+		original.append(Text.translatable(material.translateKey())
+				.append(Text.translatable(TranslationPool.TOOLTIP_PROVIDE_MATERIAL_1))
+				.withColor(material.materialColor()));
+		if (block > 0) original.append(Text.literal(" " + block + " ").withColor(Color.YELLOW_RGB))
+				.append(Text.translatable(TranslationPool.TOOLTIP_PROVIDE_MATERIAL_B)
+						.withColor(material.materialColor()));
+		if (ingot > 0) original.append(Text.literal(" " + ingot + " ").withColor(Color.YELLOW_RGB))
+				.append(Text.translatable(TranslationPool.TOOLTIP_PROVIDE_MATERIAL_I)
+						.withColor(material.materialColor()));
+		if (nuggetX > 0) original.append(
+						Text.literal(" " + TextStyle.FLOAT_FORMAT.format(nuggetX * 0.01f) + " ").withColor(Color.YELLOW_RGB))
+				.append(Text.translatable(TranslationPool.TOOLTIP_PROVIDE_MATERIAL_N)
+						.withColor(material.materialColor()));
+		return useTaking ? original.append(" ").append(appendNeedText(taking, taking <= worth)) : original;
+	}
+
+	public static void appendMaterialWorthTooltip(List<Text> list, ToolMaterial material, int worth)
+	{
+		list.add(appendMaterialWorthText(Text.empty(), material, worth));
 	}
 
 	@Override
@@ -214,7 +353,7 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 			case REPAIR ->
 			{
 				var ig = handler.getRepairIngredient();
-				if (ig != null) this.drawIngredientOverlay(context, ig::matches);
+				if (ig != null) this.drawIngredientOverlay(context, ig::canUseForRepair);
 			}
 			case UPGRADE_LEVEL_LOW, UPGRADE_NEED_TOOL, UPGRADE, UPGRADE_LACK_INGREDIENTS, UPGRADE_NOT_SUITABLE,
 					UPGRADE_ALREADY_HAVE ->
@@ -225,6 +364,16 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 					return need.containsKey(it);
 				});
 			}
+			case FORGE_MATERIAL_UNSUITABLE, FORGE_NOT_A_MATERIAL, FORGE_NEED_MATERIALS, FORGE_MATERIAL_NOT_ENOUGH,
+					FORGE_OVERLAY_MATERIAL_NOT_ENOUGH, FORGE_REFUSE_OVERLAY_ALONE ->
+			{
+				int slotIdx = handler.getForgeFailSlot();
+				Slot slot = handler.getSlot(slotIdx);
+				context.getMatrices().push();
+				context.getMatrices().translate(x, y, 0.0F);
+				drawWrongSlotOverlay(context, slot.x, slot.y);
+				context.getMatrices().pop();
+			}
 		}
 		this.drawMouseoverTooltip(context, mouseX, mouseY);
 	}
@@ -234,6 +383,11 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 		context.fill(RenderLayer.getGuiOverlay(), x, y, x + 16, y + 16, 1073807104);
 	}
 
+	public static void drawWrongSlotOverlay(DrawContext context, int x, int y)
+	{
+		context.fill(RenderLayer.getGuiOverlay(), x, y, x + 16, y + 16, Color.rgbToArgb(Color.RED_RGB, 64));
+	}
+
 
 	public void drawIngredientOverlay(DrawContext context, Predicate<ItemStack> overLayCond)
 	{
@@ -241,7 +395,7 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 		int j = this.y;
 		RenderSystem.disableDepthTest();
 		context.getMatrices().push();
-		context.getMatrices().translate((float) i, (float) j, 0.0F);
+		context.getMatrices().translate(i, j, 0.0F);
 		for (int k = 3; k < 12; k++)
 		{
 			Slot slot = this.handler.slots.get(k);
@@ -274,6 +428,23 @@ public class ForgingBlockScreen extends HandledScreen<ForgingBlockScreenHandler>
 	{
 		context.drawTexture(RenderLayer::getGuiTextured, TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth,
 				this.backgroundHeight, 176, 202);
+		switch (handler.getGlobalState())
+		{
+			case FORGE_NEED_MATERIALS, FORGE, FORGE_MATERIAL_UNSUITABLE, FORGE_NOT_A_MATERIAL,
+					FORGE_MATERIAL_NOT_ENOUGH, FORGE_OVERLAY_MATERIAL_NOT_ENOUGH, FORGE_REFUSE_OVERLAY_ALONE ->
+			{
+				var templateItem = handler.getForgeTemplate();
+				if (templateItem != null)
+				{
+					RenderSystem.disableDepthTest();
+					context.getMatrices().push();
+					context.getMatrices().translate(x, y, 0.0F);
+					templateItem.drawIngredientSlots(context, handler);
+					context.getMatrices().pop();
+					RenderSystem.enableDepthTest();
+				}
+			}
+		}
 	}
 
 	public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack)

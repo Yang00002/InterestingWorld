@@ -1,0 +1,14 @@
+{
+  "values": [
+    "minecraft:wandering_trader",
+    "minecraft:villager",
+    "minecraft:iron_golem",
+    "minecraft:ravager",
+    "minecraft:witch",
+    "minecraft:zombie_villager",
+    {
+      "id": "#minecraft:illager",
+      "required": false
+    }
+  ]
+}

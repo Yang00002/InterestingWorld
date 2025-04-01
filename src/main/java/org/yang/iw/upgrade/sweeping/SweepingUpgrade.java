@@ -3,9 +3,9 @@ package org.yang.iw.upgrade.sweeping;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import org.yang.iw.component.ToolFlagComponent;
 import org.yang.iw.upgrade.AbstractUpgrade;
 import org.yang.iw.util.style.Color;
-import org.yang.iw.component.EnergyToolDataFlag;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,14 +31,14 @@ public class SweepingUpgrade extends AbstractUpgrade
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
-		return !EnergyToolDataFlag.fromItemStack(stack).canSweep();
+		return !ToolFlagComponent.fromItemStack(stack).canSweep();
 	}
 
 
 	@Override
 	protected void applyUpgradeContent(ItemStack toolStack)
 	{
-		EnergyToolDataFlag.builder(toolStack).setCanSweep().dump(toolStack);
+		ToolFlagComponent.builder(toolStack).setCanSweep().dump(toolStack);
 	}
 
 	@Override

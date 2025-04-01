@@ -1,6 +1,5 @@
 package org.yang.iw.boost.function;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.entity.EquipmentSlot;
 
@@ -11,14 +10,14 @@ public class BoostFunctionMap
 {
 
 	public static final BoostFunctionMap DEFAULT = new BoostFunctionMap(new EnumMap<>(AttributeModifierSlot.class));
-	EnumMap<AttributeModifierSlot, PositionedBoostFunctionList> equipmentSlotBoostFunctionListMap;
+	final EnumMap<AttributeModifierSlot, BoostFunctionList> equipmentSlotBoostFunctionListMap;
 
-	BoostFunctionMap(EnumMap<AttributeModifierSlot, PositionedBoostFunctionList> map)
+	BoostFunctionMap(EnumMap<AttributeModifierSlot, BoostFunctionList> map)
 	{
 		equipmentSlotBoostFunctionListMap = map;
 	}
 
-	public void applyForSlot(EquipmentSlot slot, Consumer<PositionedBoostFunctionList> functionConsumer)
+	public void applyForSlot(EquipmentSlot slot, Consumer<BoostFunctionList> functionConsumer)
 	{
 		applyForSlot(AttributeModifierSlot.ANY, functionConsumer);
 		switch (slot)
@@ -61,7 +60,7 @@ public class BoostFunctionMap
 		}
 	}
 
-	public void applyForSlot(AttributeModifierSlot slot, Consumer<PositionedBoostFunctionList> functionConsumer)
+	public void applyForSlot(AttributeModifierSlot slot, Consumer<BoostFunctionList> functionConsumer)
 	{
 		equipmentSlotBoostFunctionListMap.forEach((k, v) -> {
 			if (slot == k) functionConsumer.accept(v);
@@ -78,18 +77,18 @@ public class BoostFunctionMap
 		boolean not_built = true;
 		BoostFunctionMap map = new BoostFunctionMap(new EnumMap<>(AttributeModifierSlot.class));
 
-		private PositionedBoostFunctionList allocate(AttributeModifierSlot slot)
+		private BoostFunctionList allocate(AttributeModifierSlot slot)
 		{
 			var original = map.equipmentSlotBoostFunctionListMap.getOrDefault(slot, null);
 			if (original == null)
 			{
-				original = new PositionedBoostFunctionList();
+				original = new BoostFunctionList();
 				map.equipmentSlotBoostFunctionListMap.put(slot, original);
 			}
 			return original;
 		}
 
-		public Builder add(AttributeModifierSlot slot, PositionedBoostFunctionList list)
+		public Builder add(AttributeModifierSlot slot, BoostFunctionList list)
 		{
 			if (not_built)
 			{
@@ -99,71 +98,92 @@ public class BoostFunctionMap
 			return this;
 		}
 
-		public Builder add(AttributeModifierSlot slot, AttributeModifierFunction list)
+		public Builder add(AttributeModifierSlot slot, AttributeModifierFunction func)
 		{
-			if (not_built)
+			if (not_built && func != null && slot != null)
 			{
 				var original = allocate(slot);
-				if (original.attributeModifierFunctions == null)
-					original.attributeModifierFunctions = new ObjectArrayList<>();
-				original.attributeModifierFunctions.add(list);
+				original.add(AttributeModifierFunction.class, func);
 			}
 			return this;
 		}
 
-		public Builder add(AttributeModifierSlot slot, TargetDamagedFunction list)
+		public Builder add(AttributeModifierSlot slot, TargetDamagedFunction func)
 		{
-			if (not_built)
+			if (not_built && func != null && slot != null)
 			{
 				var original = allocate(slot);
-				if (original.targetDamagedFunctions == null) original.targetDamagedFunctions = new ObjectArrayList<>();
-				original.targetDamagedFunctions.add(list);
+				original.add(TargetDamagedFunction.class, func);
 			}
 			return this;
 		}
 
-		public Builder add(AttributeModifierSlot slot, EquipmentDropChanceFunction list)
+		public Builder add(AttributeModifierSlot slot, EquipmentDropChanceFunction func)
 		{
-			if (not_built)
+			if (not_built && func != null && slot != null)
 			{
 				var original = allocate(slot);
-				if (original.equipmentDropChanceFunctions == null)
-					original.equipmentDropChanceFunctions = new ObjectArrayList<>();
-				original.equipmentDropChanceFunctions.add(list);
+				original.add(EquipmentDropChanceFunction.class, func);
 			}
 			return this;
 		}
 
-		public Builder add(AttributeModifierSlot slot, PretendEnchantInLootTableFunction list)
+		public Builder add(AttributeModifierSlot slot, PretendEnchantInLootTableFunction func)
 		{
-			if (not_built)
+			if (not_built && func != null && slot != null)
 			{
 				var original = allocate(slot);
-				if (original.pretendEnchantInLootTableFunctions == null)
-					original.pretendEnchantInLootTableFunctions = new ObjectArrayList<>();
-				original.pretendEnchantInLootTableFunctions.add(list);
+				original.add(PretendEnchantInLootTableFunction.class, func);
 			}
 			return this;
 		}
 
-		public Builder add(AttributeModifierSlot slot, LeveledSignalFunction list)
+		public Builder add(AttributeModifierSlot slot, ModifyDamageFunction func)
 		{
-			if (not_built)
+			if (not_built && func != null && slot != null)
 			{
 				var original = allocate(slot);
-				if (original.leveledSignalFunctions == null) original.leveledSignalFunctions = new ObjectArrayList<>();
-				original.leveledSignalFunctions.add(list);
+				original.add(ModifyDamageFunction.class, func);
 			}
 			return this;
 		}
 
-		public Builder add(AttributeModifierSlot slot, ItemDamageFunction list)
+		public Builder add(AttributeModifierSlot slot, LeveledSignalFunction func)
 		{
-			if (not_built)
+			if (not_built && func != null && slot != null)
 			{
 				var original = allocate(slot);
-				if (original.itemDamageFunctions == null) original.itemDamageFunctions = new ObjectArrayList<>();
-				original.itemDamageFunctions.add(list);
+				original.add(LeveledSignalFunction.class, func);
+			}
+			return this;
+		}
+
+		public Builder add(AttributeModifierSlot slot, ItemDamageFunction func)
+		{
+			if (not_built && func != null && slot != null)
+			{
+				var original = allocate(slot);
+				original.add(ItemDamageFunction.class, func);
+			}
+			return this;
+		}
+
+		public Builder add(AttributeModifierSlot slot, ModifyKnockbackFunction func)
+		{
+			if (not_built && func != null && slot != null)
+			{
+				var original = allocate(slot);
+				original.add(ModifyKnockbackFunction.class, func);
+			}
+			return this;
+		}
+
+		public Builder add(AttributeModifierSlot slot, AccelerateEnergyTransferFunction func)
+		{
+			if (not_built && func != null && slot != null)
+			{
+				var original = allocate(slot);
+				original.add(AccelerateEnergyTransferFunction.class, func);
 			}
 			return this;
 		}

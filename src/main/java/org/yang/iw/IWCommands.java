@@ -16,7 +16,6 @@ import org.yang.iw.component.BoostableComponent;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.item.heart.BaseHeart;
-import org.yang.iw.util.Server;
 import org.yang.iw.util.style.Color;
 
 import static net.minecraft.server.command.CommandManager.argument;
@@ -41,7 +40,7 @@ public class IWCommands
 							final int level = IntegerArgumentType.getInteger(context, "level");
 							if (level >= 0 && level <= 10)
 							{
-								var pd = Server.getPersistentData();
+								var pd = IWMain.getPersistentData();
 								if (pd.worldEnergyLevel != level)
 								{
 									pd.worldEnergyLevel = level;

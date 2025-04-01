@@ -6,12 +6,10 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
-import org.yang.iw.api.register.DataGenSupplier;
 import org.yang.iw.api.register.IndependentRegister;
 import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.datagen.language.TranslationPool;
 
-@DataGenSupplier
 @IndependentRegister
 public class IWEntityAttributes
 {

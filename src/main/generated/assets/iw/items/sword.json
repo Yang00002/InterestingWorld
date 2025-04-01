@@ -1,0 +1,112 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:select",
+        "cases": [
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/blade/diamond"
+            },
+            "when": "iw:diamond"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/blade/iron"
+            },
+            "when": "iw:iron"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/blade/wood"
+            },
+            "when": "iw:wood"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/blade/stone"
+            },
+            "when": "iw:stone"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/blade/netherite"
+            },
+            "when": "iw:netherite"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/blade/gold"
+            },
+            "when": "iw:gold"
+          }
+        ],
+        "fallback": {
+          "type": "minecraft:model",
+          "model": "iw:item/sword/blade/wood"
+        },
+        "property": "iw:tool_material"
+      },
+      {
+        "type": "minecraft:select",
+        "cases": [
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/handle/diamond"
+            },
+            "when": "iw:diamond"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/handle/iron"
+            },
+            "when": "iw:iron"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/handle/wood"
+            },
+            "when": "iw:wood"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/handle/stone"
+            },
+            "when": "iw:stone"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/handle/netherite"
+            },
+            "when": "iw:netherite"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/handle/gold"
+            },
+            "when": "iw:gold"
+          }
+        ],
+        "fallback": {
+          "type": "minecraft:model",
+          "model": "iw:item/sword/handle/wood"
+        },
+        "index": 1,
+        "property": "iw:tool_material"
+      }
+    ]
+  }
+}

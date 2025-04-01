@@ -10,14 +10,12 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
-import org.yang.iw.api.register.DataGenSupplier;
 import org.yang.iw.api.register.IndependentRegister;
 import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.entity.dummy.DummyEntity;
 import org.yang.iw.util.Base;
 
-@DataGenSupplier
 @IndependentRegister
 public class IWEntities
 {

@@ -38,6 +38,11 @@ public class Color
 		return 0xFF000000 | rgb;
 	}
 
+	public static int rgbToArgb(int rgb, int alpha)
+	{
+		return (alpha << 24) | rgb;
+	}
+
 	public static int rgbToDarkenArgb(int rgb, float strength)
 	{
 		int r = rgb >> 16;

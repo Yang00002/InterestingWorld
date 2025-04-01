@@ -2,10 +2,14 @@ package org.yang.iw.util.style;
 
 import net.minecraft.text.Style;
 
+import java.text.DecimalFormat;
+
 public class TextStyle
 {
 	private static String[] NUMBER_ROMA_STRING = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI",
 												  "XII"};
+
+	public static final DecimalFormat FLOAT_FORMAT = new DecimalFormat("#.####");
 
 	public static String getNumberString(int n)
 	{

@@ -1,12 +1,19 @@
 package org.yang.iw.boost.pool;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.util.Pair;
+import org.yang.iw.api.register.ServerDependLoader;
 import org.yang.iw.boost.AbstractBoost;
 import org.yang.iw.boost.IWBoosts;
 
 import java.util.*;
+import java.util.function.Supplier;
 
+@ServerDependLoader
 public class RandomBoostPool
 {
+	private static final ArrayList<Pair<RandomBoostPool, Supplier<RandomBoostPool>>> LIST = new ArrayList<>();
+
 	Page[] pages;
 
 	public static class Page
@@ -158,6 +165,23 @@ public class RandomBoostPool
 		return null;
 	}
 
+	public static RandomBoostPool empty()
+	{
+		return new RandomBoostPool(new Page[0]);
+	}
+
+	private void load(Supplier<RandomBoostPool> from)
+	{
+		this.pages = from.get().pages;
+	}
+
+	private static RandomBoostPool create(Supplier<RandomBoostPool> supplier)
+	{
+		var ret = empty();
+		LIST.add(new Pair<>(ret, supplier));
+		return ret;
+	}
+
 	public static RandomBoostPool pool(Page... pages)
 	{
 		return new RandomBoostPool(pages);
@@ -203,13 +227,20 @@ public class RandomBoostPool
 		return Entry.create(1, 0, 10, boost);
 	}
 
-	public static final RandomBoostPool ALL = pool(
+	public static final RandomBoostPool ALL = create(() -> pool(
 			page(1, entry(5, IWBoosts.FIRE_ASPECT), entry(2, IWBoosts.REPEAT_ATTACK), entry(9, IWBoosts.SHARPNESS),
 					entry(9, IWBoosts.FAST_ATTACK), entry(10, IWBoosts.UNBREAKING), entry(5, IWBoosts.SWEEPING_EDGE),
-					entry(1, IWBoosts.MENDING)));
+					entry(1, IWBoosts.MENDING))));
 
 	static
 	{
+		Entry.entryMap = null;
+	}
+
+	public static void boostrap()
+	{
+		Entry.entryMap = new Object2ObjectOpenHashMap<>();
+		LIST.forEach(i -> i.getLeft().load(i.getRight()));
 		Entry.entryMap = null;
 	}
 }

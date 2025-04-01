@@ -6,6 +6,7 @@
   "mixins": [
     "MixinAnvilScreenHandler",
     "MixinEnchantmentHelper",
+    "MixinEntityAttributeInstance",
     "MixinExperienceOrbEntity",
     "MixinItem",
     "MixinItemStack",

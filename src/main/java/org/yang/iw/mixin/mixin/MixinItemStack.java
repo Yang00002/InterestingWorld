@@ -29,14 +29,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.yang.iw.boost.BoostContainer;
+import org.yang.iw.IWMain;
 import org.yang.iw.boost.function.BoostFunctionMap;
 import org.yang.iw.component.*;
 import org.yang.iw.item.heart.HideAbilityTooltip;
 import org.yang.iw.item.upgrade.HideUpgradeTooltip;
 import org.yang.iw.mixin.helper.HelperItemStack;
 import org.yang.iw.mixin.mixin_interface.InterfaceItemStack;
-import org.yang.iw.util.Server;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -134,7 +133,7 @@ public abstract class MixinItemStack implements ComponentHolder, InterfaceItemSt
 
 										 CallbackInfoReturnable<List<Text>> cir, @Local List<Text> list)
 	{
-		int worldLevel = Server.getPersistentData().worldEnergyLevel;
+		int worldLevel = IWMain.getPersistentData().worldEnergyLevel;
 		var cls = getItem().getClass();
 		boolean keyPressed = false;
 		boolean nset = true;

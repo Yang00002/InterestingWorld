@@ -1,28 +1,32 @@
 package org.yang.iw.item;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.component.type.ToolComponent;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.text.Text;
 import org.yang.iw.IWItemGroups;
 import org.yang.iw.ability.AbstractAbility;
 import org.yang.iw.ability.IWAbilities;
-import org.yang.iw.api.register.DataGenSupplier;
 import org.yang.iw.api.register.DependRegister;
 import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.boost.IWBoosts;
 import org.yang.iw.boost.pool.TableBoostPool;
 import org.yang.iw.component.IWComponents;
+import org.yang.iw.component.ToolMaterialComponent;
 import org.yang.iw.datagen.itemmodel.CustomItemModelDefinitionProvider;
 import org.yang.iw.datagen.itemmodel.ItemModelProvider;
 import org.yang.iw.datagen.itemmodel.server.ItemModelDefinition;
 import org.yang.iw.datagen.itemmodel.server.ModelParents;
 import org.yang.iw.datagen.itemmodel.server.RawItemModel;
+import org.yang.iw.item.forge_template.SwordForgeTemplateItem;
 import org.yang.iw.item.heart.BaseHeart;
 import org.yang.iw.item.heart.BloodHeart;
 import org.yang.iw.item.heart.CherryHeart;
@@ -32,6 +36,8 @@ import org.yang.iw.item.item_builder.CommonItemBuilder;
 import org.yang.iw.item.item_builder.EnergyToolItemBuilder;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.item.tool.sword.EnergySwordItem;
+import org.yang.iw.tool.material.IWToolMaterials;
+import org.yang.iw.tool.material.ToolMaterial;
 import org.yang.iw.util.Base;
 import org.yang.iw.util.style.Color;
 
@@ -40,7 +46,6 @@ import java.util.function.Function;
 
 import static org.yang.iw.util.Base.iwlogger;
 
-@DataGenSupplier
 @DependRegister(depends = {IWItemGroups.class, IWComponents.class})
 public class IWItems
 {
@@ -51,6 +56,26 @@ public class IWItems
 		LoadTime.assertLoaded(IWComponents.class);
 	}
 
+	public static final Item SWORD = new CommonItemBuilder(
+			settings -> new EnergySwordItem(settings, TableBoostPool.POOL_SWORD)
+			{
+				@Override
+				public Text getName(ItemStack stack)
+				{
+					return stack.getOrDefault(IWComponents.TOOL_MATERIAL, ToolMaterialComponent.DEFAULT)
+							.name(getTranslationKey());
+				}
+			}, "sword").setTranslation("剑").setModel(item -> new CustomItemModelDefinitionProvider(item,
+			ItemModelDefinition.compositeTool(IWToolMaterials.buildDefinitionMap("sword/blade"),
+					IWToolMaterials.buildDefinitionMap("sword/handle")))).build();
+
+	public static final Item MATERIAL_PACKET = new CommonItemBuilder(MaterialPacketItem::new,
+			"material_packet").setTranslation("材料包").setModel(IWItems::definitionOfMaterialPacket)
+			.addToItemGroup(IWItemGroups.TOOLS_GROUP).build();
+
+	public static final Item SWORD_TEMPLATE = new CommonItemBuilder(SwordForgeTemplateItem::new,
+			"sword_template").setCommonModel(ModelParents.GENERATED).setTranslation("剑锻造模板")
+			.addToItemGroup(IWItemGroups.TOOLS_GROUP).build();
 	public static final Item STICK = new EnergyToolItemBuilder(EnergyToolItem::new, "stick", 63).setBoostable(2)
 			.setRepair(Items.STICK, 1).setBaseAttack(3, 4).setEnergy(5, 0.1f)
 			.setModel(getModelForEnergyTool(ModelParents.HANDHELD, Items.STICK)).setTranslation("木棍")
@@ -99,11 +124,38 @@ public class IWItems
 	public static final Item HEART = new CommonItemBuilder(Item::new, "heart").addToItemGroup(
 			IWItemGroups.INGREDIENTS_GROUP).setCommonModel(ModelParents.GENERATED).setTranslation("心").build();
 
+	private static CustomItemModelDefinitionProvider definitionOfTestItem(Item item)
+	{
+		Map<ToolMaterial, ItemModelDefinition> map0 = new Object2ObjectOpenHashMap<>();
+		map0.put(IWToolMaterials.WOOD, ItemModelDefinition.of(RawItemModel.of(Items.WATER_BUCKET)));
+		map0.put(IWToolMaterials.STONE, ItemModelDefinition.of(RawItemModel.of(Items.LAVA_BUCKET)));
+		Map<ToolMaterial, ItemModelDefinition> map1 = new Object2ObjectOpenHashMap<>();
+		map1.put(IWToolMaterials.WOOD, ItemModelDefinition.of(RawItemModel.of(Items.WOODEN_SWORD)));
+		map1.put(IWToolMaterials.STONE, ItemModelDefinition.of(RawItemModel.of(Items.STONE_SWORD)));
+		return new CustomItemModelDefinitionProvider(item, ItemModelDefinition.composite(
+				ItemModelDefinition.toolMaterial(0, ItemModelDefinition.of(RawItemModel.of(Items.BUCKET)), map0),
+				ItemModelDefinition.toolMaterial(1, ItemModelDefinition.of(RawItemModel.of(Items.STICK)), map1)));
+	}
+
+	private static CustomItemModelDefinitionProvider definitionOfMaterialPacket(Item item)
+	{
+		Map<ToolMaterial, ItemModelDefinition> map0 = new Object2ObjectOpenHashMap<>();
+		Map<ToolMaterial, ItemModelDefinition> map1 = new Object2ObjectOpenHashMap<>();
+		IWToolMaterials.forEach(material -> {
+			if (material.isOverlay()) map1.put(material, ItemModelDefinition.of(
+					RawItemModel.simple(item, ModelParents.GENERATED)
+							.setIdFormat("%s/overlay/" + material.identifier().getPath()).upload()));
+			else map0.put(material, ItemModelDefinition.of(RawItemModel.simple(item, ModelParents.GENERATED)
+					.setIdFormat("%s/" + material.identifier().getPath()).upload()));
+		});
+		return new CustomItemModelDefinitionProvider(item, ItemModelDefinition.composite(
+				ItemModelDefinition.materialPacket(false,
+						ItemModelDefinition.of(RawItemModel.simple(item, ModelParents.GENERATED).upload()), map0),
+				ItemModelDefinition.materialPacket(true, ItemModelDefinition.empty(), map1)));
+	}
+
 	public static final Item TEST_ITEM = new CommonItemBuilder(TestItem::new, "test_item").addToItemGroup(
-					IWItemGroups.INGREDIENTS_GROUP).setModel(
-					item -> new CustomItemModelDefinitionProvider(item,
-							ItemModelDefinition.of(RawItemModel.of(HEART))))
-			.setTranslation("测试物品").build();
+			IWItemGroups.INGREDIENTS_GROUP).setModel(IWItems::definitionOfTestItem).setTranslation("测试物品").build();
 
 	/**
 	 * (it) -> new LocatedItemModelDefinitionProvider(it, Models.GENERATED).setTextureAsItemTexture(it, "baseheart")
@@ -235,7 +287,6 @@ public class IWItems
 
 	public static void initialize()
 	{
-		iwlogger.info("initialize IWItems");
 	}
 
 	static

@@ -6,7 +6,6 @@ import net.minecraft.util.Identifier;
 import org.yang.iw.IWItemGroups;
 import org.yang.iw.IWRegistries;
 import org.yang.iw.IWRegistryKeys;
-import org.yang.iw.api.register.DataGenSupplier;
 import org.yang.iw.api.register.DependRegister;
 import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.datagen.itemmodel.CustomItemModelDefinitionProvider;
@@ -26,7 +25,6 @@ import java.util.function.Consumer;
 
 import static org.yang.iw.util.style.TextStyle.numberToString;
 
-@DataGenSupplier
 @DependRegister(depends = IWItemGroups.class)
 public class IWUpgrades
 {

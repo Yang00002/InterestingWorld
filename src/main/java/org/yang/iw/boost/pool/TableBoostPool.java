@@ -1,13 +1,20 @@
 package org.yang.iw.boost.pool;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.util.Pair;
+import org.yang.iw.api.register.ServerDependLoader;
 import org.yang.iw.boost.AbstractBoost;
 import org.yang.iw.boost.IWBoosts;
 import org.yang.iw.util.ConsoleStringBuilder;
 
 import java.util.*;
+import java.util.function.Supplier;
 
+@ServerDependLoader
 public class TableBoostPool
 {
+	private static final ArrayList<Pair<TableBoostPool, Supplier<TableBoostPool>>> LIST = new ArrayList<>();
+
 	@Override
 	public String toString()
 	{
@@ -133,6 +140,23 @@ public class TableBoostPool
 		}
 	}
 
+	public static TableBoostPool empty()
+	{
+		return new TableBoostPool(new Page[0]);
+	}
+
+	private void load(Supplier<TableBoostPool> from)
+	{
+		this.pages = from.get().pages;
+	}
+
+	private static TableBoostPool create(Supplier<TableBoostPool> supplier)
+	{
+		var ret = empty();
+		LIST.add(new Pair<>(ret, supplier));
+		return ret;
+	}
+
 	private TableBoostPool(Page[] pages)
 	{
 		List<Page> legalPages = new ArrayList<>();
@@ -202,18 +226,25 @@ public class TableBoostPool
 		return new Entry(1, boost);
 	}
 
-	public static final TableBoostPool POOL_ROD = pool(
+	public static final TableBoostPool POOL_ROD = create(() -> pool(
 			page(1, entry(5, IWBoosts.FIRE_ASPECT), entry(2, IWBoosts.REPEAT_ATTACK), entry(10, IWBoosts.FAST_ATTACK),
-					entry(10, IWBoosts.UNBREAKING)));
+					entry(10, IWBoosts.UNBREAKING))));
 
-	public static final TableBoostPool POOL_SWORD = pool(
+	public static final TableBoostPool POOL_SWORD = create(() -> pool(
 			page(1, entry(5, IWBoosts.FIRE_ASPECT), entry(2, IWBoosts.REPEAT_ATTACK), entry(10, IWBoosts.SHARPNESS),
 					entry(10, IWBoosts.UNBREAKING), entry(5, IWBoosts.SWEEPING_EDGE)),
 			page(1, entry(5, IWBoosts.FIRE_ASPECT), entry(2, IWBoosts.REPEAT_ATTACK), entry(10, IWBoosts.FAST_ATTACK),
-					entry(10, IWBoosts.UNBREAKING), entry(5, IWBoosts.SWEEPING_EDGE)));
+					entry(10, IWBoosts.UNBREAKING), entry(5, IWBoosts.SWEEPING_EDGE))));
 
 	static
 	{
+		Entry.entryMap = null;
+	}
+
+	public static void boostrap()
+	{
+		Entry.entryMap = new Object2ObjectOpenHashMap<>();
+		LIST.forEach(i -> i.getLeft().load(i.getRight()));
 		Entry.entryMap = null;
 	}
 }

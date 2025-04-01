@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.yang.iw.IWEntityAttributes;
 import org.yang.iw.ability.AbstractAbility;
-import org.yang.iw.component.EnergyToolDataFlag;
+import org.yang.iw.component.ToolFlagComponent;
 
 @Debug(export = true)
 @Mixin(PlayerEntity.class)
@@ -52,7 +52,7 @@ public abstract class MixinPlayerEntity extends LivingEntity
 	private ItemStack handleSweeping(PlayerEntity instance, Hand hand)
 	{
 		ItemStack before = instance.getWeaponStack();
-		if (instance instanceof ServerPlayerEntity && EnergyToolDataFlag.fromItemStack(before).canSweep())
+		if (instance instanceof ServerPlayerEntity && ToolFlagComponent.fromItemStack(before).canSweep())
 			return Items.DIAMOND_SWORD.getDefaultStack();
 		return before;
 	}

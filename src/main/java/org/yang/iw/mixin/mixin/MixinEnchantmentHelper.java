@@ -63,6 +63,16 @@ public abstract class MixinEnchantmentHelper
 		HelperEnchantmentHelper.applyAttributeModifiers(stack, slot, attributeModifierConsumer);
 	}
 
+	@Inject(method = "getDamage", at = @At(value = "RETURN"), cancellable = true)
+	private static void getDamage(ServerWorld world, ItemStack stack, Entity target, DamageSource damageSource,
+								  float baseDamage, CallbackInfoReturnable<Float> cir)
+	{
+		cir.setReturnValue(cir.getReturnValue() +
+						   HelperEnchantmentHelper.getDamage(world, stack, target, damageSource, baseDamage) -
+						   baseDamage);
+	}
+
+
 	@Inject(method = "applyAttributeModifiers(Lnet/minecraft/item/ItemStack;" +
 					 "Lnet/minecraft/component/type/AttributeModifierSlot;Ljava/util/function/BiConsumer;)V", at =
 	@At(value = "TAIL"))
@@ -98,5 +108,15 @@ public abstract class MixinEnchantmentHelper
 	{
 		var ret = HelperEnchantmentHelper.getEquipmentDropChance(world, attacker, damageSource, cir.getReturnValue());
 		cir.setReturnValue(ret);
+	}
+
+	@Inject(method = "modifyKnockback", at = @At("RETURN"), cancellable = true)
+	private static void modifyModifyKnockback(ServerWorld world, ItemStack stack, Entity target,
+											  DamageSource damageSource, float baseKnockback,
+											  CallbackInfoReturnable<Float> cir)
+	{
+		cir.setReturnValue(cir.getReturnValue() +
+						   HelperEnchantmentHelper.modifyKnockback(world, stack, target, damageSource, baseKnockback) -
+						   baseKnockback);
 	}
 }

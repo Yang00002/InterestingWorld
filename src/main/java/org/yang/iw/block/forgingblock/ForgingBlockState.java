@@ -1,10 +1,8 @@
 package org.yang.iw.block.forgingblock;
 
 import net.minecraft.text.Text;
-import org.yang.iw.api.register.DataGenSupplier;
 import org.yang.iw.datagen.language.TranslationPool;
 
-@DataGenSupplier
 public enum ForgingBlockState
 {
 
@@ -14,7 +12,7 @@ public enum ForgingBlockState
 	 * <p>
 	 * - 标题显示通用标题。
 	 */
-	EMPTY(Text.translatable(TranslationPool.addString("forging_block.title.empty", "修复、强化、升级和能力修改"))),
+	EMPTY(Text.translatable(TranslationPool.addString("forging_block.title.empty", "修复、强化、升级、锻造和能力修改"))),
 	/***
 	 * 上槽位：耐久不满工具。下槽位：空。材料：修复原料。
 	 * <p>
@@ -24,7 +22,7 @@ public enum ForgingBlockState
 	 */
 	REPAIR(Text.translatable(TranslationPool.addString("forging_block.title.repair", "修复")),
 			new Text[]{Text.translatable(TranslationPool.addString("forging_block.repair.t1", "修复花费："))},
-			new String[]{TranslationPool.addString("forging_block.repair.t2", "%s / %s 材料 %s")}),
+			new String[]{TranslationPool.addString("forging_block.repair.t2", "%s / %s")}),
 	/***
 	 * 上槽位：耐久不满工具。下槽位：空。材料：空。（有用于修复的材料）
 	 * <p>
@@ -263,7 +261,28 @@ public enum ForgingBlockState
 	 * - 不能重复升级
 	 */
 	UPGRADE_ALREADY_HAVE(UPGRADE_LEVEL_LOW.title, new Text[]{
-			Text.translatable(TranslationPool.addString("forging_block.append_ability_not_suitable", "工具已升级"))});
+			Text.translatable(TranslationPool.addString("forging_block.append_ability_not_suitable", "工具已升级"))}),
+
+
+	FORGE_NEED_MATERIALS(Text.translatable(TranslationPool.addString("forging_block.title.forge", "锻造")), new Text[]{
+			Text.translatable(TranslationPool.addString("forging_block.forge_need_materials", "需要材料以进行锻造"))}),
+
+	FORGE(FORGE_NEED_MATERIALS.title),
+
+	FORGE_NOT_A_MATERIAL(FORGE_NEED_MATERIALS.title, new Text[]{Text.translatable(
+			TranslationPool.addString("forging_block.forge_not_a_material", "只有锻造材料可以用于锻造"))}),
+
+	FORGE_MATERIAL_UNSUITABLE(FORGE_NEED_MATERIALS.title, new Text[]{Text.translatable(
+			TranslationPool.addString("forging_block.forge_material_unsuitable", "锻造材料不适合此工具"))}),
+
+	FORGE_MATERIAL_NOT_ENOUGH(FORGE_NEED_MATERIALS.title, new Text[]{
+			Text.translatable(TranslationPool.addString("forging_block.forge_material_not_enough", "锻造材料不足"))}),
+
+	FORGE_OVERLAY_MATERIAL_NOT_ENOUGH(FORGE_NEED_MATERIALS.title, new Text[]{Text.translatable(
+			TranslationPool.addString("forging_block.forge_overlay_material_not_enough", "覆层材料不足"))}),
+
+	FORGE_REFUSE_OVERLAY_ALONE(FORGE_NEED_MATERIALS.title, new Text[]{Text.translatable(
+			TranslationPool.addString("forging_block.forge_refuse_overlay_alone", "不能仅使用覆层材料锻造"))});
 
 	public final Text title;
 	final Text[] tipStatics;
@@ -295,9 +314,5 @@ public enum ForgingBlockState
 		this.title = title;
 		this.tipStatics = null;
 		this.tipDynamics = null;
-	}
-
-	public static void dataGenInitialize()
-	{
 	}
 }

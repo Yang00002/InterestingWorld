@@ -1,6 +1,56 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "iw:item/heart"
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:select",
+        "cases": [
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "minecraft:item/water_bucket"
+            },
+            "when": "iw:wood"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "minecraft:item/lava_bucket"
+            },
+            "when": "iw:stone"
+          }
+        ],
+        "fallback": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/bucket"
+        },
+        "property": "iw:tool_material"
+      },
+      {
+        "type": "minecraft:select",
+        "cases": [
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "minecraft:item/wooden_sword"
+            },
+            "when": "iw:wood"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "minecraft:item/stone_sword"
+            },
+            "when": "iw:stone"
+          }
+        ],
+        "fallback": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/stick"
+        },
+        "index": 1,
+        "property": "iw:tool_material"
+      }
+    ]
   }
 }

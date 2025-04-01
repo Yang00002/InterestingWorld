@@ -5,13 +5,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.yang.iw.IWMain;
 import org.yang.iw.ability.AbstractAbility;
 import org.yang.iw.boost.function.BoostFunctionMap;
 import org.yang.iw.component.AbilityComponent;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.persistentdata.IWPersistentData;
-import org.yang.iw.util.Server;
 import org.yang.iw.util.style.Color;
 
 import java.util.List;
@@ -69,7 +69,7 @@ public class AbilityHeart extends Item implements HideAbilityTooltip
 		{
 			var ability = component.ability();
 			int takeLvl = ability.level();
-			IWPersistentData data = Server.getPersistentData();
+			IWPersistentData data = IWMain.getPersistentData();
 			if (data != null && takeLvl <= data.worldEnergyLevel) tooltip.add(
 					Text.translatable(TranslationPool.TOOLTIP_HEART_ABILITY_LEVEL).withColor(Color.GRAY_RGB)
 							.append(Text.literal(String.valueOf(takeLvl)).withColor(Color.getLevelColor(takeLvl))));

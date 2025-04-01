@@ -13,6 +13,8 @@ public class IWItemRenderingProperties
 	public static void bootstrapSelect(Codecs.IdMapper<Identifier, SelectProperty.Type<?, ?>> ID_MAPPER)
 	{
 		ID_MAPPER.put(Identifier.of(Base.MOD_ID, "ability"), AbilitySelectProperty.TYPE);
+		ID_MAPPER.put(Identifier.of(Base.MOD_ID, "tool_material"), ToolMaterialSelectProperty.TYPE);
+		ID_MAPPER.put(Identifier.of(Base.MOD_ID, "repair_packet"), MaterialPacketSelectProperty.TYPE);
 	}
 
 	public static void bootstrapNumeric(Codecs.IdMapper<Identifier, MapCodec<? extends NumericProperty>> ID_MAPPER)

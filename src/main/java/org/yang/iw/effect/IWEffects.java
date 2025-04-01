@@ -8,7 +8,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import org.yang.iw.IWEntityAttributes;
-import org.yang.iw.api.register.DataGenSupplier;
 import org.yang.iw.api.register.IndependentRegister;
 import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.datagen.language.TranslationPool;
@@ -17,7 +16,6 @@ import org.yang.iw.util.style.Color;
 
 import java.util.function.Function;
 
-@DataGenSupplier
 @IndependentRegister
 public class IWEffects
 {

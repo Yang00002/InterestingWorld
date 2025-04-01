@@ -5,9 +5,9 @@
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/golden_sword/infinitecurse"
+          "model": "iw:item/golden_sword/sweetcurse"
         },
-        "when": "iw:infinitecurse"
+        "when": "iw:sweetcurse"
       },
       {
         "model": {
@@ -19,9 +19,9 @@
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/golden_sword/sweetcurse"
+          "model": "iw:item/golden_sword/infinitecurse"
         },
-        "when": "iw:sweetcurse"
+        "when": "iw:infinitecurse"
       }
     ],
     "fallback": {

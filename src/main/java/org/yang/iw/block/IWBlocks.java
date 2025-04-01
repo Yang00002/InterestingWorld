@@ -3,15 +3,11 @@ package org.yang.iw.block;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import org.yang.iw.IWItemGroups;
-import org.yang.iw.api.register.DataGenSupplier;
 import org.yang.iw.api.register.DependRegister;
 import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.block.block_builder.CommonBlockBuilder;
 import org.yang.iw.block.forgingblock.ForgingBlock;
 
-import static org.yang.iw.util.Base.iwlogger;
-
-@DataGenSupplier
 @DependRegister(depends = IWItemGroups.class)
 public class IWBlocks
 {

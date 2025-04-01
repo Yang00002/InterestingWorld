@@ -1,12 +1,14 @@
 package org.yang.iw.entity.player;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.yang.iw.IWEntityAttributes;
 import org.yang.iw.ability.AbstractAbility;
+import org.yang.iw.boost.function.LeveledSignalFunction;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.network.bitio.BitWriter;
@@ -159,7 +161,7 @@ public class IWServerPlayerData
 					{
 						float max = IWUtil.Components.maxEnergy(stack);
 						float cur = IWUtil.Components.currentEnergy(stack);
-						float rate = stack.getOrDefault(IWComponents.ENERGY_REGEN_RATE, 0.0f);
+						float rate = stack.interestingWorld$getBoosts().getAcceleratedEnergyTransferRate(stack);
 						if (max > cur && rate >= Numbers.FLOAT_EPSILON)
 							stack.set(IWComponents.CURRENT_ENERGY, Math.min(max, cur + rate * energyRegenPool));
 					}
@@ -274,6 +276,7 @@ public class IWServerPlayerData
 
 	public boolean extractAtomicEnergy(ItemStack stack, float amount)
 	{
+		if (amount <= 0) return true;
 		var ab = stack.interestingWorld$getAbility().ability();
 		if (ab.canWork())
 		{
@@ -287,14 +290,23 @@ public class IWServerPlayerData
 		float e = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f);
 		if (e > 0.0f)
 		{
-			if (current_energy + e >= amount)
+			float fraction = stack.interestingWorld$getBoosts()
+									 .signalValue(LeveledSignalFunction.Signal.ENERGY_SAVING, stack,
+											 EquipmentSlot.MAINHAND) * 0.2f + 1;
+			float nextAll = e * fraction;
+			if (nextAll < amount)
 			{
-				if (e < amount)
+				amount -= nextAll;
+				if (current_energy >= amount)
 				{
-					current_energy -= amount - e;
 					stack.set(IWComponents.CURRENT_ENERGY, 0.0f);
+					current_energy -= amount;
+					return true;
 				}
-				else stack.set(IWComponents.CURRENT_ENERGY, e - amount);
+			}
+			else
+			{
+				stack.set(IWComponents.CURRENT_ENERGY, e - amount / fraction);
 				return true;
 			}
 		}
@@ -308,6 +320,7 @@ public class IWServerPlayerData
 
 	public boolean tryExtractAutomicEnergy(ItemStack stack, float amount)
 	{
+		if (amount <= 0) return true;
 		var ab = stack.interestingWorld$getAbility().ability();
 		if (ab.canWork())
 		{
@@ -319,7 +332,15 @@ public class IWServerPlayerData
 			}
 		}
 		float e = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f);
-		return current_energy + e >= amount;
+		if (e > 0.0f)
+		{
+			float nextAll = e * (stack.interestingWorld$getBoosts()
+										 .signalValue(LeveledSignalFunction.Signal.ENERGY_SAVING, stack,
+												 EquipmentSlot.MAINHAND) * 0.2f + 1);
+			if (nextAll < amount) return current_energy >= amount - nextAll;
+			else return true;
+		}
+		return current_energy >= amount;
 	}
 
 	public void returnEnergyToTool(ItemStack stack, float amount)

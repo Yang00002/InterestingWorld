@@ -62,7 +62,7 @@ public class SharpnessBoost extends AbstractBoost
 	@Override
 	public boolean conflictWith(AbstractBoost boost)
 	{
-		return IWBoostTags.SHARPNESS_FAMILY.include(boost);
+		return boost.isIn(IWBoostTags.SHARPNESS_FAMILY);
 	}
 
 	public short maxTableLevel()
@@ -78,7 +78,7 @@ public class SharpnessBoost extends AbstractBoost
 	@Override
 	public void modify(RandomBoostGenerator generator, RandomBoostEntry entry)
 	{
-		if (IWBoostTags.SHARPNESS_FAMILY.include(this))
+		if (entry.isIn(IWBoostTags.SHARPNESS_FAMILY))
 		{
 			int weight = entry.getWeight();
 			if (weight > 1) entry.setWeight(generator, Math.max(1, weight - 5));

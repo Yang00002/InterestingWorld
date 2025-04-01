@@ -5,7 +5,6 @@ import net.minecraft.registry.RegistryKey;
 import org.yang.iw.IWItemGroups;
 import org.yang.iw.IWRegistries;
 import org.yang.iw.IWRegistryKeys;
-import org.yang.iw.api.register.DataGenSupplier;
 import org.yang.iw.api.register.DependRegister;
 import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.api.tag.IntrusiveTag;
@@ -22,7 +21,6 @@ import java.util.function.Supplier;
 
 import static org.yang.iw.util.style.TextStyle.*;
 
-@DataGenSupplier
 @DependRegister(depends = IWItems.class)
 public class IWAbilities
 {

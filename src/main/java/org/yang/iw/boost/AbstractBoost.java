@@ -1,14 +1,10 @@
 package org.yang.iw.boost;
 
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
-import org.apache.commons.lang3.mutable.MutableFloat;
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
+import org.yang.iw.IWRegistries;
 import org.yang.iw.boost.function.BoostFunctionMap;
 import org.yang.iw.boost.pool.RandomBoostEntry;
 import org.yang.iw.boost.pool.RandomBoostGenerator;
@@ -20,6 +16,7 @@ public abstract class AbstractBoost implements Comparable<AbstractBoost>
 	private static final AbstractBoost DEFAULT = createInstance();
 
 	public final Identifier identifier;
+	private final RegistryEntry<AbstractBoost> registryEntry;
 
 	public abstract BoostFunctionMap getFunctions(int level);
 
@@ -49,6 +46,7 @@ public abstract class AbstractBoost implements Comparable<AbstractBoost>
 
 	AbstractBoost(Identifier identifier)
 	{
+		this.registryEntry = IWRegistries.BOOST.createEntry(this);
 		this.identifier = identifier;
 	}
 
@@ -105,6 +103,11 @@ public abstract class AbstractBoost implements Comparable<AbstractBoost>
 
 	public void modify(RandomBoostGenerator generator, RandomBoostEntry entry)
 	{
+	}
+
+	public boolean isIn(TagKey<AbstractBoost> key)
+	{
+		return registryEntry.isIn(key);
 	}
 
 	public short maxTableLevel()

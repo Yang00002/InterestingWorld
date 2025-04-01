@@ -25,7 +25,7 @@ public class BloodEffect extends StatusEffect
 	@Override
 	public boolean applyUpdateEffect(ServerWorld world, LivingEntity entity, int amplifier)
 	{
-		entity.damage(world, new DamageSource(IWDamageTypes.BLOOD_EFFECT_ENTRY.get()), amplifier + 1);
+		entity.damage(world, new DamageSource(IWDamageTypes.BLOOD_EFFECT.entry()), amplifier + 1);
 		return true;
 	}
 
@@ -33,7 +33,7 @@ public class BloodEffect extends StatusEffect
 	public void onEntityDamage(ServerWorld world, LivingEntity entity, int amplifier, DamageSource source,
 							   float amount)
 	{
-		if (source.getTypeRegistryEntry().matchesKey(IWDamageTypes.BLOOD_EFFECT))
+		if (source.getTypeRegistryEntry().matchesKey(IWDamageTypes.BLOOD_EFFECT.key()))
 		{
 			IWParticleUtil.spawnDamageIndicatorParticle(entity, amount);
 		}

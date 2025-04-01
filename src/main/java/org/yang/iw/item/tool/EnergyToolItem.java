@@ -22,6 +22,7 @@ import org.yang.iw.component.BoostableComponent;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.util.style.Color;
+import org.yang.iw.util.style.TextStyle;
 
 import java.util.List;
 
@@ -157,28 +158,32 @@ public class EnergyToolItem extends Item implements TableBoostPoolProvider
 		stack.damage(1, attacker, EquipmentSlot.MAINHAND);
 	}
 
-	private static void appendEnergyText(MutableText text, ItemStack stack)
+	private static void appendEnergyText(List<Text> tooltip, ItemStack stack)
 	{
+		MutableText text = Text.translatable(TranslationPool.TOOLTIP_ENERGYTOOL_COMMON_ENERGY)
+				.formatted(Formatting.GRAY).append(" ");
 		int max = (int) maxEnergy(stack);
 		int cur = Math.clamp((int) currentEnergy(stack), 0, max);
 		String num = String.valueOf(cur);
 		text.append(Text.literal(num).withColor(MathHelper.hsvToRgb((float) cur / max / 3.0F, 1.0F, 1.0F)))
 				.append(Text.literal(" / ").formatted(Formatting.GRAY))
 				.append(Text.literal(String.valueOf(max)).withColor(Color.PURE_GREEN_RGB));
+		float rate = stack.interestingWorld$getBoosts().getAcceleratedEnergyTransferRate(stack);
+		text.append(" ")
+				.append(Text.translatable(TranslationPool.TOOLTIP_ENERGYTOOL_ENERGY_RATE).withColor(Color.GRAY_RGB))
+				.append(" ").append(Text.literal(TextStyle.FLOAT_FORMAT.format(rate))
+						.withColor(MathHelper.hsvToRgb(Math.clamp(rate, 0, 1.0f) / 3.0F, 1.0F, 1.0F)));
+		tooltip.add(text);
 	}
 
 
 	@Override
 	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type)
 	{
-		MutableText text = Text.empty();
 		boolean add = false;
 		if (stack.contains(IWComponents.MAX_ENERGY))
 		{
-			text.append(Text.translatable(TranslationPool.TOOLTIP_ENERGYTOOL_COMMON_ENERGY).formatted(Formatting.GRAY))
-					.append(" ");
-			appendEnergyText(text, stack);
-			tooltip.add(text);
+			appendEnergyText(tooltip, stack);
 			add = true;
 		}
 		if (!stack.getOrDefault(IWComponents.BOOSTABLE, BoostableComponent.DEFAULT).isEmpty())

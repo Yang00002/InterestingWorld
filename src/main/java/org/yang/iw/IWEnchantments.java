@@ -4,14 +4,12 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
-import org.yang.iw.api.register.DataGenSupplier;
 import org.yang.iw.api.register.RegistryCollector;
 import org.yang.iw.datagen.language.TranslationPool;
 import org.yang.iw.util.Base;
 
 import static org.yang.iw.util.Base.MOD_ID;
 
-@DataGenSupplier
 @RegistryCollector
 public class IWEnchantments
 {
@@ -28,8 +26,4 @@ public class IWEnchantments
 	public static final RegistryKey<Enchantment> RUNE_BOOST = enchant("rune_boost", "符文强化");
 	public static final RegistryKey<Enchantment> ENERGY_EFFICIENCY = enchant("energy_efficiency", "聚能");
 	public static final RegistryKey<Enchantment> LUCKY = enchant("lucky", "幸运");
-
-	public static void dataGenInitialize()
-	{
-	}
 }

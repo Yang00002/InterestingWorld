@@ -1,5 +1,6 @@
 package org.yang.iw.boost.pool;
 
+import net.minecraft.registry.tag.TagKey;
 import org.yang.iw.boost.AbstractBoost;
 import org.yang.iw.util.constants.Numbers;
 
@@ -38,6 +39,11 @@ public class RandomBoostEntry
 		this.boost = boost;
 		this.pre = pre;
 		this.next = next;
+	}
+
+	public boolean isIn(TagKey<AbstractBoost> key)
+	{
+		return boost.isIn(key);
 	}
 
 	public short costAchieveLevel(int cost_B)

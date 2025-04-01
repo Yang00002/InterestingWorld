@@ -14,7 +14,7 @@ import net.minecraft.util.math.MathHelper;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
 import org.yang.iw.api.tag.IntrusiveTag;
-import org.yang.iw.component.EnergyToolDataFlag;
+import org.yang.iw.component.ToolFlagComponent;
 import org.yang.iw.entity.player.AbilityBarType;
 import org.yang.iw.entity.player.IWClientPlayerData;
 import org.yang.iw.entity.player.IWServerPlayerData;
@@ -69,7 +69,7 @@ public class RepeatSlashingAbility extends CommonAbility
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
-		return EnergyToolDataFlag.fromItemStack(stack).canSweep();
+		return ToolFlagComponent.fromItemStack(stack).canSweep();
 	}
 
 	@Override
@@ -144,7 +144,7 @@ public class RepeatSlashingAbility extends CommonAbility
 				ServerWorld world = (ServerWorld) player.getWorld();
 				var knox = MathHelper.sin(attacker.getYaw() * 0.017453292F);
 				var knoz = -MathHelper.cos(attacker.getYaw() * 0.017453292F);
-				var damageSource = new DamageSource(IWDamageTypes.ENERGY_MELEE_ENTRY.get(), attacker);
+				var damageSource = new DamageSource(IWDamageTypes.ENERGY_MELEE.entry(), attacker);
 				var pc = 3 + ((3 - step) >> 1);
 				IWSoundUtil.playSoundToPlayer(player, IWSounds.DOUBLE_SWEEP, SoundCategory.PLAYERS);
 				IWLivingEntityUtil.sweepEntity(attacker, angle, range, target, (attacker1, entity, distance) -> {

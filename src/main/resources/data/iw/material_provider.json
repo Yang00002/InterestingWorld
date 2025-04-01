@@ -1,0 +1,75 @@
+{
+  "iw:wood": {
+    "oak_planks": 900,
+    "spruce_planks": 900,
+    "birch_planks": 900,
+    "jungle_planks": 900,
+    "acacia_planks": 900,
+    "dark_oak_planks": 900,
+    "mangrove_planks": 900,
+    "cherry_planks": 900,
+    "pale_oak_planks": 900,
+    "stick": 450,
+    "oak_wood": 3600,
+    "spruce_wood": 3600,
+    "birch_wood": 3600,
+    "jungle_wood": 3600,
+    "acacia_wood": 3600,
+    "dark_oak_wood": 3600,
+    "mangrove_wood": 3600,
+    "cherry_wood": 3600,
+    "pale_oak_wood": 3600,
+    "stripped_oak_wood": 3600,
+    "stripped_spruce_wood": 3600,
+    "stripped_birch_wood": 3600,
+    "stripped_jungle_wood": 3600,
+    "stripped_acacia_wood": 3600,
+    "stripped_dark_oak_wood": 3600,
+    "stripped_mangrove_wood": 3600,
+    "stripped_cherry_wood": 3600,
+    "stripped_pale_oak_wood": 3600,
+    "oak_log": 3600,
+    "spruce_log": 3600,
+    "birch_log": 3600,
+    "jungle_log": 3600,
+    "acacia_log": 3600,
+    "dark_oak_log": 3600,
+    "mangrove_log": 3600,
+    "cherry_log": 3600,
+    "pale_oak_log": 3600,
+    "stripped_oak_log": 3600,
+    "stripped_spruce_log": 3600,
+    "stripped_birch_log": 3600,
+    "stripped_jungle_log": 3600,
+    "stripped_acacia_log": 3600,
+    "stripped_dark_oak_log": 3600,
+    "stripped_mangrove_log": 3600,
+    "stripped_cherry_log": 3600,
+    "stripped_pale_oak_log": 3600
+  },
+  "iw:stone": {
+    "cobblestone": 900,
+    "blackstone": 900,
+    "granite": 900,
+    "diorite": 900,
+    "andesite": 900
+  },
+  "iw:iron": {
+    "iron_nugget": 100,
+    "iron_ingot": 900,
+    "iron_block": 8100
+  },
+  "iw:gold": {
+    "gold_nugget": 100,
+    "gold_ingot": 900,
+    "gold_block": 8100
+  },
+  "iw:diamond": {
+    "diamond": 900,
+    "diamond_block": 8100
+  },
+  "iw:netherite": {
+    "netherite_ingot": 900,
+    "netherite_block": 8100
+  }
+}

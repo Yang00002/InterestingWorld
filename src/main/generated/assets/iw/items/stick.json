@@ -5,9 +5,9 @@
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/stick/infinitecurse"
+          "model": "iw:item/stick/sweetcurse"
         },
-        "when": "iw:infinitecurse"
+        "when": "iw:sweetcurse"
       },
       {
         "model": {
@@ -19,9 +19,9 @@
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/stick/sweetcurse"
+          "model": "iw:item/stick/infinitecurse"
         },
-        "when": "iw:sweetcurse"
+        "when": "iw:infinitecurse"
       }
     ],
     "fallback": {

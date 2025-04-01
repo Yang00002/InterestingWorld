@@ -11,7 +11,7 @@ import net.minecraft.util.math.MathHelper;
 import org.yang.iw.IWDamageTypes;
 import org.yang.iw.IWSounds;
 import org.yang.iw.api.tag.IntrusiveTag;
-import org.yang.iw.component.EnergyToolDataFlag;
+import org.yang.iw.component.ToolFlagComponent;
 import org.yang.iw.effect.IWEffects;
 import org.yang.iw.item.heart.AbilityHeart;
 import org.yang.iw.util.IWLivingEntityUtil;
@@ -55,7 +55,7 @@ public class EviscerateAbility extends CommonAbility
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
-		return EnergyToolDataFlag.fromItemStack(stack).canSweep();
+		return ToolFlagComponent.fromItemStack(stack).canSweep();
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class EviscerateAbility extends CommonAbility
 			var manager = player.interestingWorld$getIWServerPlayerData();
 			if (manager.isAbilityOn() && manager.sweeping)
 			{
-				var damageSource = new DamageSource(IWDamageTypes.BLOOD_EFFECT_ENTRY.get(), attacker);
+				var damageSource = new DamageSource(IWDamageTypes.BLOOD_EFFECT.entry(), attacker);
 				ServerWorld world = (ServerWorld) player.getWorld();
 				if (!manager.isInCooldown(this) && manager.extractAtomicEnergy(stack, EnergyConsume))
 				{

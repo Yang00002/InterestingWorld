@@ -10,7 +10,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.yang.iw.ability.IWAbilities;
 import org.yang.iw.api.register.AfterInitializeExecutor;
-import org.yang.iw.api.register.DataGenSupplier;
 import org.yang.iw.api.register.IndependentRegister;
 import org.yang.iw.api.register.LoadTime;
 import org.yang.iw.block.IWBlocks;
@@ -29,7 +28,6 @@ import static org.yang.iw.util.Base.MOD_ID;
 import static org.yang.iw.util.Base.iwlogger;
 
 @AfterInitializeExecutor
-@DataGenSupplier
 @IndependentRegister
 public class IWItemGroups
 {

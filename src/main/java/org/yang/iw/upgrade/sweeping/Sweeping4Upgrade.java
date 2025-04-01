@@ -9,7 +9,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
-import org.yang.iw.component.EnergyToolDataFlag;
+import org.yang.iw.component.ToolFlagComponent;
 import org.yang.iw.upgrade.AbstractUpgrade;
 import org.yang.iw.util.Base;
 import org.yang.iw.util.style.Color;
@@ -42,14 +42,14 @@ public class Sweeping4Upgrade extends AbstractUpgrade
 	@Override
 	public boolean canApplyTo(ItemStack stack)
 	{
-		return !EnergyToolDataFlag.fromItemStack(stack).canSweep();
+		return !ToolFlagComponent.fromItemStack(stack).canSweep();
 	}
 
 
 	@Override
 	protected void applyUpgradeContent(ItemStack toolStack)
 	{
-		EnergyToolDataFlag.builder(toolStack).setCanSweep().dump(toolStack);
+		ToolFlagComponent.builder(toolStack).setCanSweep().dump(toolStack);
 		var at = toolStack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
 		at = at.with(EntityAttributes.SWEEPING_DAMAGE_RATIO,
 				new EntityAttributeModifier(Identifier.of(Base.MOD_ID, "ecg"), SWEEP_RATIO,

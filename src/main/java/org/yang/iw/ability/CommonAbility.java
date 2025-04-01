@@ -4,11 +4,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import org.yang.iw.IWMain;
 import org.yang.iw.IWSounds;
 import org.yang.iw.api.tag.IntrusiveTag;
 import org.yang.iw.item.heart.AbilityHeart;
 import org.yang.iw.persistentdata.IWPersistentData;
-import org.yang.iw.util.Server;
 
 import static org.yang.iw.util.style.Color.getLevelColor;
 
@@ -60,7 +60,7 @@ public class CommonAbility extends AbstractAbility
 	@Override
 	public boolean canWork()
 	{
-		IWPersistentData data = Server.getPersistentData();
+		IWPersistentData data = IWMain.getPersistentData();
 		return data != null && level() <= data.worldEnergyLevel;
 	}
 

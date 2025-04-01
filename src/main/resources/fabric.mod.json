@@ -62,6 +62,9 @@
       ],
       "net/minecraft/item/Item": [
         "org/yang/iw/mixin/mixin_interface/InterfaceItem"
+      ],
+      "net/minecraft/entity/attribute/EntityAttributeInstance": [
+        "org/yang/iw/mixin/mixin_interface/InterfaceEntityAttributeInstance"
       ]
     }
   },
