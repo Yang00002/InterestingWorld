@@ -188,6 +188,17 @@ public class BoostFunctionMap
 			return this;
 		}
 
+		public Builder add(AttributeModifierSlot slot, ModifyMaxEnergyFunction func)
+		{
+			if (not_built && func != null && slot != null)
+			{
+				var original = allocate(slot);
+				original.add(ModifyMaxEnergyFunction.class, func);
+			}
+			return this;
+		}
+
+
 		public Builder add(BoostFunctionMap map2Add)
 		{
 			if (not_built)

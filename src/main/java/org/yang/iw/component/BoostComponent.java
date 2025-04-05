@@ -304,6 +304,8 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, Boost
 				Math.max(custom_cost, cost));
 	}
 
+
+
 	public static BoostComponent ofDefault(Map<AbstractBoost, Short> value)
 	{
 		Object2ShortOpenHashMap<AbstractBoost> map = new Object2ShortOpenHashMap<>();
@@ -381,6 +383,18 @@ public record BoostComponent(Object2ShortOpenHashMap<AbstractBoost> value, Boost
 		if (ub != null) ub.applyForSlot(AttributeModifierSlot.ANY,
 				l -> l.applyAccelerateEnergyTransferFunctions(f -> f.accelerateTransfer(detail)));
 		return Math.clamp(detail.value(), 0f, 1f);
+	}
+
+	public int getModifiedMaxEnergy(ItemStack stack)
+	{
+		float original = stack.getOrDefault(IWComponents.MAX_ENERGY, 0f);
+		MutableAttributeValueDetail detail = new MutableAttributeValueDetail(original);
+		if (!is_store()) functions.applyForSlot(AttributeModifierSlot.ANY,
+				l -> l.applyModifyMaxEnergyFunctions(f -> f.modifyMaxEnergy(detail)));
+		var ub = stack.interestingWorld$uniqueBoost();
+		if (ub != null) ub.applyForSlot(AttributeModifierSlot.ANY,
+				l -> l.applyModifyMaxEnergyFunctions(f -> f.modifyMaxEnergy(detail)));
+		return Math.max((int) detail.value(), 1);
 	}
 
 	public void applyAttributeModifiers(ItemStack stack, AttributeModifierSlot slot,

@@ -33,7 +33,7 @@ public class IWBoosts
 			"节肢杀手");
 	public static final AbstractBoost BIG_NOSE_LOVER = register(BigNoseLoverBoost::new, "big_nose_lover", "村民之友");
 	public static final AbstractBoost KNOCKBACK = register(KnockbackBoost::new, "knockback", "击退");
-	public static final AbstractBoost ENERGY_SAVING = register(EnergySavingBoost::new, "energy_saving", "节能");
+	public static final AbstractBoost ENERGY_SAVING = register(EnergySavingBoost::new, "energy_saving", "蓄能");
 	public static final AbstractBoost FAST_TRANSFER = register(FastTransferBoost::new, "fast_transfer", "快速传输");
 
 	public static AbstractBoost register(Function<Identifier, AbstractBoost> boostFunction, String id, String name)

@@ -1,19 +1,17 @@
 package org.yang.iw.entity.player;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.yang.iw.IWEntityAttributes;
 import org.yang.iw.ability.AbstractAbility;
-import org.yang.iw.boost.function.LeveledSignalFunction;
+import org.yang.iw.boost.BoostHelper;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.item.tool.EnergyToolItem;
 import org.yang.iw.network.bitio.BitWriter;
 import org.yang.iw.network.payload.S2CPlayerDataPayload;
-import org.yang.iw.util.IWUtil;
 import org.yang.iw.util.constants.Numbers;
 
 import static org.yang.iw.util.Return.RETURNTRUE;
@@ -159,8 +157,8 @@ public class IWServerPlayerData
 				{
 					if (!stack.isEmpty() && stack.contains(IWComponents.MAX_ENERGY))
 					{
-						float max = IWUtil.Components.maxEnergy(stack);
-						float cur = IWUtil.Components.currentEnergy(stack);
+						float max = BoostHelper.maxEnergy(stack);
+						float cur = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0f);
 						float rate = stack.interestingWorld$getBoosts().getAcceleratedEnergyTransferRate(stack);
 						if (max > cur && rate >= Numbers.FLOAT_EPSILON)
 							stack.set(IWComponents.CURRENT_ENERGY, Math.min(max, cur + rate * energyRegenPool));
@@ -290,13 +288,9 @@ public class IWServerPlayerData
 		float e = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f);
 		if (e > 0.0f)
 		{
-			float fraction = stack.interestingWorld$getBoosts()
-									 .signalValue(LeveledSignalFunction.Signal.ENERGY_SAVING, stack,
-											 EquipmentSlot.MAINHAND) * 0.2f + 1;
-			float nextAll = e * fraction;
-			if (nextAll < amount)
+			if (e < amount)
 			{
-				amount -= nextAll;
+				amount -= e;
 				if (current_energy >= amount)
 				{
 					stack.set(IWComponents.CURRENT_ENERGY, 0.0f);
@@ -306,7 +300,7 @@ public class IWServerPlayerData
 			}
 			else
 			{
-				stack.set(IWComponents.CURRENT_ENERGY, e - amount / fraction);
+				stack.set(IWComponents.CURRENT_ENERGY, e - amount);
 				return true;
 			}
 		}
@@ -331,21 +325,12 @@ public class IWServerPlayerData
 				return true;
 			}
 		}
-		float e = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f);
-		if (e > 0.0f)
-		{
-			float nextAll = e * (stack.interestingWorld$getBoosts()
-										 .signalValue(LeveledSignalFunction.Signal.ENERGY_SAVING, stack,
-												 EquipmentSlot.MAINHAND) * 0.2f + 1);
-			if (nextAll < amount) return current_energy >= amount - nextAll;
-			else return true;
-		}
-		return current_energy >= amount;
+		return current_energy + stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f) >= amount;
 	}
 
 	public void returnEnergyToTool(ItemStack stack, float amount)
 	{
-		float max = stack.getOrDefault(IWComponents.MAX_ENERGY, 0f);
+		float max = BoostHelper.maxEnergy(stack);
 		float cur = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0f);
 		stack.set(IWComponents.CURRENT_ENERGY, Math.min(cur + amount, max));
 	}
@@ -358,7 +343,7 @@ public class IWServerPlayerData
 			current_energy = 20f;
 			if (amount > 0f)
 			{
-				float max = stack.getOrDefault(IWComponents.MAX_ENERGY, 0f);
+				float max = BoostHelper.maxEnergy(stack);
 				float cur = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0f);
 				stack.set(IWComponents.CURRENT_ENERGY, Math.min(cur + amount, max));
 			}

@@ -67,7 +67,7 @@ public class IWItems
 				}
 			}, "sword").setTranslation("剑").setModel(item -> new CustomItemModelDefinitionProvider(item,
 			ItemModelDefinition.compositeTool(IWToolMaterials.buildDefinitionMap("sword/blade"),
-					IWToolMaterials.buildDefinitionMap("sword/handle")))).build();
+					IWToolMaterials.buildDefinitionMap("sword/handle")))).addTag(IWItemTags.SWORD).build();
 
 	public static final Item MATERIAL_PACKET = new CommonItemBuilder(MaterialPacketItem::new,
 			"material_packet").setTranslation("材料包").setModel(IWItems::definitionOfMaterialPacket)

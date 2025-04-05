@@ -8,13 +8,6 @@
           {
             "model": {
               "type": "minecraft:model",
-              "model": "iw:item/sword/blade/diamond"
-            },
-            "when": "iw:diamond"
-          },
-          {
-            "model": {
-              "type": "minecraft:model",
               "model": "iw:item/sword/blade/iron"
             },
             "when": "iw:iron"
@@ -22,9 +15,16 @@
           {
             "model": {
               "type": "minecraft:model",
-              "model": "iw:item/sword/blade/wood"
+              "model": "iw:item/sword/blade/gold"
             },
-            "when": "iw:wood"
+            "when": "iw:gold"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/blade/diamond"
+            },
+            "when": "iw:diamond"
           },
           {
             "model": {
@@ -36,16 +36,16 @@
           {
             "model": {
               "type": "minecraft:model",
-              "model": "iw:item/sword/blade/netherite"
+              "model": "iw:item/sword/blade/wood"
             },
-            "when": "iw:netherite"
+            "when": "iw:wood"
           },
           {
             "model": {
               "type": "minecraft:model",
-              "model": "iw:item/sword/blade/gold"
+              "model": "iw:item/sword/blade/netherite"
             },
-            "when": "iw:gold"
+            "when": "iw:netherite"
           }
         ],
         "fallback": {
@@ -60,13 +60,6 @@
           {
             "model": {
               "type": "minecraft:model",
-              "model": "iw:item/sword/handle/diamond"
-            },
-            "when": "iw:diamond"
-          },
-          {
-            "model": {
-              "type": "minecraft:model",
               "model": "iw:item/sword/handle/iron"
             },
             "when": "iw:iron"
@@ -74,9 +67,16 @@
           {
             "model": {
               "type": "minecraft:model",
-              "model": "iw:item/sword/handle/wood"
+              "model": "iw:item/sword/handle/gold"
             },
-            "when": "iw:wood"
+            "when": "iw:gold"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/sword/handle/diamond"
+            },
+            "when": "iw:diamond"
           },
           {
             "model": {
@@ -88,16 +88,16 @@
           {
             "model": {
               "type": "minecraft:model",
-              "model": "iw:item/sword/handle/netherite"
+              "model": "iw:item/sword/handle/wood"
             },
-            "when": "iw:netherite"
+            "when": "iw:wood"
           },
           {
             "model": {
               "type": "minecraft:model",
-              "model": "iw:item/sword/handle/gold"
+              "model": "iw:item/sword/handle/netherite"
             },
-            "when": "iw:gold"
+            "when": "iw:netherite"
           }
         ],
         "fallback": {

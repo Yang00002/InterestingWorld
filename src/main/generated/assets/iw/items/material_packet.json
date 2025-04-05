@@ -8,13 +8,6 @@
           {
             "model": {
               "type": "minecraft:model",
-              "model": "iw:item/material_packet/diamond"
-            },
-            "when": "iw:diamond"
-          },
-          {
-            "model": {
-              "type": "minecraft:model",
               "model": "iw:item/material_packet/iron"
             },
             "when": "iw:iron"
@@ -22,9 +15,16 @@
           {
             "model": {
               "type": "minecraft:model",
-              "model": "iw:item/material_packet/wood"
+              "model": "iw:item/material_packet/gold"
             },
-            "when": "iw:wood"
+            "when": "iw:gold"
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "iw:item/material_packet/diamond"
+            },
+            "when": "iw:diamond"
           },
           {
             "model": {
@@ -36,9 +36,9 @@
           {
             "model": {
               "type": "minecraft:model",
-              "model": "iw:item/material_packet/gold"
+              "model": "iw:item/material_packet/wood"
             },
-            "when": "iw:gold"
+            "when": "iw:wood"
           }
         ],
         "fallback": {

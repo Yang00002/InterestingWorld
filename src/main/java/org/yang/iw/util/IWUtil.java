@@ -59,17 +59,5 @@ public class IWUtil
 				haveBasicDamage = false;
 				haveBasicSpeed = false;
 			}
-		}
-
-
-		public static float maxEnergy(ItemStack stack)
-		{
-			return stack.getOrDefault(IWComponents.MAX_ENERGY, 0.0f);
-		}
-
-		public static float currentEnergy(ItemStack stack)
-		{
-			return stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0.0f);
-		}
-	}
+		}}
 }

@@ -12,7 +12,7 @@ public enum ForgeFailMessage
 
 	OVERLAY_MATERIAL_NOT_ENOUGH(ForgingBlockState.FORGE_MATERIAL_NOT_ENOUGH),
 
-	REFUSE_OVERLAY_ALONE(ForgingBlockState.FORGE_NOT_A_MATERIAL);
+	REFUSE_OVERLAY_ALONE(ForgingBlockState.FORGE_REFUSE_OVERLAY_ALONE);
 
 	public final ForgingBlockState relevantState;
 

@@ -16,6 +16,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.yang.iw.ability.AbstractAbility;
+import org.yang.iw.boost.BoostHelper;
 import org.yang.iw.boost.pool.TableBoostPool;
 import org.yang.iw.boost.pool.TableBoostPoolProvider;
 import org.yang.iw.component.BoostableComponent;
@@ -26,14 +27,13 @@ import org.yang.iw.util.style.TextStyle;
 
 import java.util.List;
 
-import static org.yang.iw.util.IWUtil.Components.currentEnergy;
-import static org.yang.iw.util.IWUtil.Components.maxEnergy;
 import static org.yang.iw.util.Return.*;
 import static org.yang.iw.util.style.Color.getLevelColor;
 
 
 public class EnergyToolItem extends Item implements TableBoostPoolProvider
 {
+
 	private final TableBoostPool tableBoostPool;
 
 	@Override
@@ -162,9 +162,10 @@ public class EnergyToolItem extends Item implements TableBoostPoolProvider
 	{
 		MutableText text = Text.translatable(TranslationPool.TOOLTIP_ENERGYTOOL_COMMON_ENERGY)
 				.formatted(Formatting.GRAY).append(" ");
-		int max = (int) maxEnergy(stack);
-		int cur = Math.clamp((int) currentEnergy(stack), 0, max);
-		String num = String.valueOf(cur);
+		int max = BoostHelper.maxEnergy(stack);
+		int shown_current = Math.max(0, (int) stack.getOrDefault(IWComponents.CURRENT_ENERGY, 0f).floatValue());
+		int cur = Math.min(shown_current, max);
+		String num = String.valueOf(shown_current);
 		text.append(Text.literal(num).withColor(MathHelper.hsvToRgb((float) cur / max / 3.0F, 1.0F, 1.0F)))
 				.append(Text.literal(" / ").formatted(Formatting.GRAY))
 				.append(Text.literal(String.valueOf(max)).withColor(Color.PURE_GREEN_RGB));

@@ -5,13 +5,6 @@
       {
         "model": {
           "type": "minecraft:model",
-          "model": "iw:item/netherite_sword/sweetcurse"
-        },
-        "when": "iw:sweetcurse"
-      },
-      {
-        "model": {
-          "type": "minecraft:model",
           "model": "iw:item/netherite_sword/slashing"
         },
         "when": "iw:slashing"
@@ -22,6 +15,13 @@
           "model": "iw:item/netherite_sword/infinitecurse"
         },
         "when": "iw:infinitecurse"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "iw:item/netherite_sword/sweetcurse"
+        },
+        "when": "iw:sweetcurse"
       }
     ],
     "fallback": {

@@ -76,4 +76,10 @@ public class BoostFunctionList
 		var l = dataMap.get(AccelerateEnergyTransferFunction.class);
 		if (l != null) l.forEach(consumer);
 	}
+
+	public void applyModifyMaxEnergyFunctions(Consumer<ModifyMaxEnergyFunction> consumer)
+	{
+		var l = dataMap.get(ModifyMaxEnergyFunction.class);
+		if (l != null) l.forEach(consumer);
+	}
 }

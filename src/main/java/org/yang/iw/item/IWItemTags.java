@@ -1,13 +1,14 @@
 package org.yang.iw.item;
 
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import org.yang.iw.api.register.RegistryCollector;
+import org.yang.iw.api.tag.TagInclude;
 import org.yang.iw.datagen.tag.ItemTagPool;
 import org.yang.iw.util.Base;
-import org.yang.iw.api.tag.TagInclude;
 
 @RegistryCollector
 public class IWItemTags
@@ -26,5 +27,8 @@ public class IWItemTags
 	}
 
 	public static final TagKey<Item> IS_BASE_HEART = createTag("is_base_heart");
+	public static final TagKey<Item> SWORD = createTag("sword",
+			new TagInclude<Item>().add(() -> Items.WOODEN_SWORD).add(() -> Items.STONE_SWORD)
+					.add(() -> Items.GOLDEN_SWORD).add(() -> Items.DIAMOND_SWORD).add(() -> Items.NETHERITE_SWORD));
 
 }

@@ -2,8 +2,9 @@ package org.yang.iw.boost;
 
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.util.Identifier;
+import org.yang.iw.api.util.MutableAttributeValueDetail;
 import org.yang.iw.boost.function.BoostFunctionMap;
-import org.yang.iw.boost.function.LeveledSignalFunction;
+import org.yang.iw.boost.function.ModifyMaxEnergyFunction;
 
 public class EnergySavingBoost extends AbstractBoost
 {
@@ -15,18 +16,13 @@ public class EnergySavingBoost extends AbstractBoost
 	@Override
 	public BoostFunctionMap getFunctions(int level)
 	{
-		return BoostFunctionMap.builder().add(AttributeModifierSlot.MAINHAND, new LeveledSignalFunction()
+		return BoostFunctionMap.builder().add(AttributeModifierSlot.ANY, new ModifyMaxEnergyFunction()
 		{
 			@Override
-			public Signal type()
+			public void modifyMaxEnergy(MutableAttributeValueDetail energy)
 			{
-				return Signal.ENERGY_SAVING;
-			}
-
-			@Override
-			public int level()
-			{
-				return level;
+				energy.base += 1;
+				energy.sum += 0.2f * level;
 			}
 		}).build();
 	}

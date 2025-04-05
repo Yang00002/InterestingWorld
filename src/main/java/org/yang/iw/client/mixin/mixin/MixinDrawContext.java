@@ -14,9 +14,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.yang.iw.ability.AbstractAbility;
+import org.yang.iw.boost.BoostHelper;
 import org.yang.iw.component.IWComponents;
 import org.yang.iw.item.tool.EnergyToolItem;
-import org.yang.iw.ability.AbstractAbility;
 import org.yang.iw.util.style.Color;
 
 import java.util.List;
@@ -51,7 +52,7 @@ public abstract class MixinDrawContext
 		Item item = stack.getItem();
 		if (item instanceof EnergyToolItem && stack.contains(IWComponents.MAX_ENERGY))
 		{
-			float maxEnergy = stack.getOrDefault(IWComponents.MAX_ENERGY, 1f);
+			float maxEnergy = BoostHelper.maxEnergy(stack);
 			float currentEnergy = stack.getOrDefault(IWComponents.CURRENT_ENERGY, 1f);
 			if (maxEnergy <= currentEnergy) return;
 			int cl = Math.clamp((int) ((currentEnergy * 13.0f) / maxEnergy), 0, 13);

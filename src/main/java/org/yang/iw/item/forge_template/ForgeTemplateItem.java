@@ -152,12 +152,20 @@ public abstract class ForgeTemplateItem extends Item
 			{
 				var component = stack.getOrDefault(IWComponents.MATERIAL_PACKET, MaterialPacketComponent.DEFAULT);
 				MaterialVEntry entry = component.provideMaterial();
+				MaterialVEntry overlay = component.provideMaterial(true);
 				if (entry == null)
 				{
-					handler.setForgeFailSlot(i + 3);
-					return Either.right(ForgeFailMessage.NEED_MATERIAL);
+					if (overlay == null)
+					{
+						handler.setForgeFailSlot(i + 3);
+						return Either.right(ForgeFailMessage.NEED_MATERIAL);
+					}
+					else
+					{
+						handler.setForgeFailSlot(i + 3);
+						return Either.right(ForgeFailMessage.REFUSE_OVERLAY_ALONE);
+					}
 				}
-				MaterialVEntry overlay = component.provideMaterial(true);
 				if (overlay == null)
 				{
 					ToolPart part = ((CommonToolMaterial) entry.material()).toolPart(toolParts[i]);
